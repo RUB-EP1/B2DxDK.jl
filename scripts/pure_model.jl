@@ -45,15 +45,16 @@ function BreitWignerSDwaves(; m, Γ, γS, d)
     MultichannelBreitWigner(; m, channels)
 end
 
-begin #
-    @with_kw struct NRexp <: HadronicLineshapes.AbstractFlexFunc
-        αβ::ComplexF64
-        m0::Float64
-    end
-    (f::NRexp)(σ::Float64) = exp(f.αβ * (σ - f.m0^2))
-    # 
-    const ConstantLineshape = WrapFlexFunction(x -> 1.0)
+const EFF = BreitWigner(3.85, 0.001);
+
+@with_kw struct NRexp <: HadronicLineshapes.AbstractFlexFunc
+    αβ::ComplexF64
+    m0::Float64
 end
+(f::NRexp)(σ::Float64) = exp(f.αβ * (σ - f.m0^2))
+#
+struct ConstantLineshape <: HadronicLineshapes.AbstractFlexFunc end
+(f::ConstantLineshape)(σ::Float64) = 1.0
 
 
 
@@ -227,10 +228,10 @@ resonances =
         (; jp=jp"0+", name="Tcs0(2870)", lineshape=BW_Tcs0),
         (; jp=jp"1-", name="Tcs1(2900)", lineshape=BW_Tcs1),
         # NR
-        (; jp=jp"1-", name="NR(1--)", lineshape=ConstantLineshape),
-        (; jp=jp"0-", name="NR(0--)", lineshape=ConstantLineshape),
-        (; jp=jp"1+", name="NR(1++)", lineshape=ConstantLineshape),
-        (; jp=jp"0-", name="NR(0-+)", lineshape=NRexp(αβ=0.11 - 0.34im, m0=4.35)),
+        (; jp = jp"1-", name = "NR(1--)", lineshape = ConstantLineshape()),
+        (; jp = jp"0-", name = "NR(0--)", lineshape = ConstantLineshape()),
+        (; jp = jp"1+", name = "NR(1++)", lineshape = ConstantLineshape()),
+        (; jp = jp"0-", name = "NR(0-+)", lineshape = NRexp(αβ = 0.11 - 0.34im, m0 = 4.35)),
     ] |> DataFrame
 # 
 decay_chains = [
@@ -329,6 +330,27 @@ chain_amps = [
     end
     for (i, name) in enumerate(model_pure.names)
 ]
+
+Random.seed!(1234)
+σs0 = randomPoint(masses(model_pure))
+test_point = DalitzAndDecay(σs0, 0.3, 0.2)
+amplitude(model_pure, test_point)
+
+
+
+# number of chains
+length(model_pure.names)
+
+println("## Names of the chains")
+for (i, name) in enumerate(model_pure.names)
+    println("$i. $name")
+end
+
+
+# calling amplitude on one chain only
+
+model_with_one_chain = model_pure[3]
+amplitude(model_with_one_chain, test_point)
 
 df_chain_amps = DataFrame(chain_amps)
 
