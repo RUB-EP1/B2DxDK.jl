@@ -3,3 +3,4 @@ venv
 amplitudes.txt
 
 Analysis/__pycache__
+notebooks/README_files/*

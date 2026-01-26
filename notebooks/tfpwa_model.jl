@@ -187,7 +187,7 @@ cascade_B_ψK_DxD_Dπ = let
 	# 
 	ch_B = TwoBodyDecay(tbs_B, BW_FF(1,1,d0))
 	ch_ψ = TwoBodyDecay(tbs_ψ, BW_FF(1,1,d0))
-	ch_Dx = TwoBodyDecay(tbs_Dx, BW_FF(1,0,d0))
+	ch_Dx = TwoBodyDecay(tbs_Dx, VertexFunction(RecouplingLS((2,0))))
 	# 
 	SimpleCascade(ch_B, ch_ψ, ch_Dx)
 end
