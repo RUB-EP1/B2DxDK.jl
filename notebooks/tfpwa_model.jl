@@ -155,7 +155,7 @@ program = (
 	MeasureInvariant(:mψsq, (1,2,3)),
 	MeasureInvariant(:mDxsq, (1,2)),
 	# 
-    ToHelicityFrame((1, 2, 3, 4)),
+    # ToHelicityFrame((1, 2, 3, 4)),
 	MeasureCosThetaPhi(:vars_B, (1,2,3)),
 	# 
     ToHelicityFrame((1, 2, 3)),
@@ -170,6 +170,21 @@ program = (
 possible_ls(jp"1-",jp"0-"; jp=jp"0-") |> first,
 possible_ls(jp"1-",jp"0-"; jp=jp"1-") |> first,
 possible_ls(jp"0-",jp"0-"; jp=jp"1-") |> first
+
+# ╔═╡ 4089b1df-ccfe-459a-8e5a-2bd1866fe068
+md"""
+### Lineshape
+"""
+
+# ╔═╡ 2512f1fa-d934-4c4f-90d2-38ffb2d49cc6
+md"""
+from [final_params.json](https://github.com/mmikhasenko/B2DxDK.jl/blob/main/data/final_params.json)
+
+```
+    "Psi(4040)_mass": 4.039,
+    "Psi(4040)_width": 0.08,
+```
+"""
 
 # ╔═╡ 2e2238d9-5155-488e-befc-28df85fad85b
 md"""
@@ -219,18 +234,26 @@ begin
 	end
 	SphericalAngles(nt::NamedTuple) = SphericalAngles(; nt.cosθ,nt.ϕ)
 	function ThreeBodyDecays.amplitude(
-		ch::TwoBodyDecay, angles::SphericalAngles, two_λs::TwoBodySpins)
+		ch::TwoBodyDecay, angles::SphericalAngles, two_λs::TwoBodySpins;
+		verbose=false)
+		
+		verbose && println("=====\nangles:", angles,"\ntwo_λs:", two_λs)
 		(; vf, tbs) = ch
 		(; ms, two_js) = tbs
-		_rec = amplitude(vf.h, two_λs, two_js)
+		_recoupling = amplitude(vf.h, two_λs, two_js)
+		verbose && @show _recoupling
 		(; m0, m1, m2) = tbs.ms
 		_ff = vf.ff(m0^2, m1^2, m2^2)
+		p = HadronicLineshapes.breakup(m0, m1, m2)
+		verbose && @show _ff
+		verbose && @show p
 		two_j0 = two_js.two_h0
 		two_λ0 = two_λs.two_h0
 		two_Δλ = two_λs.two_h1-two_λs.two_h2
 		(; ϕ, cosθ) = angles
 		D_conj = wignerD_doublearg(two_j0, two_λ0, two_Δλ, ϕ, cosθ, 0) |> conj
-		return sqrt(two_j0+1)*D_conj * _rec
+		verbose && @show D_conj
+		return D_conj * _recoupling * _ff # * sqrt(two_j0+1)*
 	end
 	# 
 	struct SimpleCascade{C1,C2,C3}
@@ -270,8 +293,23 @@ end;
 # ╔═╡ 5875e393-3faf-48ed-9e65-160805f993ab
 _, results = apply_decay_instruction(program, objs);
 
-# ╔═╡ 08993713-7ad1-460c-a63a-de575583aa35
+# ╔═╡ 90cd53d8-221f-486b-9379-6534775f7b2f
 results
+
+# ╔═╡ ca7fd3eb-df12-4727-a2f3-c2665ccf3a72
+bw4040 = let
+	mΨ4040 = 4.039
+	ΓΨ4040 = 0.08
+	mDx = sqrt(results.mDxsq)
+	mD = sqrt(results.m3sq)
+	HadronicLineshapes.BreitWigner(mΨ4040,ΓΨ4040, mDx, mD, 1, 3.0)
+end
+
+# ╔═╡ 74497872-74a2-41e0-bef2-55f9093969bd
+let
+	# Ref: -0.26369565350533064+0.051679259589068605j
+	bw4040(results.mψsq)
+end
 
 # ╔═╡ c8048bdf-ee1d-4b24-8c5a-20e776f43490
 cascade_B_ψK_DxD_Dπ = let
@@ -297,12 +335,47 @@ cascade_B_ψK_DxD_Dπ = let
 	SimpleCascade(ch_B, ch_ψ, ch_Dx)
 end
 
+# ╔═╡ ce494e83-8892-4aac-bfd3-fa53ab10ebe5
+let
+	mΨ4040 = 4.039
+	# 
+	ch = cascade_B_ψK_DxD_Dπ.ch1
+	(; vf, tbs) = ch
+	(; ms, two_js) = tbs
+	(; m0, m1, m2) = tbs.ms
+	_ff = vf.ff(m0^2, m1^2, m2^2)
+	p = HadronicLineshapes.breakup(m0, m1, m2)
+	p0 = HadronicLineshapes.breakup(m0, mΨ4040, m2)
+	#
+	d = 3
+	_ff_over_ff0 = BlattWeisskopf{1}(d)(p)/BlattWeisskopf{1}(d)(p0)
+	(; _ff_over_ff0, p, p0)
+end
+
+# ╔═╡ 4fe8bebe-b19f-483c-b751-2a440a77196b
+let
+	mΨ4040 = 4.039
+	# 
+	ch = cascade_B_ψK_DxD_Dπ.ch2
+	(; vf, tbs) = ch
+	(; ms, two_js) = tbs
+	(; m0, m1, m2) = tbs.ms
+	_ff = vf.ff(m0^2, m1^2, m2^2)
+	p = HadronicLineshapes.breakup(m0, m1, m2)
+	p0 = HadronicLineshapes.breakup(mΨ4040, m1, m2)
+	#
+	d = 3
+	_ff_over_ff0 = BlattWeisskopf{1}(d)(p)/BlattWeisskopf{1}(d)(p0)
+	(; _ff_over_ff0, p, p0)
+end
+
 # ╔═╡ 11b1b12f-b653-4763-b6d8-ca1a60e996ca
 Ωs = (SphericalAngles(results.vars_B),
 	 SphericalAngles(results.vars_ψ),
 	 SphericalAngles(results.vars_Dx));
 
 # ╔═╡ 46065443-dc62-47a1-b65a-4287554bd4d0
+# ╠═╡ show_logs = false
 amplitude(cascade_B_ψK_DxD_Dπ, Ωs)
 
 # ╔═╡ Cell order:
@@ -311,10 +384,16 @@ amplitude(cascade_B_ψK_DxD_Dπ, Ωs)
 # ╠═bc772bda-5498-4fe4-8c67-d6bb330be5b5
 # ╠═38d52789-aac6-4db3-831a-90c39881660e
 # ╠═5875e393-3faf-48ed-9e65-160805f993ab
-# ╠═08993713-7ad1-460c-a63a-de575583aa35
+# ╠═90cd53d8-221f-486b-9379-6534775f7b2f
 # ╠═c8048bdf-ee1d-4b24-8c5a-20e776f43490
 # ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
 # ╠═46065443-dc62-47a1-b65a-4287554bd4d0
+# ╟─4089b1df-ccfe-459a-8e5a-2bd1866fe068
+# ╟─2512f1fa-d934-4c4f-90d2-38ffb2d49cc6
+# ╠═ca7fd3eb-df12-4727-a2f3-c2665ccf3a72
+# ╠═74497872-74a2-41e0-bef2-55f9093969bd
+# ╠═ce494e83-8892-4aac-bfd3-fa53ab10ebe5
+# ╠═4fe8bebe-b19f-483c-b751-2a440a77196b
 # ╟─2e2238d9-5155-488e-befc-28df85fad85b
 # ╠═250d34e5-3f9c-428b-91aa-ec0d85206b54
