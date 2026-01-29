@@ -171,11 +171,6 @@ possible_ls(jp"1-",jp"0-"; jp=jp"0-") |> first,
 possible_ls(jp"1-",jp"0-"; jp=jp"1-") |> first,
 possible_ls(jp"0-",jp"0-"; jp=jp"1-") |> first
 
-# ╔═╡ b6ceae0b-e476-48fc-815d-5e1d9f7696b0
-md"""
-## Debugging
-"""
-
 # ╔═╡ 4089b1df-ccfe-459a-8e5a-2bd1866fe068
 md"""
 ### Lineshape
@@ -383,19 +378,6 @@ end
 # ╠═╡ show_logs = false
 amplitude(cascade_B_ψK_DxD_Dπ, Ωs)
 
-# ╔═╡ 8261b925-22c7-4c86-985d-f652270a611d
-[ThreeBodyDecays.amplitude(cascade_B_ψK_DxD_Dπ.ch1, Ωs[1], TwoBodySpins(λ,0;h0=0); verbose=true)
-for λ in -1:1];
-
-# ╔═╡ 470517f4-04ff-48aa-946c-5b2cd29d05bc
-[ThreeBodyDecays.amplitude(cascade_B_ψK_DxD_Dπ.ch2, Ωs[2], TwoBodySpins(λ,0;h0=λ0); verbose=true)
-for λ in -1:1, λ0 in -1:1];
-
-# ╔═╡ 1287177a-42bb-4cb6-922c-4d41a495f52e
-[ThreeBodyDecays.amplitude(
-	cascade_B_ψK_DxD_Dπ.ch3, Ωs[3], TwoBodySpins(0,0;h0=λ); verbose=true)
-for λ in -1:1];
-
 # ╔═╡ Cell order:
 # ╟─f15f6b55-11a4-4b95-9c65-dd324925592e
 # ╠═db4f869a-fac9-11f0-313e-7b298f5edaf2
@@ -407,10 +389,6 @@ for λ in -1:1];
 # ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
 # ╠═46065443-dc62-47a1-b65a-4287554bd4d0
-# ╟─b6ceae0b-e476-48fc-815d-5e1d9f7696b0
-# ╠═8261b925-22c7-4c86-985d-f652270a611d
-# ╠═470517f4-04ff-48aa-946c-5b2cd29d05bc
-# ╠═1287177a-42bb-4cb6-922c-4d41a495f52e
 # ╟─4089b1df-ccfe-459a-8e5a-2bd1866fe068
 # ╟─2512f1fa-d934-4c4f-90d2-38ffb2d49cc6
 # ╠═ca7fd3eb-df12-4727-a2f3-c2665ccf3a72
