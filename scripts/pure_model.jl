@@ -142,7 +142,7 @@ config = YAML.load_file(joinpath(@__DIR__, "..", "data", "config_c.yml"))
 
 begin
     const mB = config["particle"]["\$top"]["Bp"]["mass"]
-    const mD0 = config["particle"]["\$finals"]["D0"]["mass"]
+    # const mD0 = config["particle"]["\$finals"]["D0"]["mass"]
     const mD = config["particle"]["\$finals"]["D"]["mass"]
     const mDx = config["particle"]["Dst"]["mass"]
     const mK = config["particle"]["\$finals"]["K"]["mass"]
@@ -163,9 +163,9 @@ const standard_d = 3.0;
 const EFF = BreitWigner(3.85, 0.001);
 
 BW_4040 = let
-    m_Ψ_4040 = params["Psi(4040)_mass"]
-    Γ_Ψ_4040 = params["Psi(4040)_width"]
-    BreitWigner(m_Ψ_4040, Γ_Ψ_4040, mDx, mD, 1, standard_d)
+    m = params["Psi(4040)_mass"]
+    Γ = params["Psi(4040)_width"]
+    BreitWigner(m, Γ, mDx, mD, 1, standard_d)
 end
 
 BW_4000 = let
