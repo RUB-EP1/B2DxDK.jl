@@ -171,24 +171,61 @@ possible_ls(jp"1-",jp"0-"; jp=jp"0-") |> first,
 possible_ls(jp"1-",jp"0-"; jp=jp"1-") |> first,
 possible_ls(jp"0-",jp"0-"; jp=jp"1-") |> first
 
-# ╔═╡ 4089b1df-ccfe-459a-8e5a-2bd1866fe068
+# ╔═╡ 6d4ace44-4e8a-4fff-a969-a907ce47175b
 md"""
-### Lineshape
+### Three-Body Decays
 """
 
-# ╔═╡ 2512f1fa-d934-4c4f-90d2-38ffb2d49cc6
+# ╔═╡ 8a77defd-a7cf-431a-b66f-6fdb4c28f3f7
 md"""
-from [final_params.json](https://github.com/mmikhasenko/B2DxDK.jl/blob/main/data/final_params.json)
-
-```
-    "Psi(4040)_mass": 4.039,
-    "Psi(4040)_width": 0.08,
-```
+## Implementation 3b
 """
+
+# ╔═╡ f77b192b-23b4-4f74-87c9-b3d927b0d8d6
+begin
+	struct DalitzAndDecay{T}
+	    σs::MandelstamTuple{T}
+	    cosθ::T
+	    ϕ::T
+	end
+	
+	function ThreeBodyDecays.amplitude(model::Union{ThreeBodyDecay, DecayChain}, dd::DalitzAndDecay; refζs)
+	    (; σs, cosθ, ϕ) = dd
+	    jDx = 1
+	    _O = amplitude(model, σs; refζs) # order: -1,0,1
+	    _Dh = [
+			wignerD(jDx, λ, 0, ϕ, cosθ, 0.0)
+			for λ in -1:1] .|> conj # order: -1,0,1
+		# improve agreement to 1e-3
+		# _Dh = [
+		# 	amplitude(cascade_B_ψK_DxD_Dπ.ch3, Ωs[3], TwoBodySpins(0,0;h0=λ))
+		# 	for λ in -1:1]
+	    total_amp = sum(reshape(_O, 3) .* _Dh)
+	    return total_amp
+	end
+end
+
+# ╔═╡ 13feffb0-b4dd-439b-83c0-763b319b6f20
+dalitz_dpd = let
+	json_path = joinpath(@__DIR__, "..", "data", "crosscheck_event.json")
+	event = JSON.parsefile(json_path)
+	dpd = event["dpd_kinematics"]
+
+	σs_dpd = (
+	    σ1 = dpd["msq_DK"],   # m²(D, K)   → pair (2,3)
+	    σ2 = dpd["msq_KDx"],  # m²(K, Dx)  → pair (3,1)
+	    σ3 = dpd["msq_DxD"],  # m²(D, Dx)  → pair (1,2)
+	)
+	DalitzAndDecay(
+	    σs_dpd,
+	    dpd["cos_theta_D_in_Dx"],  # Ωs[3].cosθ,
+	    dpd["phi_D_in_Dx"],        # Ωs[3].ϕ,
+	)
+end
 
 # ╔═╡ 2e2238d9-5155-488e-befc-28df85fad85b
 md"""
-## Implementation
+## Implementation of 2b
 """
 
 # ╔═╡ 250d34e5-3f9c-428b-91aa-ec0d85206b54
@@ -253,7 +290,7 @@ begin
 		(; ϕ, cosθ) = angles
 		D_conj = wignerD_doublearg(two_j0, two_λ0, two_Δλ, ϕ, cosθ, 0) |> conj
 		verbose && @show D_conj
-		return D_conj * _recoupling * _ff # * sqrt(two_j0+1)*
+		return D_conj * _recoupling * _ff
 	end
 	# 
 	struct SimpleCascade{C1,C2,C3}
@@ -296,20 +333,11 @@ _, results = apply_decay_instruction(program, objs);
 # ╔═╡ 90cd53d8-221f-486b-9379-6534775f7b2f
 results
 
-# ╔═╡ ca7fd3eb-df12-4727-a2f3-c2665ccf3a72
-bw4040 = let
-	mΨ4040 = 4.039
-	ΓΨ4040 = 0.08
-	mDx = sqrt(results.mDxsq)
-	mD = sqrt(results.m3sq)
-	HadronicLineshapes.BreitWigner(mΨ4040,ΓΨ4040, mDx, mD, 1, 3.0)
-end
-
-# ╔═╡ 74497872-74a2-41e0-bef2-55f9093969bd
-let
-	# Ref: -0.26369565350533064+0.051679259589068605j
-	bw4040(results.mψsq)
-end
+# ╔═╡ ec3c532b-7515-452b-b6ca-6b8564c108bb
+@assert dalitz_dpd.σs == Invariants(
+	σ1 = mass2(objs[4]+objs[3]),
+	σ2 = mass2(objs[4]+objs[1]+objs[2]),
+	σ3 = mass2(objs[1]+objs[2]+objs[3]))
 
 # ╔═╡ c8048bdf-ee1d-4b24-8c5a-20e776f43490
 cascade_B_ψK_DxD_Dπ = let
@@ -335,38 +363,27 @@ cascade_B_ψK_DxD_Dπ = let
 	SimpleCascade(ch_B, ch_ψ, ch_Dx)
 end
 
-# ╔═╡ ce494e83-8892-4aac-bfd3-fa53ab10ebe5
-let
-	mΨ4040 = 4.039
-	# 
-	ch = cascade_B_ψK_DxD_Dπ.ch1
-	(; vf, tbs) = ch
-	(; ms, two_js) = tbs
-	(; m0, m1, m2) = tbs.ms
-	_ff = vf.ff(m0^2, m1^2, m2^2)
-	p = HadronicLineshapes.breakup(m0, m1, m2)
-	p0 = HadronicLineshapes.breakup(m0, mΨ4040, m2)
-	#
-	d = 3
-	_ff_over_ff0 = BlattWeisskopf{1}(d)(p)/BlattWeisskopf{1}(d)(p0)
-	(; _ff_over_ff0, p, p0)
-end
-
-# ╔═╡ 4fe8bebe-b19f-483c-b751-2a440a77196b
-let
-	mΨ4040 = 4.039
-	# 
-	ch = cascade_B_ψK_DxD_Dπ.ch2
-	(; vf, tbs) = ch
-	(; ms, two_js) = tbs
-	(; m0, m1, m2) = tbs.ms
-	_ff = vf.ff(m0^2, m1^2, m2^2)
-	p = HadronicLineshapes.breakup(m0, m1, m2)
-	p0 = HadronicLineshapes.breakup(mΨ4040, m1, m2)
-	#
-	d = 3
-	_ff_over_ff0 = BlattWeisskopf{1}(d)(p)/BlattWeisskopf{1}(d)(p0)
-	(; _ff_over_ff0, p, p0)
+# ╔═╡ c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
+ch_3b = let
+	mA = results.m1sq |> sqrt
+	mB = results.m1sq |> sqrt
+	m1 = results.mDxsq |> sqrt
+	m2 = results.m3sq |> sqrt
+	m3 = results.m4sq |> sqrt
+	m0 = results.mBsq |> sqrt
+	tbs = ThreeBodySystem(
+		ThreeBodyMasses(m1,m2,m3; m0),
+		ThreeBodySpins(1,0,0; h0=0)
+	)
+	d = 3.0;
+	DecayChain(;
+		k=3,
+		two_j=2,
+		Xlineshape=x->1,
+		HRk = cascade_B_ψK_DxD_Dπ.ch1.vf, #VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
+		Hij = cascade_B_ψK_DxD_Dπ.ch1.vf, #VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
+		tbs
+	)
 end
 
 # ╔═╡ 11b1b12f-b653-4763-b6d8-ca1a60e996ca
@@ -374,9 +391,19 @@ end
 	 SphericalAngles(results.vars_ψ),
 	 SphericalAngles(results.vars_Dx));
 
-# ╔═╡ 46065443-dc62-47a1-b65a-4287554bd4d0
-# ╠═╡ show_logs = false
-amplitude(cascade_B_ψK_DxD_Dπ, Ωs)
+# ╔═╡ c6b7aa4e-5037-48dd-8678-dd97063b336a
+begin
+	ms = ch_3b.tbs.ms
+	σs = dalitz_dpd.σs
+	cosθ12(σs, ms^2)-Ωs[2].cosθ
+end
+
+# ╔═╡ 651a5159-90cc-470a-a057-74d36abaa177
+begin
+	DPD = amplitude(ch_3b, dalitz_dpd; refζs=(3,3,3,3))
+	DDD = amplitude(cascade_B_ψK_DxD_Dπ, Ωs) * sqrt(3)
+	DDD, DPD
+end
 
 # ╔═╡ Cell order:
 # ╟─f15f6b55-11a4-4b95-9c65-dd324925592e
@@ -388,12 +415,13 @@ amplitude(cascade_B_ψK_DxD_Dπ, Ωs)
 # ╠═c8048bdf-ee1d-4b24-8c5a-20e776f43490
 # ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
-# ╠═46065443-dc62-47a1-b65a-4287554bd4d0
-# ╟─4089b1df-ccfe-459a-8e5a-2bd1866fe068
-# ╟─2512f1fa-d934-4c4f-90d2-38ffb2d49cc6
-# ╠═ca7fd3eb-df12-4727-a2f3-c2665ccf3a72
-# ╠═74497872-74a2-41e0-bef2-55f9093969bd
-# ╠═ce494e83-8892-4aac-bfd3-fa53ab10ebe5
-# ╠═4fe8bebe-b19f-483c-b751-2a440a77196b
+# ╟─6d4ace44-4e8a-4fff-a969-a907ce47175b
+# ╠═c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
+# ╠═651a5159-90cc-470a-a057-74d36abaa177
+# ╠═c6b7aa4e-5037-48dd-8678-dd97063b336a
+# ╠═13feffb0-b4dd-439b-83c0-763b319b6f20
+# ╠═ec3c532b-7515-452b-b6ca-6b8564c108bb
+# ╟─8a77defd-a7cf-431a-b66f-6fdb4c28f3f7
+# ╠═f77b192b-23b4-4f74-87c9-b3d927b0d8d6
 # ╟─2e2238d9-5155-488e-befc-28df85fad85b
 # ╠═250d34e5-3f9c-428b-91aa-ec0d85206b54
