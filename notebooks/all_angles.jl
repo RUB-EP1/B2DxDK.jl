@@ -84,11 +84,11 @@ _, results_minus_K = apply_decay_instruction(program_minus_K, objs);
 _, results_minus_D = apply_decay_instruction(program_minus_D, objs);
 _, results_minus_Dx = apply_decay_instruction(program_minus_Dx, objs);
 
-println(comment_minus_K)
+println("COMMENT: ", comment_minus_K)
 @show results_minus_K
 
-println(comment_minus_D)
+println("COMMENT: ", comment_minus_D)
 @show results_minus_D
 
-println(comment_minus_Dx)
+println("COMMENT: ", comment_minus_Dx)
 @show results_minus_Dx

@@ -17,8 +17,10 @@ begin
 		Pkg.PackageSpec("PartialWaveFunctions")
 		Pkg.PackageSpec("HadronicLineshapes")
 		Pkg.PackageSpec("JSON")
+		Pkg.PackageSpec("YAML")
 	])
 	# 
+	using YAML
 	using JSON
 	using Plots
 	using FourVectors
@@ -164,6 +166,9 @@ program = (
     ToHelicityFrame((1, 2)),
 	MeasureCosThetaPhi(:vars_Dx, (1))
 );
+
+# ╔═╡ 3a0d88ba-27dd-4407-965f-9303efc0cd4f
+
 
 # ╔═╡ 6dfdafb7-5da0-4b82-a701-307116a1d453
 # cross check (two_l,two_s)
@@ -333,6 +338,29 @@ _, results = apply_decay_instruction(program, objs);
 # ╔═╡ 90cd53d8-221f-486b-9379-6534775f7b2f
 results
 
+# ╔═╡ c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
+ch_3b = let
+	mA = results.m1sq |> sqrt
+	mB = results.m1sq |> sqrt
+	m1 = results.mDxsq |> sqrt
+	m2 = results.m3sq |> sqrt
+	m3 = results.m4sq |> sqrt
+	m0 = results.mBsq |> sqrt
+	tbs = ThreeBodySystem(
+		ThreeBodyMasses(m1,m2,m3; m0),
+		ThreeBodySpins(1,0,0; h0=0)
+	)
+	d = 3.0;
+	DecayChain(;
+		k=3,
+		two_j=2,
+		Xlineshape=x->1,
+		HRk = VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
+		Hij = VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
+		tbs
+	)
+end
+
 # ╔═╡ ec3c532b-7515-452b-b6ca-6b8564c108bb
 @assert dalitz_dpd.σs == Invariants(
 	σ1 = mass2(objs[4]+objs[3]),
@@ -363,29 +391,6 @@ cascade_B_ψK_DxD_Dπ = let
 	SimpleCascade(ch_B, ch_ψ, ch_Dx)
 end
 
-# ╔═╡ c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
-ch_3b = let
-	mA = results.m1sq |> sqrt
-	mB = results.m1sq |> sqrt
-	m1 = results.mDxsq |> sqrt
-	m2 = results.m3sq |> sqrt
-	m3 = results.m4sq |> sqrt
-	m0 = results.mBsq |> sqrt
-	tbs = ThreeBodySystem(
-		ThreeBodyMasses(m1,m2,m3; m0),
-		ThreeBodySpins(1,0,0; h0=0)
-	)
-	d = 3.0;
-	DecayChain(;
-		k=3,
-		two_j=2,
-		Xlineshape=x->1,
-		HRk = cascade_B_ψK_DxD_Dπ.ch1.vf, #VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
-		Hij = cascade_B_ψK_DxD_Dπ.ch1.vf, #VertexFunction(RecouplingLS((2,2)), BlattWeisskopf{1}(d)),
-		tbs
-	)
-end
-
 # ╔═╡ 11b1b12f-b653-4763-b6d8-ca1a60e996ca
 Ωs = (SphericalAngles(results.vars_B),
 	 SphericalAngles(results.vars_ψ),
@@ -400,10 +405,13 @@ end
 
 # ╔═╡ 651a5159-90cc-470a-a057-74d36abaa177
 begin
-	DPD = amplitude(ch_3b, dalitz_dpd; refζs=(3,3,3,3))
+	DPD = amplitude(ch_3b, dalitz_dpd; refζs=(1,1,1,1))
 	DDD = amplitude(cascade_B_ψK_DxD_Dπ, Ωs) * sqrt(3)
 	DDD, DPD
 end
+
+# ╔═╡ d0360607-8df6-41d9-9fa2-2836da378708
+amplitude(ch_3b, dalitz_dpd.σs; refζs=(1,1,1,1))
 
 # ╔═╡ Cell order:
 # ╟─f15f6b55-11a4-4b95-9c65-dd324925592e
@@ -412,12 +420,14 @@ end
 # ╠═38d52789-aac6-4db3-831a-90c39881660e
 # ╠═5875e393-3faf-48ed-9e65-160805f993ab
 # ╠═90cd53d8-221f-486b-9379-6534775f7b2f
+# ╠═3a0d88ba-27dd-4407-965f-9303efc0cd4f
 # ╠═c8048bdf-ee1d-4b24-8c5a-20e776f43490
 # ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
 # ╟─6d4ace44-4e8a-4fff-a969-a907ce47175b
 # ╠═c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
 # ╠═651a5159-90cc-470a-a057-74d36abaa177
+# ╠═d0360607-8df6-41d9-9fa2-2836da378708
 # ╠═c6b7aa4e-5037-48dd-8678-dd97063b336a
 # ╠═13feffb0-b4dd-439b-83c0-763b319b6f20
 # ╠═ec3c532b-7515-452b-b6ca-6b8564c108bb

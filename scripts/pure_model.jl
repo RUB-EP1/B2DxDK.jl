@@ -1,3 +1,5 @@
+# Numbering: mD, mK, mDx as 1,2,3
+# It is circular permutation of Dx D K
 
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
@@ -16,12 +18,12 @@ using DataFrames
 using QuadGK
 using Plots
 using YAML
+using JSON
 # 
 using Random
 Random.seed!(1234)
 
-
-
+theme(:boxed)
 
 
 # ==================================================================
@@ -56,18 +58,16 @@ end
 
 
 
-
-
 # matching factors
 
 function nominal_mass(any, m_min, m_max)
-    @warn "Type is not recognized return middle of phsp!"
+    @warn "Type is not recognized return middle of phsp!\n Type: $(typeof(any)) -- Not BreitWigner, not MultichannelBreitWigner"
     return (m_max + m_min) / 2
 end
 function nominal_mass(X::BW, m_min, m_max) where BW<:Union{BreitWigner,MultichannelBreitWigner}
     mR = X.m
     m_min < mR < m_max && return mR
-    @warn "mR is beyond phase space"
+    @warn "mR is beyond phase space, mR = $(round(mR; digits=2)), not in $(round.((m_min, m_max); digits=2))"
     return (m_max + m_min) / 2
 end
 
@@ -93,8 +93,8 @@ function matching_factor(ch::DecayChain)
     _ff_Rk_0 = HRk.ff(ms²[4], mR^2, ms²[k])
     _ff_ij_0 = Hij.ff(mR^2, ms²[i], ms²[j])
     # _fX = matching_factor(Xlineshape)
-    _fVRk = _ff_Rk_0 * matching_factor(HRk)
-    _fVij = _ff_ij_0 * matching_factor(Hij)
+    _fVRk = _ff_Rk_0 * (HRk.h.two_ls[1] != 0 ? matching_factor(HRk) : 1.0)
+    _fVij = _ff_ij_0 * (HRk.h.two_ls[1] != 0 ? matching_factor(Hij) : 1.0)
 
     return 1 / sqrt(two_j + 1) * _fVRk * _fVij
 end
@@ -110,11 +110,11 @@ struct DalitzAndDecay{T}
     ϕ::T
 end
 
-function ThreeBodyDecays.amplitude(three_body_model::ThreeBodyDecay, dd::DalitzAndDecay)
+function ThreeBodyDecays.amplitude(three_body_model::ThreeBodyDecay, dd::DalitzAndDecay; refζs=(1, 1, 2, 1)) # default value for refζs -- how Dx helicity frame angles are computed
     @unpack σs, cosθ, ϕ = dd
     total_amp = 0.0
     jDx = 1
-    _O = amplitude(three_body_model, σs) # order: -1,0,1
+    _O = amplitude(three_body_model, σs; refζs) # order: -1,0,1
     _D = [wignerD(jDx, λ, 0, ϕ, cosθ, 0.0) for λ in -1:1] .|> conj # order: -1,0,1
     total_amp = sum(reshape(_O, 3) .* _D)
     return total_amp
@@ -312,7 +312,11 @@ dalitz_dpd = let
     )
 end
 
-full_amplitude = amplitude(model_pure, dalitz_dpd)
+full_amplitude = amplitude(model_pure, dalitz_dpd; refζs=(1, 1, 2, 2))
+
+amplitude(model_pure[9], dalitz_dpd; refζs=(1, 1, 2, 1))
+
+
 
 println("## Amplitude at DPD cross-check event")
 println("DalitzAndDecay = ", dalitz_dpd)
