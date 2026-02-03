@@ -218,7 +218,7 @@ resonances =
         (; jp=jp"2+", name="χc2(3930)", lineshape=BW_χ2_3930),
         (; jp=jp"1+", name="hc(4000)", lineshape=BW_4000),
         (; jp=jp"1+", name="χc1(4010)", lineshape=BW_4010),
-        (; jp=jp"1-", name="ψ(4040)", lineshape=x -> 1), #BW_4040
+        (; jp=jp"1-", name="ψ(4040)", lineshape=BW_4040), #BW_4040
         (; jp=jp"1+", name="hc(4300)", lineshape=BW_4300),
         # Tcbarsbar
         (; jp=jp"0+", name="Tcs0(2870)", lineshape=BW_Tcs0),
@@ -312,10 +312,7 @@ dalitz_dpd = let
     )
 end
 
-full_amplitude = amplitude(model_pure, dalitz_dpd; refζs=(1, 1, 2, 2))
-
-amplitude(model_pure[9], dalitz_dpd; refζs=(1, 1, 2, 1))
-
+full_amplitude = amplitude(model_pure[9], dalitz_dpd; refζs=(1, 1, 2, 2))
 
 
 println("## Amplitude at DPD cross-check event")
@@ -343,4 +340,4 @@ end => :matching_factor)
 
 transform!(df_chain_amps, [:amplitude, :matching_factor] => ByRow() do a, m
     a * m
-end => :A_x_m)
+end => :A_x_m) |> print
