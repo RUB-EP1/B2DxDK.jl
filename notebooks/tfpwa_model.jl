@@ -168,12 +168,6 @@ program = (
     MeasureCosThetaPhi(:vars_Dx, (1))
 );
 
-# ╔═╡ 6dfdafb7-5da0-4b82-a701-307116a1d453
-# cross check (two_l,two_s)
-possible_ls(jp"1-", jp"0-"; jp=jp"0-") |> first,
-possible_ls(jp"1-", jp"0-"; jp=jp"1-") |> first,
-possible_ls(jp"0-", jp"0-"; jp=jp"1-") |> first
-
 # ╔═╡ 6d4ace44-4e8a-4fff-a969-a907ce47175b
 md"""
 ### Three-Body Decays
@@ -199,10 +193,6 @@ begin
         _Dh = [
             wignerD(jDx, λ, 0, ϕ, cosθ, 0.0)
             for λ in -1:1] .|> conj # order: -1,0,1
-        # improve agreement to 1e-3
-        # _Dh = [
-        # 	amplitude(cascade_B_ψK_DxD_Dπ.ch3, Ωs[3], TwoBodySpins(0,0;h0=λ))
-        # 	for λ in -1:1]
         total_amp = sum(reshape(_O, 3) .* _Dh)
         return total_amp
     end
@@ -283,11 +273,11 @@ begin
         ch2::C2
         ch3::C3
     end
-    function ThreeBodyDecays.amplitude(c::SimpleCascade, (Ω1, Ω2, Ω3))
+    function ThreeBodyDecays.amplitude(c::SimpleCascade, (Ω1, Ω2, Ω3); verbose=false)
         return sum(
-            amplitude(c.ch1, Ω1, TwoBodySpins(λψ, 0; h0=0)) *
-            amplitude(c.ch2, Ω2, TwoBodySpins(λDx, 0; h0=λψ)) *
-            amplitude(c.ch3, Ω3, TwoBodySpins(0, 0; h0=λDx))
+            amplitude(c.ch1, Ω1, TwoBodySpins(λψ, 0; h0=0); verbose) *
+            amplitude(c.ch2, Ω2, TwoBodySpins(λDx, 0; h0=λψ); verbose) *
+            amplitude(c.ch3, Ω3, TwoBodySpins(0, 0; h0=λDx); verbose)
             for λψ in -1:1, λDx in -1:1)
     end
     # 
@@ -378,22 +368,12 @@ dalitz_dpd = let
     )
 end
 
-# ╔═╡ c6b7aa4e-5037-48dd-8678-dd97063b336a
-begin
-    ms = ch_3b.tbs.ms
-    σs = dalitz_dpd.σs
-    cosθ12(σs, ms^2) - Ωs[2].cosθ
-end
-
 # ╔═╡ 651a5159-90cc-470a-a057-74d36abaa177
 begin
     D_hdh_D = amplitude(ch_3b, dalitz_dpd; refζs=(1, 1, 1, 1))
     Dh_Dh_D = amplitude(cascade_B_ψK_DxD_Dπ, Ωs) * sqrt(3)
     Dh_Dh_D, D_hdh_D
 end
-
-# ╔═╡ d0360607-8df6-41d9-9fa2-2836da378708
-amplitude(ch_3b, dalitz_dpd.σs; refζs=(1, 1, 1, 1))
 
 # ╔═╡ Cell order:
 # ╟─f15f6b55-11a4-4b95-9c65-dd324925592e
@@ -403,13 +383,10 @@ amplitude(ch_3b, dalitz_dpd.σs; refζs=(1, 1, 1, 1))
 # ╠═5875e393-3faf-48ed-9e65-160805f993ab
 # ╠═90cd53d8-221f-486b-9379-6534775f7b2f
 # ╠═c8048bdf-ee1d-4b24-8c5a-20e776f43490
-# ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
 # ╟─6d4ace44-4e8a-4fff-a969-a907ce47175b
 # ╠═c57f9d9b-d0c4-4b69-80f9-24a59bb7b6bb
 # ╠═651a5159-90cc-470a-a057-74d36abaa177
-# ╠═d0360607-8df6-41d9-9fa2-2836da378708
-# ╠═c6b7aa4e-5037-48dd-8678-dd97063b336a
 # ╠═13feffb0-b4dd-439b-83c0-763b319b6f20
 # ╟─8a77defd-a7cf-431a-b66f-6fdb4c28f3f7
 # ╠═f77b192b-23b4-4f74-87c9-b3d927b0d8d6
