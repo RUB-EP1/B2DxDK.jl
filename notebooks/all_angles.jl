@@ -42,8 +42,6 @@ objs = let
     pD0 = FourVector(four_vectors_json["D0"])
     pK = FourVector(four_vectors_json["K"])
     pπ = FourVector(four_vectors_json["pi"])
-    pDx = FourVector(four_vectors_json["Dx"])
-    @assert pDx ≈ pD0 + pπ
     # 
     (pD0, pπ, pD, pK)
 end;

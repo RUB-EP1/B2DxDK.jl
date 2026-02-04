@@ -285,10 +285,7 @@ const model_pure = let
 end;
 
 
-
-
 # testing: use the DPD configuration from data/crosscheck_event.json
-
 
 dalitz_dpd = let
 
@@ -312,7 +309,7 @@ dalitz_dpd = let
     )
 end
 
-full_amplitude = amplitude(model_pure[9], dalitz_dpd; refζs=(1, 1, 2, 2))
+full_amplitude = amplitude(model_pure, dalitz_dpd; refζs=(1, 1, 2, 2))
 
 
 println("## Amplitude at DPD cross-check event")
