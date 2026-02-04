@@ -168,9 +168,6 @@ program = (
     MeasureCosThetaPhi(:vars_Dx, (1))
 );
 
-# ╔═╡ 3a0d88ba-27dd-4407-965f-9303efc0cd4f
-
-
 # ╔═╡ 6dfdafb7-5da0-4b82-a701-307116a1d453
 # cross check (two_l,two_s)
 possible_ls(jp"1-", jp"0-"; jp=jp"0-") |> first,
@@ -405,7 +402,6 @@ amplitude(ch_3b, dalitz_dpd.σs; refζs=(1, 1, 1, 1))
 # ╠═38d52789-aac6-4db3-831a-90c39881660e
 # ╠═5875e393-3faf-48ed-9e65-160805f993ab
 # ╠═90cd53d8-221f-486b-9379-6534775f7b2f
-# ╠═3a0d88ba-27dd-4407-965f-9303efc0cd4f
 # ╠═c8048bdf-ee1d-4b24-8c5a-20e776f43490
 # ╠═6dfdafb7-5da0-4b82-a701-307116a1d453
 # ╠═11b1b12f-b653-4763-b6d8-ca1a60e996ca
