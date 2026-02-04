@@ -29,11 +29,7 @@
     "msq_KDx": 8.62112,
     "msq_DxD": 17.3825,
     "msq_DK": 9.64828,
-    "cos_theta_D_in_Dx": -0.863808416067478,
-    "phi_D_in_Dx": -1.21591983623593
-  },
-  "tf_pwa_kinematics": {
-    "cos_theta_D_in_Dx_from_B": 0.8746538492596707,
-    "phi_D_in_Dx_from_B": -2.84901364039537
+    "cos_theta_D_in_Dx": 0.8746538492596707,
+    "phi_D_in_Dx": -2.84901364039537
   }
 }
