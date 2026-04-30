@@ -105,26 +105,27 @@ deactivate
 The current analysis can be found in `Analysis/Amplitude.ipynb`.
 
 
-## Automation of complex amplitude calculation and comparison
+## Reference files for the isolated `Psi(4040)` amplitude
 
-The simulation-based comparison between `tf_pwa` and the `ThreeBodyDecays` framework has been recreated and extended. All available information on `tf_pwa` (configuration files, GitHub repository, etc.) was linked to a NotebookLM notebook to generate Python code that evaluates complex amplitudes for individual decay chains and LS couplings. The generated Python code and the `pure_model.jl` file were then provided to the Antigravity AI agent (Gemini 3 Pro (High)) to improve the implementation and align the hard-coded parameters in `pure_model.jl` with those in `config_a.yml` and `final_params_full.json` (a renamed but otherwise identical copy of `final_params.json`).
+The repository also contains a small set of focused reference files for the
+isolated `Psi(4040)` complex-amplitude calculation:
 
-The resulting Python and Julia scripts are stored in
-- `Analysis/tf_pwa_analysis_Gemini.py` and
-- `notebook/ThreeBodyDecay_analysis_Gemini.jl`, respectively.
+- `Analysis/psi4040_independent_amplitude_flow.ipynb`
+  - A self-contained Python notebook that reproduces the isolated TF-PWA
+    `Psi(4040)` amplitude step by step, using copied/adapted local functions,
+    the TF-PWA configuration values, and the hardcoded probe four-vectors.
+  - It is intended as the reference execution flow for the `Psi(4040)` test
+    point.
 
-To execute them, set up the environment (Conda or venv, see above) and run the scripts in the following order:
+- `Analysis/psi4040_python_function_formula_map.md`
+  - A function-to-formula map for the isolated Python notebook.
+  - It links the main Python calls to the corresponding mathematical
+    expressions, so the notebook calculation can be followed analytically.
 
-```bash
-# first run the tf_pwa-based analysis
-source venv/bin/activate    # or `conda activate tf-pwa-env` if you used Conda
-cd Analysis
-python tf_pwa_analysis_Gemini.py
-cd ..
-deactivate
-
-# and then run the Julia cross-check
-julia notebooks/ThreeBodyDecay_analysis_Gemini.jl
-```
-
-This will generate (or regenerate) the `amplitudes.txt` file in the `Analysis` directory.
+- `notebooks/cascade_decays_tfpwa_aligned.jl`
+  - A Julia implementation of the same isolated `Psi(4040)` amplitude using
+    only Julia packages, in particular `CascadeDecays.jl`,
+    `ThreeBodyDecays.jl`, `FourVectors.jl`, and `HadronicLineshapes.jl`.
+  - It prints the calculation in a Step 1-7 style comparable to the Python
+    execution-flow notebook and shows the remaining constant normalization
+    mismatch factor between the package-native Julia convention and TF-PWA.
