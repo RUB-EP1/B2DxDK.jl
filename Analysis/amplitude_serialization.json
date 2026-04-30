@@ -1,0 +1,574 @@
+{
+  "kinematics": {
+    "initial_state": {
+      "index": 0,
+      "name": "Bp",
+      "mass": 5.27934,
+      "spin": "0"
+    },
+    "final_state": [
+      {
+        "index": 1,
+        "name": "Dst",
+        "mass": 2.01026,
+        "spin": "1"
+      },
+      {
+        "index": 2,
+        "name": "D",
+        "mass": 1.86965,
+        "spin": "0"
+      },
+      {
+        "index": 3,
+        "name": "K",
+        "mass": 0.493677,
+        "spin": "0"
+      }
+    ]
+  },
+  "reference_topology": [
+    [
+      1,
+      2
+    ],
+    3
+  ],
+  "chains": [
+    {
+      "name": "X(3872)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "X(3872)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_X(3872)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "1.0 + 0.0 i"
+    },
+    {
+      "name": "X(3915)(0-)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "X(3915)(0-)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "0",
+          "parametrization": "BW_X(3915)(0-)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.24791804428488928 + -3.956554321156098 i"
+    },
+    {
+      "name": "chi(c2)(3930)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "chi(c2)(3930)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "2",
+          "parametrization": "BW_chi(c2)(3930)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.15782868607548226 + 4.390570295871437 i"
+    },
+    {
+      "name": "X(3940)(1+)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "X(3940)(1+)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_X(3940)(1+)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "1.0 + 0.0 i"
+    },
+    {
+      "name": "X(3993)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "X(3993)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_X(3993)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.40764625938137483 + 0.47805249499223534 i"
+    },
+    {
+      "name": "Psi(4040)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "Psi(4040)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_Psi(4040)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.24060874339492827 + 1.8333575751420952 i"
+    },
+    {
+      "name": "X(4300)",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "X(4300)",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_X(4300)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.12188415197563676 + 0.3860236797579817 i"
+    },
+    {
+      "name": "NR(0-)SPp",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "NR(0-)SPp",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "0",
+          "parametrization": "BW_NR(0-)SPp"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.3518205841497765 + 2.8199693606594667 i"
+    },
+    {
+      "name": "NR(1+)PSp",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "NR(1+)PSp",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_NR(1+)PSp"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "1.0 + 0.0 i"
+    },
+    {
+      "name": "NR(0-)SPm",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "NR(0-)SPm",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "0",
+          "parametrization": "BW_NR(0-)SPm"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.10014673278615137 + 9.430294833557134 i"
+    },
+    {
+      "name": "NR(1-)PPm",
+      "topology": [
+        [
+          1,
+          2
+        ],
+        3
+      ],
+      "propagators": [
+        {
+          "name": "NR(1-)PPm",
+          "node": [
+            1,
+            2
+          ],
+          "spin": "1",
+          "parametrization": "BW_NR(1-)PPm"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              1,
+              2
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.749176669395348 + 2.771068630414713 i"
+    },
+    {
+      "name": "X0(2900)",
+      "topology": [
+        [
+          2,
+          3
+        ],
+        1
+      ],
+      "propagators": [
+        {
+          "name": "X0(2900)",
+          "node": [
+            2,
+            3
+          ],
+          "spin": "2",
+          "parametrization": "BW_X0(2900)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              2,
+              3
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.10885587241638732 + 0.20819385727695455 i"
+    },
+    {
+      "name": "X1(2900)",
+      "topology": [
+        [
+          2,
+          3
+        ],
+        1
+      ],
+      "propagators": [
+        {
+          "name": "X1(2900)",
+          "node": [
+            2,
+            3
+          ],
+          "spin": "1",
+          "parametrization": "BW_X1(2900)"
+        }
+      ],
+      "vertices": [
+        {
+          "type": "helicity",
+          "node": [
+            0,
+            [
+              2,
+              3
+            ]
+          ],
+          "helicities": []
+        }
+      ],
+      "weight": "0.10857922852926928 + -10.636542340064254 i"
+    }
+  ],
+  "functions": [
+    {
+      "name": "BW_X(3872)",
+      "type": "BreitWigner",
+      "mass": "3.87165",
+      "width": "0.00119"
+    },
+    {
+      "name": "BW_X(3915)(0-)",
+      "type": "BreitWigner",
+      "mass": "3.944541826791121",
+      "width": "0.12967347104307578"
+    },
+    {
+      "name": "BW_chi(c2)(3930)",
+      "type": "BreitWigner",
+      "mass": "3.9272",
+      "width": "0.024"
+    },
+    {
+      "name": "BW_X(3940)(1+)",
+      "type": "BreitWigner",
+      "mass": "3.987",
+      "width": "0.368"
+    },
+    {
+      "name": "BW_X(3993)",
+      "type": "BreitWigner",
+      "mass": "4.012482696497617",
+      "width": "0.06273843568400221"
+    },
+    {
+      "name": "BW_Psi(4040)",
+      "type": "BreitWigner",
+      "mass": "4.039",
+      "width": "0.08"
+    },
+    {
+      "name": "BW_X(4300)",
+      "type": "BreitWigner",
+      "mass": "4.307256285732596",
+      "width": "0.058438730618967774"
+    },
+    {
+      "name": "BW_NR(0-)SPp",
+      "type": "BreitWigner",
+      "mass": "4.35",
+      "width": "None"
+    },
+    {
+      "name": "BW_NR(1+)PSp",
+      "type": "BreitWigner",
+      "mass": "4.35",
+      "width": "None"
+    },
+    {
+      "name": "BW_NR(0-)SPm",
+      "type": "BreitWigner",
+      "mass": "4.35",
+      "width": "None"
+    },
+    {
+      "name": "BW_NR(1-)PPm",
+      "type": "BreitWigner",
+      "mass": "4.35",
+      "width": "None"
+    },
+    {
+      "name": "BW_X0(2900)",
+      "type": "BreitWigner",
+      "mass": "3.1",
+      "width": "0.05"
+    },
+    {
+      "name": "BW_X1(2900)",
+      "type": "BreitWigner",
+      "mass": "3.1",
+      "width": "0.05"
+    }
+  ]
+}

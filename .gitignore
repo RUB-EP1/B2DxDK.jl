@@ -1,4 +1,6 @@
-data/config_c.yml
-data/final_params.json
-data/fit_frac0.csv
-data/paper_couplings.json
+venv
+
+amplitudes.txt
+
+Analysis/__pycache__
+notebooks/README_files/*

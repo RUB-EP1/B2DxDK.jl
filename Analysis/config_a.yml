@@ -1,0 +1,319 @@
+data:
+    dat_order: [D, K, D0, pi]
+    model: cfit
+    extra_var:
+        c:
+            default: -1
+    # resolution_size: 50
+    # data: [["../data_com/f0_data_re.npy"],["../data_com/f1_data_re.npy"], ["../data_com/f2_data_re.npy"], ["../data_com/f3_data_re.npy"]]
+    # data_charge: ["../data_com/f0_data_re_c.npy","../data_com/f1_data_re_c.npy", "../data_com/f2_data_re_c.npy", "../data_com/f3_data_re_c.npy"]
+    # data_weight: ["../data_com/f0_data_re_w.npy","../data_com/f1_data_re_w.npy", "../data_com/f2_data_re_w.npy", "../data_com/f3_data_re_c.npy"]
+    # data_bg_value: ["../data_com/f0_data_re_bgv.npy","../data_com/f1_data_re_bgv.npy", "../data_com/f2_data_re_bgv.npy", "../data_com/f3_data_re_bgv.npy"]
+    # data_c: ["../data_com/f0_data_re_d.npy","../data_com/f1_data_re_d.npy", "../data_com/f2_data_re_d.npy", "../data_com/f3_data_re_d.npy"]
+    data: [["../data_com/f0_data.npy"],["../data_com/f1_data.npy"], ["../data_com/f2_data.npy"], ["../data_com/f3_data.npy"]]
+    data_charge: ["../data_com/f0_data_c.npy","../data_com/f1_data_c.npy", "../data_com/f2_data_c.npy", "../data_com/f3_data_c.npy"]
+    data_bg_value: ["../data_com/f0_data_bgv.npy","../data_com/f1_data_bgv.npy", "../data_com/f2_data_bgv.npy", "../data_com/f3_data_bgv.npy"]
+    data_c: ["../data_com/f0_data_d.npy","../data_com/f1_data_d.npy", "../data_com/f2_data_d.npy", "../data_com/f3_data_d.npy"]
+    bg_frac: [0.043705023355170715, 0.05446053119202861, 0.03607812905492384, 0.05267462899104165]
+    # phsp: [["../data_com/f0_phsp_re.npy"],["../data_com/f1_phsp_re.npy"], ["../data_com/f2_phsp_re.npy"], ["../data_com/f3_phsp_re.npy"]]
+    # phsp_charge: ["../data_com/f0_phsp_re_c.npy","../data_com/f1_phsp_re_c.npy", "../data_com/f2_phsp_re_c.npy", "../data_com/f3_phsp_re_c.npy"]
+    # phsp_weight: ["../data_com/f0_phsp_re_w.npy","../data_com/f1_phsp_re_w.npy", "../data_com/f2_phsp_re_w.npy", "../data_com/f3_phsp_re_w.npy"]
+    # phsp_bg_value: ["../data_com/f0_phsp_re_bgv.npy","../data_com/f1_phsp_re_bgv.npy", "../data_com/f2_phsp_re_bgv.npy", "../data_com/f3_phsp_re_bgv.npy"]
+    # phsp_c: ["../data_com/f0_phsp_re_d.npy","../data_com/f1_phsp_re_d.npy", "../data_com/f2_phsp_re_d.npy", "../data_com/f3_phsp_re_d.npy"]
+    phsp: [["../data_com/f0_phsp.npy"],["../data_com/f1_phsp.npy"], ["../data_com/f2_phsp.npy"], ["../data_com/f3_phsp.npy"]]
+    phsp_charge: ["../data_com/f0_phsp_c.npy","../data_com/f1_phsp_c.npy", "../data_com/f2_phsp_c.npy", "../data_com/f3_phsp_c.npy"]
+    phsp_weight: ["../data_com/f0_phsp_w.npy","../data_com/f1_phsp_w.npy", "../data_com/f2_phsp_w.npy", "../data_com/f3_phsp_w.npy"]
+    phsp_bg_value: ["../data_com/f0_phsp_bgv.npy","../data_com/f1_phsp_bgv.npy", "../data_com/f2_phsp_bgv.npy", "../data_com/f3_phsp_bgv.npy"]
+    phsp_c: ["../data_com/f0_phsp_d.npy","../data_com/f1_phsp_d.npy", "../data_com/f2_phsp_d.npy", "../data_com/f3_phsp_d.npy"]
+    phsp_noeff: ["../flat_mc.dat"]
+    # cp_trans: False
+    # cached_amp: True
+
+decay:
+    Bp: 
+      - [DstD, K, p_break: True, barrier_factor_norm: True]
+      - [DstK, D, p_break: True, barrier_factor_norm: True]
+      - [DK, Dst, p_break: True, barrier_factor_norm: True]
+    DstD: [Dst, D, barrier_factor_norm: True]
+    DstK: [Dst, K, barrier_factor_norm: True]
+    DK: [D, K, barrier_factor_norm: True]
+    Dst: [D0, pi, has_barrier_factor: False]
+
+point_pos: &point_pos1
+    points: [3.88, 3.921920479893773681, 3.951273946104949975, 3.979379107428977047, 4.00886081592041954, 4.034504379567633414,  4.083247089179264044, 4.133844266185713323,  4.196026501987756063, 4.260746661794484247, 4.315129233483468774, 4.369172476252923154, 4.420624705389251119, 4.489505297922118388, 4.561564209788138591, 4.639517200049882106, 4.78 ]
+
+
+particle:
+    $top:
+        Bp:
+            display: "$B^{+}$"
+            J: 0
+            P: -1
+            mass: 5.27934
+    $finals:
+        D:
+            display: "$D^{+}$"
+            J: 0
+            P: -1
+            mass: 1.86965
+        K:
+            display: "$K^{+}$"
+            J: 0
+            P: -1
+            mass: 0.493677
+        D0:
+            display: "D^{0}"
+            J: 0
+            P: -1
+            mass: 1.86483
+        pi: 
+            display: "$\\pi^{-}$"
+            J: 0
+            P: -1
+            mass: 0.13957039
+    Dst:
+        display: "$D^{*-}$"
+        J: 1
+        P: -1
+        mass: 2.01026
+        model: one
+    $include: Resonances.yml
+    DstD:
+        # - Zc(3900)
+        - X(3872)
+        - X(3915)(0-)
+        - chi(c2)(3930)
+        - X(3940)(1+)
+        - X(3993)
+        # - XDstD1pp
+        # - X(4020)
+        - Psi(4040)
+        # - Zc(4200)
+        # - X(4100)
+        # - all_psi
+        # - chi(c1)(4274)
+        - X(4300)
+        # - Psi(4415)
+        # - Zc(4430)
+        # - X(4600)
+        # - XDstD_Scan
+        - NR(0-)SPp
+        # - NR(1-)PPp
+        - NR(1+)PSp
+        - NR(0-)SPm
+        - NR(1-)PPm
+        # - NR(1+)PSm
+    DstK: []
+    DK: [X0(2900), X1(2900)]
+    XDstD_Scan:
+        model: C(BWR)  # {expr: -BWR_2}
+    X0(2900):
+        J: 0
+        P: +1
+        mass: 2.866
+        width: 0.057
+        model: C2(BWR)
+        # m_min: 2.86
+        # m_max: 2.94
+        # g_min: 0.01
+        # g_max: 0.3
+        # float: mg
+    X1(2900):
+        J: 1
+        P: -1
+        mass: 2.904
+        width: 0.110
+        model: C2(BWR)
+        # m_min: 2.86
+        # m_max: 2.94
+        # g_min: 0.01
+        # g_max: 0.3
+    # override params
+    X(3915)(0-):
+        model: C(BWR) # {expr: -BWR_2}
+        C: 1
+    X(3940)(1+):
+        model: C(BWR_LS)
+        C: -1
+    Zc(3900):
+        model: C(BWR_LS) # { expr: -BWR_LS}
+        C: -1
+    X(3872):
+        model: C(BWR_LS) # { expr: -BWR_LS }
+        C: 1
+    X(4020):
+        model: C(BWR_LS)
+        C: -1
+    chi(c2)(3930):
+        model: C(BWR)  # {expr: -BWR}
+        C: 1
+    X(4300):
+        model: C(BWR_LS)
+        C: -1
+    X(3993):
+        model: C(BWR_LS) ## {expr: -BWR_LS}
+        C: 1
+    XDstD1pp:
+        model: C(BWR_LS) # {expr: -BWR_LS}
+    # NR(0-)SPp:
+    #     model: {expr: -New}
+    # NR(0-)SPm:
+    #     model: New
+    NR(1-)PPp:
+        model: C(one) # {expr: -one}
+        C: +1
+    NR(1+)PSp:
+        model: C(one)  # {expr: -one}
+        C: +1
+    NR(0-)SPp:
+        # model: {expr: -New}
+        mass: 4.35
+        model: C(New)  # {expr: -New }  # spline_c_idx}
+        C: +1
+        max_m: 4.8
+        min_m: 3.87
+        interp_N: 10
+        with_bound: True
+    NR(0-)SPm:
+        # model: New
+        mass: 4.35
+        model: C(one) # spline_c_idx
+        C: -1
+        max_m: 4.8
+        min_m: 3.87
+        interp_N: 10
+        with_bound: True
+    NR(1-)PPp:
+        mass: 4.35
+        model: C(one) #  {expr: -one} # spline_c_idx}
+        C: +1
+        <<: *point_pos1
+        max_m: 4.8
+        min_m: 3.87
+        interp_N: 10
+        with_bound: True
+    NR(1-)PPm:
+        mass: 4.35
+        model: C(one) # spline_c_idx
+        C: -1
+        max_m: 4.8
+        min_m: 3.87
+        <<: *point_pos1
+        interp_N: 10
+        with_bound: True
+
+
+constrains:
+  decay: { fix_chain_idx: 0, fix_chain_val: 1 }
+
+
+plot:
+    config:
+        bins: 72
+    mass:
+        DK:
+            display: "$M(D^{-}K^{+})$"
+            range: [2.1, 3.3]
+        DstK:
+            display: "$M(D^{*+}K^{+})$"
+            range: [2.2, 3.5]
+        DstD:
+            display: "$M(D^{*+}D^{-})$"
+            range: [3.8, 5.2]
+    angle:
+        Bp/DK:
+            alpha:
+                display: "$\\phi_{1}$"
+            cos(beta):
+                display: "$\\cos(\\theta_1)$" 
+                range: [-1, 1]
+        Bp/DstK:
+            alpha:
+                display: "$\\phi_{2}$"
+            cos(beta):
+                display: "$\\cos(\\theta_2)$"
+        Bp/DstD:
+            alpha:
+                display: "$\\phi_{3}$"
+            cos(beta):
+                display: "$\\cos(\\theta_3)$"
+        DstD/Dst:
+            alpha:
+                display: "$\\phi_{11}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{11})$"
+        DstK/Dst:
+            alpha:
+                display: "$\\phi_{1}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{21})$"
+        DK/D:
+            alpha:
+                display: "$\\phi_{1}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{31})$"
+        DstD/Dst/D0:
+            alpha:
+                display: "$\\phi_{33}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{33})$"
+        DstK/Dst/D0:
+            alpha:
+                display: "$\\phi_{331}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{331})$"
+        DK/Dst/D0:
+            alpha:
+                display: "$\\phi_{332}$"
+            cos(beta):
+                display: "$\\cos(\\theta_{332})$"
+    2Dplot:
+        dalitz:
+            x: m_DstD**2
+            y: m_DstK**2
+            xlabel: "$M^2(D^{*}D)$"
+            ylabel: "$M^2(D^{*}K)$"
+            display: "$M^2(D^{*}D)$ vs $M^2(D^{*}K)$"
+            plot_figs: ["data", "sideband", "fitted", pull]
+        m_phi:
+            x: DstD_Dst_D0_alpha
+            y: m_DstD
+            xlabel: "$\\phi$"
+            ylabel: "$M(D*D)$"
+            display: "$\\phi$ vs $M(D*D)$"
+            plot_figs: ["data", "sideband", "fitted", pull]
+        dalitz:
+            x: m_DstD**2
+            y: m_DK**2
+            xlabel: "$M^2(D^{*}D)$ [GeV${}^{2}$]"
+            ylabel: "$M^2(DK)$ [GeV${}^{2}$]"
+            display: "$M(D^{*}D)$ vs $M(DK)$"
+            plot_figs: ["data", "sideband", "fitted", "pull"]
+        angle:
+            x: x
+            y: y
+            xlabel: "$\\phi_{2}$ [rad]"
+            ylabel: "$\\cos\\theta_{2}$"
+            yrange: [-1.1, 1.3]
+            where:
+               x: [angle, DstD/Dst/D0, alpha]
+               y: [angle, DstD/Dst/D0, cos(beta)]
+            display: "$\\phi_{2}$ vs $\\cos\\theta_{2}$"
+            plot_figs: ["data", "sideband", "fitted", "pull"]
+        m1_angle:
+            x: m_DstD
+            y: x
+            ylabel: "$\\phi$"
+            where:
+               x: [angle, DstD/Dst/D0, alpha]
+            display: "$m$ vs $\\phi$"
+            plot_figs: ["data", "sideband", "fitted", "pull"]
+        m1_angle2:
+            x: m_DstD
+            y: y
+            ylabel: "$\\cos\\theta$"
+            where:
+               y: [angle, DstD/Dst/D0, cos(beta)]
+            display: "$m$ vs $\\cos\\theta$"
+            plot_figs: ["data", "sideband", "fitted", "pull"]
+        

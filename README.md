@@ -32,14 +32,19 @@ B2DxDK/
 │   └── completion.jl          # Main Pluto.jl notebook
 ├── data/
 │   ├── interference_paper.json    # Paper results for comparison
-│   ├── interference_tf.json      # TensorFlow results
+│   ├── interference_tf.json       # TensorFlow results
 │   ├── paper_couplings.json      # Coupling parameters
 │   ├── backup_400001.json        # Precomputed integrals
-│   └── ...                      # Additional data files
+│   ├── crosscheck_event.json     # Single event used for angular cross-checks
+│   └── ...                       # Additional data files
 ├── scripts/
-│   └── cal_pw_fraction.py       # Python script for partial wave analysis
+│   ├── cal_pw_fraction.py        # Python script for partial wave analysis
+│   └── angles/                   # Julia scripts to cross-check angular conventions
 └── README.md
 ```
+
+The `scripts/angles` folder contains small Julia programs (e.g. `explicit.jl`, `with_LDA.jl`) that compute decay angles and cross-check the angular conventions used in the analysis.  
+The file `data/crosscheck_event.json` provides a representative event whose four-vectors and derived angles are used as a reference input for these checks.
 
 ## Installation and Usage
 
@@ -68,3 +73,59 @@ Any problems at this step, should be reported in the project issue tracker.
 3. **Run the analysis**:
    - The notebook will automatically install required dependencies
    - Execute cells sequentially to perform the analysis
+
+
+### Using the amplitude extraction
+
+This repository includes a slightly modified version of tf_pwa (https://github.com/jiangyi15/tf-pwa).
+
+Steps to make the analysis code operational:
+
+#### Option A: Conda-based setup (original)
+- Conda has to be installed on the system
+- Clone this repository
+- In console (inside the repo folder):
+  - `chmod +x setup_tf_pwa_with_conda.sh`
+  - `./setup_tf_pwa_with_conda.sh`
+
+#### Option B: venv-based setup (no Conda)
+
+From the project root:
+
+```bash
+chmod +x setup_tf_pwa_with_venv.sh
+./setup_tf_pwa_with_venv.sh
+
+# install tf_pwa into the virtual environment
+source venv/bin/activate
+pip install git+https://github.com/jiangyi15/tf-pwa.git
+deactivate
+```
+
+The current analysis can be found in `Analysis/Amplitude.ipynb`.
+
+
+## Reference files for the isolated `Psi(4040)` amplitude
+
+The repository also contains a small set of focused reference files for the
+isolated `Psi(4040)` complex-amplitude calculation:
+
+- `Analysis/psi4040_independent_amplitude_flow.ipynb`
+  - A self-contained Python notebook that reproduces the isolated TF-PWA
+    `Psi(4040)` amplitude step by step, using copied/adapted local functions,
+    the TF-PWA configuration values, and the hardcoded probe four-vectors.
+  - It is intended as the reference execution flow for the `Psi(4040)` test
+    point.
+
+- `Analysis/psi4040_python_function_formula_map.md`
+  - A function-to-formula map for the isolated Python notebook.
+  - It links the main Python calls to the corresponding mathematical
+    expressions, so the notebook calculation can be followed analytically.
+
+- `notebooks/cascade_decays_tfpwa_aligned.jl`
+  - A Julia implementation of the same isolated `Psi(4040)` amplitude using
+    only Julia packages, in particular `CascadeDecays.jl`,
+    `ThreeBodyDecays.jl`, `FourVectors.jl`, and `HadronicLineshapes.jl`.
+  - It prints the calculation in a Step 1-7 style comparable to the Python
+    execution-flow notebook and shows the remaining constant normalization
+    mismatch factor between the package-native Julia convention and TF-PWA.

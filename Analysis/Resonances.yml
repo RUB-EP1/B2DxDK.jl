@@ -1,0 +1,548 @@
+# Resonance configure list 
+# yaml format version , see more: https://yaml.org/
+# required pyyaml module
+
+# head resonance
+# resonance name as id 
+# quotation marks are option
+# head resonance will has head fixed to 1.0
+DstarK: {
+  # id for the decay chain position
+  # A -> (BD) C : chain < 0
+  # A -> (BC) D : 0 < chain < 100
+  # A -> (CD) B : 100< chain < 200
+  # [required]
+  Chain: 21, 
+  # spin [required]
+  J: 1, 
+  # parity [required]
+  Par: -1, 
+  # resonance mass  : m_0 [required]
+  m0: 2.899, 
+  m_max: 2.4611, m_min: 2.4603,
+  # resonance width : \Gamma_0 [required]
+  g0: 100.0, 
+  # set mass and gamma as variables
+  #float: mg,
+  # Breit Wigner formula [option]
+  bw: default,
+  # order of the fixed amplitudes
+  const: [0,0],
+  # fixed total amplitude (rho,phi) [option]
+  total: 1.0,
+  # disable: True
+}
+
+#other resonance
+DK: {
+  Chain: 121, J: 1, Par: -1,
+  # coef_head make D2_2460p to use the params of D2_2460 by the same name
+  # only the total phase angle different
+  g0: 100.0, g_max: 0.0479, g_min: 0.0455, 
+  m0: 2.900, m_max: 2.4667, m_min: 2.4644,
+  # disable: True
+}
+
+
+Zc(3900): {
+  Chain: -1, J: 1, Par: 1, 
+  g0: 0.035, 
+  m0: 3.8857,
+  C: -1
+  # model: BWR2
+  # disable: True
+  #total: 1.0,
+}
+
+X(3872):
+   J: 1
+   P: +1
+   mass: 3.87165 # 3.8729
+   width: 0.00119 # 0.0039
+   model: C(BWR_LS)
+   C: 1
+   display: "$\\chi_{c1}(3872)$"
+   decay_params:
+       below_threshold: True
+
+
+Zc(3900)S: {
+  Chain: -1, J: 1, Par: 1, 
+  g0: 0.035, 
+  m0: 3.8857,
+  # disable: True
+  #total: 1.0,
+}
+
+Zc(3900)D: {
+  Chain: -1, J: 1, Par: 1, 
+  g0: 0.035, 
+  m0: 3.8857,
+  bw_l: 0,
+  # disable: True
+  #total: 1.0,
+}
+
+Zc(4200): {
+  Chain: -1, J: 2, Par: -1, 
+  g0: 0.370, 
+  m0: 4.196,
+  # disable: True
+  #total: 1.0,
+}
+
+Psi(4040): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.080, 
+  m0: 4.039,
+  model: C(BWR),
+  C: -1,
+  display: "$\\psi(4040)$"
+  #disable: True
+  #total: 1.0,
+}
+
+Psi(4160): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.070, 
+  m0: 4.191,
+  C: -1,
+  model: C(BWR)
+  # disable: True
+  #total: 1.0,
+}
+
+
+Psi(4415): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.062, 
+  m0: 4.421,
+  C: -1,
+  model: C(BWR)
+  #disable: True
+  #total: 1.0,
+}
+
+Psi(4660): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.072, 
+  m0: 4.643,
+  C: -1,
+  model: C(BWR)
+  # disable: True
+  #total: 1.0,
+}
+
+chi(c2)(3930): {
+  Chain: -1, J: 2, Par: +1, 
+  g0: 0.024, 
+  m0: 3.9272,
+  C: 1,
+  model: C(BWR),
+  display: "$\\chi_{c2}(3930)$"
+  # disable: True
+  #total: 1.0,
+}
+
+chi(c1)(4140): {
+  Chain: -1, J: 1, Par: +1, 
+  g0: 0.022, 
+  m0: 4.1468,
+  C: 1,
+  model: C(BWR_LS)
+  # disable: True
+  #total: 1.0,
+}
+
+chi(c1)(4274): {
+  Chain: -1, J: 1, Par: +1, 
+  g0: 0.0372, 
+  m0: 4.306,
+  m_min: 4.2,
+  m_max: 4.4,
+  g_min: 0.01,
+  g_max: 0.3,
+  C: 1,
+  model: C(BWR_LS),
+  display: "$\\chi_{c1}(4274)$"
+  # float: mg
+  # disable: True
+  #total: 1.0,
+}
+
+X(4300): {
+  Chain: -1, J: 1, Par: +1,
+  g0: 0.0372,
+  m0: 4.306,
+  m_min: 4.2,
+  m_max: 4.4,
+  g_min: 0.01,
+  g_max: 0.3,
+  C: -1,
+  model: C(BWR_LS),
+  display: "$X{1}(4300)$"
+  # float: mg
+  #   # disable: True
+  #     #total: 1.0,
+}
+
+
+X(3915): {
+  Chain: -1, J: 2, Par: +1, 
+  g0: 0.020, 
+  m0: 3.9184,
+  C: -1,
+  # disable: True
+  #total: 1.0,
+}
+
+# ?? 
+X(3940)(0-): {
+  Chain: -1, J: 0, Par: -1, 
+  g0: 0.037, 
+  m0: 3.942,
+  # disable: True
+  #total: 1.0,
+}
+
+X(3940)(1-): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.037, 
+  m0: 3.942,
+  # disable: True
+  #total: 1.0,
+}
+
+X(3940)(1+): {
+  Chain: -1, J: 1, Par: +1, 
+  g0: 0.368, #  0.037, 
+  m0: 3.987, # 3.942,
+  m_min: 3.91,
+  m_max: 4.03,
+  g_min: 0.01,
+  g_max: 0.5,
+  float: mg,
+  model: C(BWR_LS),
+  display: "$X_1(4000)$"
+  # disable: True
+  #total: 1.0,
+}
+
+X(3940)(1-): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.037, 
+  m0: 3.942,
+  # disable: True
+  #total: 1.0,
+}
+
+X(3940)(2+): {
+  Chain: -1, J: 2, Par: +1, 
+  g0: 0.037, 
+  m0: 3.942,
+  # disable: True
+  #total: 1.0,
+}
+
+X(3940)(2-): {
+  Chain: -1, J: 2, Par: -1, 
+  g0: 0.037, 
+  m0: 3.942,
+  #disable: True
+  #total: 1.0,
+}
+
+X(4020): {
+  Chain: -1, J: 1, Par: +1, 
+  g0: 0.013, 
+  m0: 4.025,
+  g_min: 0.01,
+  g_max: 0.3,
+  # float: g,
+  #disable: True
+  #total: 1.0,
+}
+
+# ??
+X(4160): {
+  Chain: -1, J: 0,
+  Par: -1,
+  g0: 0.139,
+  m0: 4.156,
+  C: 1,
+  #disable: True
+}
+
+
+Psi(4230): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.059, 
+  m0: 4.218,
+  C: -1,
+  #disable: True
+  #total: 1.0,
+}
+
+
+## 
+Psi(4390): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.1395, 
+  m0: 4.3915,
+  C: -1,
+  #disable: True
+  #total: 1.0,
+}
+
+
+Psi(4260): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.055, 
+  m0: 4.230,
+  #disable: True
+  #total: 1.0,
+}
+
+Psi(4360): {
+  Chain: -1, J: 1, Par: -1, 
+  g0: 0.096, 
+  m0: 4.368,
+  C: -1,
+  #disable: True
+  #total: 1.0,
+}
+
+Zc(4430): {
+    Chain: -1, J: 1, Par: +1,
+    g0: 0.181, 
+    m0: 4.478,
+    model: C(BWR_LS),
+    C: -1,
+    #disable: True
+}
+
+
+## in theory
+eta_c(3S): {
+    display: "$\\eta_c (3S)$",
+    J: 0 ,
+    P: -1,
+    m0: 4.064,
+    g0: 0.080,
+    C: +1,
+}
+
+h_c(2P): {
+    display: "$h_c (2P)",
+    J: 1,
+    P: +1,
+    m0: 3.956,
+    g0: 0.087,
+}
+
+h_c(3P): {
+    display: "$h_c (3P)",
+    J: 1,
+    P: +1,
+    m0: 4.318,
+    g0: 0.075,
+}
+
+eta_c(2D): {
+    display: "$\\eta_c (2D)$",
+    J: 2,
+    P: -1,
+    m0: 4.208,
+    g0: 0.111,
+}
+
+DK(2700): {
+    J: 1,
+    P: -1,
+    m0: 2.7,
+    m_max: 2.8,
+    m_min: 2.6,
+    g0: 0.03,
+    g_max: 0.1,
+    g_min: 0.01,
+    float: mg,
+}
+
+
+NR(1-)PPp:
+        display: "$NR_{1^{-+}}^{PP}(D*D)$"
+        J: 1
+        P: -1
+        mass: 4.35
+        model: C(one)
+        C: 1
+NR(1-)PPm:
+        display: "$NR_{1^{-}}^{PP}(D*D)$"
+        J: 1
+        P: -1
+        mass: 4.35
+        model: C(one)
+        C: -1
+NR(0-)SPp:
+        display: "$NR_{0^{-+}}^{SP}(D*D)$"
+        J: 0
+        P: -1
+        mass: 4.35
+        model: C(one)
+        C: 1
+NR(0-)SPm:
+        display: "$NR_{0^{-}}^{SP}(D*D)$"
+        J: 0
+        P: -1
+        mass: 4.35
+        model: C(one)
+        C: -1
+NR(1+)PSp: 
+        display: "$NR_{1^{++}}^{PS}(D*D)$"
+        J: 1
+        P: +1
+        mass: 4.35
+        model: C(one)
+        C: 1
+        decay_params: 
+            l_list: [0]
+NR(1+)PSm: 
+        display: "$NR_{1^{+}}^{PS}(D*D)$"
+        J: 1
+        P: +1
+        mass: 4.35
+        model: C(one)
+        C: -1
+        decay_params: 
+            l_list: [0]
+NR(1+)PD: 
+        display: "$NR_{1^{+}}^{PD}(D*D)$"
+        J: 1
+        P: +1
+        mass: 4.35
+        model: C(one)
+        decay_params:
+            l_list: [2]
+
+
+
+X(3993):
+     J: 1
+     P: +1
+     mass: 4.006 # 3.9986
+     width: 0.067 # 0.0678
+     model: BWR_LS
+     m_min: 3.93
+     m_max: 4.02
+     g_min: 0.01
+     g_max: 0.2
+     float: mg
+     C: 1
+     display: "$X_1(4010)$"
+
+X(4100):
+     J: 1
+     P: -1
+     mass: 4.0919
+     width: 0.035
+     C: 1
+
+
+X(4300):
+     J: 1
+     P: +1
+     mass: 4.306 # 4.306
+     width: 0.118 # 0.0372
+     m_min: 4.1
+     m_max: 4.5
+     g_min: 0.01
+     g_max: 0.3
+     float: mg
+     display: "$X_1(4300)$"
+
+X(3970):
+     J: 0
+     P: -1
+     mass: 3.942
+     width: 0.069
+
+X(2385):
+     J: 0
+     P: +1
+     mass: 2.3781
+     width: 0.026
+
+X(3915)(0-):
+     J: 0
+     P: -1
+     mass: 3.936 # 3.9061
+     width: 0.096 # 0.0528
+     m_min: 3.88
+     m_max: 4.2
+     g_min: 0.01
+     g_max: 0.7
+     float: mg
+     display: "$X_0(3945)$"
+
+XDstD1pp:
+     J: 1
+     P: 1
+     m_min: 3.95
+     m_max: 4.1
+     g_min: 0.01
+     g_max: 0.2
+     model: BWR_LS
+     float: mg
+
+XDstD_Scan:
+     J: 1
+     P: -1
+     mass: 4.00
+     width: 0.05
+     m_min: 3.96
+     m_max: 4.1
+     g_min: 0.01
+     g_max: 0.3
+     float: mg
+
+X(4100):
+     J: 1
+     P: -1
+     mass: 4.1
+     width: 0.03
+
+X(4600):
+     J: 0
+     P: -1
+     mass: 4.75
+     width: 0.8
+
+
+all_psi:
+     J: 1
+     P: -1
+     mass: 4.3
+     model: C(PsiKmatrix)
+     C: -1
+
+XDK:
+     J: 2
+     P: +1
+     mass: 3.1
+     width: 0.05
+     m_min: 2.9
+     m_max: 3.27
+     g_min: 0.01
+     g_max: 0.5
+     float: mg
+
+XDK2:
+     J: 1
+     P: -1
+     mass: 3.1
+     width: 0.05
+     m_min: 2.9
+     m_max: 3.27
+     g_min: 0.01
+     g_max: 0.5
+     float: mg 
