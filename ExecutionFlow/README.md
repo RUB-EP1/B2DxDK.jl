@@ -264,7 +264,7 @@ Then
 The Euler angles are then written as
 
 ```math
-\alpha = \operatorname{atan2}
+\alpha = \mathrm{atan2}
 \left(
 \hat{\mathbf{x}}_r \cdot \hat{\mathbf{x}}_1,\,
 \hat{\mathbf{x}}_r \cdot \hat{\mathbf{y}}_1
@@ -272,7 +272,7 @@ The Euler angles are then written as
 ```
 
 ```math
-\beta = \operatorname{atan2}
+\beta = \mathrm{atan2}
 \left(
 \hat{\mathbf{z}}_2 \cdot \hat{\mathbf{z}}_1,\,
 \hat{\mathbf{z}}_2 \cdot \hat{\mathbf{x}}_r
