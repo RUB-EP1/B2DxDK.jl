@@ -46,8 +46,6 @@ const topology = DecayTopology((((1, 2), 3), 4))
 const system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
 const x = cascade_kinematics(topology, system, objs)
 
-get_relative_p2(m0, m1, m2) = ((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4 * m0^2)
-
 function build_package_native_chain()
     vertices = (
         (((1, 2), 3), 4) => VertexFunction(RecouplingLS((2, 2)), BlattWeisskopf{1}(3.0)),
