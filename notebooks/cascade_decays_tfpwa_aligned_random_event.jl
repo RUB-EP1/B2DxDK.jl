@@ -337,14 +337,11 @@ function dalitz_heatmap(path::String, rows; nbins::Int = 60, component::Symbol =
         end
     end
 
-    display_grid = similar(mean_grid)
-    for ix in 1:nbins, iy in 1:nbins
-        v = mean_grid[ix, iy]
-        display_grid[ix, iy] = isnan(v) ? NaN : sign(v) * log10(1 + abs(v))
-    end
-
     xcenters = (xedges[1:end-1] .+ xedges[2:end]) ./ 2
     ycenters = (yedges[1:end-1] .+ yedges[2:end]) ./ 2
+    display_grid = mean_grid .* 1e12
+    finite_values = display_grid[.!isnan.(display_grid)]
+    zlim = maximum(abs, finite_values)
 
     plt = heatmap(
         xcenters,
@@ -352,10 +349,10 @@ function dalitz_heatmap(path::String, rows; nbins::Int = 60, component::Symbol =
         display_grid',
         xlabel = "m^2(D0, pi) [GeV^2]",
         ylabel = "m^2(D0, pi, D) [GeV^2]",
-        title = component === :re ? "Signed-log mean eventwise relative Delta Re" : "Signed-log mean eventwise relative Delta Im",
-        colorbar_title = component === :re ? "(Re(amp_CD) - Re(amp_TF-PWA))/Re(amp_TF-PWA)" : "(Im(amp_CD) - Im(amp_TF-PWA))/Im(amp_TF-PWA)",
+        title = component === :re ? "Mean relative Delta Re [1e-12]" : "Mean relative Delta Im [1e-12]",
         aspect_ratio = :auto,
         c = :balance,
+        clim = (-zlim, zlim),
         background_color = :white,
         background_color_inside = :white,
         colorbar_tickfontsize = 8,
@@ -393,29 +390,29 @@ function framework_comparison_plot(path::String, rows; nbins::Int = 60, componen
         end
     end
 
-    log_display(v) = isnan(v) ? NaN : log10(1 + v)
-    tf_display = log_display.(tf_grid)
-    cd_display = log_display.(cd_grid)
-
     xcenters = (xedges[1:end-1] .+ xedges[2:end]) ./ 2
     ycenters = (yedges[1:end-1] .+ yedges[2:end]) ./ 2
-    zmax = maximum(abs, vcat(vec(tf_display[.!isnan.(tf_display)]), vec(cd_display[.!isnan.(cd_display)])))
+    positive_values = vcat(
+        vec(tf_grid[(.!isnan.(tf_grid)) .& (tf_grid .> 0)]),
+        vec(cd_grid[(.!isnan.(cd_grid)) .& (cd_grid .> 0)]),
+    )
+    zmin = minimum(positive_values)
+    zmax = maximum(positive_values)
 
     left_title = "TF-PWA mean |A|^2"
     right_title = "CascadeDecays mean |A|^2"
-    cbar_title = "log10(1 + <|A|^2>)"
 
     p1 = heatmap(
         xcenters,
         ycenters,
-        tf_display',
+        tf_grid',
         xlabel = "m^2(D0, pi) [GeV^2]",
         ylabel = "m^2(D0, pi, D) [GeV^2]",
         title = left_title,
-        colorbar_title = cbar_title,
         aspect_ratio = :auto,
         c = :viridis,
-        clim = (0, zmax),
+        clim = (zmin, zmax),
+        colorbar_scale = :log10,
         background_color = :white,
         background_color_inside = :white,
         left_margin = 12Plots.mm,
@@ -426,14 +423,14 @@ function framework_comparison_plot(path::String, rows; nbins::Int = 60, componen
     p2 = heatmap(
         xcenters,
         ycenters,
-        cd_display',
+        cd_grid',
         xlabel = "m^2(D0, pi) [GeV^2]",
         ylabel = "m^2(D0, pi, D) [GeV^2]",
         title = right_title,
-        colorbar_title = cbar_title,
         aspect_ratio = :auto,
         c = :viridis,
-        clim = (0, zmax),
+        clim = (zmin, zmax),
+        colorbar_scale = :log10,
         background_color = :white,
         background_color_inside = :white,
         left_margin = 12Plots.mm,
@@ -478,10 +475,10 @@ function batch_scan_and_plot(topology, total_factor; n_events::Int = 5000)
     end
 
     repo_root = normpath(joinpath(@__DIR__, ".."))
-    txt_path = joinpath(repo_root, "notebooks", "cascade_decays_tfpwa_random_event_scan.txt")
-    png_path_re = joinpath(repo_root, "notebooks", "cascade_decays_tfpwa_random_event_delta_heatmap.png")
-    png_path_im = joinpath(repo_root, "notebooks", "cascade_decays_tfpwa_random_event_delta_heatmap_im.png")
-    compare_png_path_re = joinpath(repo_root, "notebooks", "cascade_decays_tfpwa_framework_comparison_re.png")
+    txt_path = joinpath(repo_root, "notebooks", "psi4040_scan.txt")
+    png_path_re = joinpath(repo_root, "notebooks", "psi4040_delta_re.png")
+    png_path_im = joinpath(repo_root, "notebooks", "psi4040_delta_im.png")
+    compare_png_path_re = joinpath(repo_root, "notebooks", "psi4040_amp2.png")
 
     save_batch_results_txt(txt_path, rows)
     dalitz_heatmap(png_path_re, rows; component = :re)

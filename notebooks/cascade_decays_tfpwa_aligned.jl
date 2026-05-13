@@ -1,18 +1,14 @@
 # CascadeDecays aligned to the isolated TF-PWA Psi(4040) probe
 #
-# This script establishes a running CascadeDecays setup inside the playground
-# project and evaluates the same isolated Psi(4040) amplitude as
-# Analysis/psi4040_independent_amplitude_flow.ipynb.
-#
-# The file keeps only the pieces needed for the aligned amplitude calculation
-# and the remaining constant normalization-factor correction to the TF-PWA
-# convention.
+# This script evaluates the same hardcoded event as the isolated Python
+# execution-flow notebook, but uses only Julia package machinery for the
+# CascadeDecays / ThreeBodyDecays amplitude.
 
 using CascadeDecays
 using FourVectors
 using HadronicLineshapes
-using ThreeBodyDecays: VertexFunction, RecouplingLS
 using Printf
+using ThreeBodyDecays: RecouplingLS, VertexFunction
 
 const TARGET_TFPWA = -0.0006049977356379836 - 0.003087027069212291im
 
@@ -28,6 +24,14 @@ const nominal_mass = Dict(
     "Psi(4040)" => 4.039,
 )
 const psi_width = 0.08
+
+# TF-PWA fixes the Psi(4040) coupling from the nominal pole-point breakup
+# momentum q0, but evaluates the running width with the event D* mass.
+const psi_bw_form_factor = BlattWeisskopf{1}(3.0)
+const psi_bw_q0 = breakup(nominal_mass["Psi(4040)"], nominal_mass["Dst"], nominal_mass["D"])
+const psi_bw_gsq =
+    nominal_mass["Psi(4040)"] * psi_width / (2psi_bw_q0) *
+    nominal_mass["Psi(4040)"] / psi_bw_form_factor(psi_bw_q0)^2
 
 # Same hardcoded four-vectors as the isolated Python probe, ordered as
 # (E, px, py, pz) in the source notebook. FourVectors.FourVector expects
@@ -46,7 +50,7 @@ const topology = DecayTopology((((1, 2), 3), 4))
 const system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
 const x = cascade_kinematics(topology, system, objs)
 
-function build_package_native_chain()
+function build_package_native_chain(psi_lineshape)
     vertices = (
         (((1, 2), 3), 4) => VertexFunction(RecouplingLS((2, 2)), BlattWeisskopf{1}(3.0)),
         ((1, 2), 3) => VertexFunction(RecouplingLS((2, 2)), BlattWeisskopf{1}(3.0)),
@@ -54,17 +58,7 @@ function build_package_native_chain()
     )
     propagators = (
         (1, 2) => (two_j = 2, lineshape = ConstantLineshape(1.0 + 0.0im)),
-        ((1, 2), 3) => (
-            two_j = 2,
-            lineshape = BreitWigner(
-                nominal_mass["Psi(4040)"],
-                psi_width,
-                nominal_mass["Dst"],
-                nominal_mass["D"],
-                1,
-                3.0,
-            ),
-        ),
+        ((1, 2), 3) => (two_j = 2, lineshape = psi_lineshape),
     )
     return DecayChain(topology; propagators, vertices)
 end
@@ -76,21 +70,20 @@ function mismatch_factor(l, d, m0, m1, m2)
     return 1 / ff(m0^2, m1^2, m2^2)
 end
 
+theta_beta(angle_struct) = acos(values(angle_struct)[1])
+phi_alpha(angle_struct) = values(angle_struct)[2]
+
 function main()
     println("CascadeDecays aligned Psi(4040) amplitude")
     println("=========================================")
     println("TF-PWA target amplitude = ", TARGET_TFPWA)
     println()
 
-    package_chain = build_package_native_chain()
-    psi_bw = BreitWigner(
+    psi_bw = MultichannelBreitWigner(
         nominal_mass["Psi(4040)"],
-        psi_width,
-        nominal_mass["Dst"],
-        nominal_mass["D"],
-        1,
-        3.0,
+        [(; gsq = psi_bw_gsq, ma = mass(P_Dx), mb = nominal_mass["D"], l = 1, d = 3.0)],
     )
+    package_chain = build_package_native_chain(psi_bw)
     a_package = amplitude(package_chain, system, x, (0, 0, 0, 0, 0))
 
     event_mass = Dict(
@@ -119,29 +112,29 @@ function main()
     println(@sprintf("  p_pi  = (E, px, py, pz) = (%.12f, %.12f, %.12f, %.12f)", piplus[4], piplus[1], piplus[2], piplus[3]))
     println(@sprintf("  p_D   = (E, px, py, pz) = (%.12f, %.12f, %.12f, %.12f)", pDminus[4], pDminus[1], pDminus[2], pDminus[3]))
     println(@sprintf("  p_K   = (E, px, py, pz) = (%.12f, %.12f, %.12f, %.12f)", pKplus[4], pKplus[1], pKplus[2], pKplus[3]))
-    println("  Intermediate four-vectors (Dst, Psi(4040), Bp) are not provided directly by the package-native interface.")
+    println("  Intermediate four-vectors (Dst, Psi(4040), Bp) are package-internal derived kinematics.")
     println()
 
     println("Step 2: Compute invariant masses from the event kinematics.")
     println("  External/root masses are direct package inputs through CascadeSystem.")
-    for name in ["D0", "pi", "D", "K", "Bp"]
+    for name in ["D0", "pi", "D", "K", "Bp", "Dst", "Psi(4040)"]
         println(@sprintf("  m(%s) = %.12f GeV", name, event_mass[name]))
     end
-    println("  Internal masses m(Dst) and m(Psi(4040)) are routed internally by cascade_kinematics and are not printed here as direct package inputs.")
     println()
 
     println("Step 3: Compute helicity angles in the package convention.")
     println("  theta(beta) is reconstructed from the package-native cos(theta) output.")
     println(@sprintf("  Bp -> Psi(4040) K:   theta(beta)= % .12f, phi(alpha)= % .12f",
-                     acos(root_angles.cosθ), root_angles.ϕ))
+                     theta_beta(root_angles), phi_alpha(root_angles)))
     println(@sprintf("  Psi -> Dst D:        theta(beta)= % .12f, phi(alpha)= % .12f",
-                     acos(psi_angles.cosθ), psi_angles.ϕ))
+                     theta_beta(psi_angles), phi_alpha(psi_angles)))
     println(@sprintf("  Dst -> D0 pi:        theta(beta)= % .12f, phi(alpha)= % .12f",
-                     acos(dst_angles.cosθ), dst_angles.ϕ))
+                     theta_beta(dst_angles), phi_alpha(dst_angles)))
     println()
 
     println("Step 4: Compute breakup momenta.")
-    println("  q2 and q0^2 are not provided directly by the package-native interface.")
+    println("  q0(Psi -> D* D) is fixed from nominal masses: ", psi_bw_q0)
+    println("  q(Psi -> D* D) is evaluated internally with event m(D*) in MultichannelBreitWigner.")
     println()
 
     println("Step 5: Vertex model inputs from HadronicLineshapes / ThreeBodyDecays.")
@@ -151,13 +144,15 @@ function main()
     println()
 
     println("Step 6: Particle factor for Psi(4040).")
-    println("  Propagator: BreitWigner(4.039, 0.08, 2.01026, 1.86965, 1, 3.0)")
+    println("  Propagator: MultichannelBreitWigner with event m(D*) for q and nominal m(D*) for q0.")
+    println(@sprintf("  Channel masses: ma = m(D*)_event = %.12f GeV, mb = m(D)_nominal = %.12f GeV",
+                     mass(P_Dx), nominal_mass["D"]))
+    println(@sprintf("  Coupling gsq fixed from nominal q0 = %.12f GeV", psi_bw_q0))
     println("  Package-native Psi(4040) factor at sigma = m(Psi)^2")
     println("    ", psi_factor_package)
     println()
 
     println("Step 7: Final complex amplitude and normalization correction.")
-
     println("Package-native amplitude                  = ", a_package)
     println("Mismatch factor Bp vertex                = ", fb)
     println("Mismatch factor Psi vertex               = ", fpsi)
