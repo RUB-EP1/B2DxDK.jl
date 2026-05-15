@@ -81,8 +81,11 @@ function main()
 
     psi_bw = MultichannelBreitWigner(
         nominal_mass["Psi(4040)"],
-        [(; gsq = psi_bw_gsq, ma = mass(P_Dx), mb = nominal_mass["D"], l = 1, d = 3.0)],
-    )
+        [(; gsq = psi_bw_gsq, ma = mass(P_Dx), mb = mass(pDminus), l = 1, d = 3.0)])
+
+    psi_bw_old = BreitWigner(
+        nominal_mass["Psi(4040)"], psi_width, nominal_mass["Dst"], nominal_mass["D"], 1, 3.0)
+
     package_chain = build_package_native_chain(psi_bw)
     a_package = amplitude(package_chain, system, x, (0, 0, 0, 0, 0))
 

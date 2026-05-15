@@ -229,10 +229,12 @@ function compute_cd_observables(sampled_p4::Dict{String, Vector{Float64}}, topol
 
     system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
     x = cascade_kinematics(topology, system, objs)
+
     psi_bw_event = MultichannelBreitWigner(
-        nominal_mass["Psi(4040)"],
-        [(; gsq = psi_bw_gsq, ma = mass(P_Dx), mb = nominal_mass["D"], l = 1, d = 3.0)],
-    )
+        nominal_mass["Psi(4040)"], [(; gsq = psi_bw_gsq, ma = mass(P_Dx), mb = mass(pDminus), l = 1, d = 3.0)])
+    psi_bw_event_old = BreitWigner(
+        nominal_mass["Psi(4040)"], psi_width, nominal_mass["Dst"], nominal_mass["D"], 1, 3.0)
+
     package_chain_event = build_package_native_chain(topology, psi_bw_event)
     a_package = amplitude(package_chain_event, system, x, (0, 0, 0, 0, 0))
     a_corrected = a_package * total_factor
