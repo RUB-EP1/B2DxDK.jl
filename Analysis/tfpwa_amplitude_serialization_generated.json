@@ -1,0 +1,2058 @@
+{
+  "distributions": [
+    {
+      "name": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
+      "type": "HadronicUnpolarizedIntensity",
+      "parameters": [],
+      "decay_description": {
+        "kinematics": {
+          "initial_state": {
+            "index": 0,
+            "name": "Bp",
+            "mass": 5.27934,
+            "spin": "0"
+          },
+          "final_state": [
+            {
+              "index": 1,
+              "name": "D0",
+              "mass": 1.86483,
+              "spin": "0"
+            },
+            {
+              "index": 2,
+              "name": "pi",
+              "mass": 0.13957039,
+              "spin": "0"
+            },
+            {
+              "index": 3,
+              "name": "D",
+              "mass": 1.86965,
+              "spin": "0"
+            },
+            {
+              "index": 4,
+              "name": "K",
+              "mass": 0.493677,
+              "spin": "0"
+            }
+          ]
+        },
+        "reference_topology": [
+          [
+            [
+              1,
+              2
+            ],
+            3
+          ],
+          4
+        ],
+        "chains": [
+          {
+            "name": "NR(0-)SPm/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_NR(0m)SPm_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 0,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.1001452087627779 - 0.0005524939822732542i"
+          },
+          {
+            "name": "NR(0-)SPp/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_NR(0m)SPp_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 0,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.3337804679205718 + 0.111212960873336i"
+          },
+          {
+            "name": "NR(1+)PSp/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_NR(1p)PSp_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 0,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.6734289095819908 + 0.03467033980074432i"
+          },
+          {
+            "name": "NR(1-)PPm/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_NR(1m)PPm_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.6983358345395293 + 0.2712798263127683i"
+          },
+          {
+            "name": "Psi(4040)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "1",
+                "parametrization": "lineshape_Psi(4040)_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.06245117128052565 + 0.2323626876324529i"
+          },
+          {
+            "name": "X(3872)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3872)_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 0,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "1 + 0i"
+          },
+          {
+            "name": "X(3872)/ls1",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3872)_l2"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 2,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.2589930593433873 - 0.9658791825129852i"
+          },
+          {
+            "name": "X(3915)(0-)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3915)(0m)_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 0,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.1700460664138185 + 0.1804097890338314i"
+          },
+          {
+            "name": "X(3940)(1+)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3940)(1p)_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 0,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.5476505303748366 - 0.2031427665465601i"
+          },
+          {
+            "name": "X(3940)(1+)/ls1",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3940)(1p)_l2"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 2,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.3363455945420279 - 0.4775559946772732i"
+          },
+          {
+            "name": "X(3993)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3993)_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 0,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.3619460797492374 + 0.1875380178571422i"
+          },
+          {
+            "name": "X(3993)/ls1",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(3993)_l2"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 2,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.3897458556615702 - 0.1194723431688587i"
+          },
+          {
+            "name": "X(4300)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(4300)_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 0,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.1129151231984244 + 0.04589031984966718i"
+          },
+          {
+            "name": "X(4300)/ls1",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X(4300)_l2"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 2,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.1161830701334636 + 0.03684074805406105i"
+          },
+          {
+            "name": "X0(2900)/ls0",
+            "topology": [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  3,
+                  4
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_X0(2900)_l0"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "l": 1,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  3,
+                  4
+                ],
+                "l": 0,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "0.1065052199416014 + 0.02249975743700171i"
+          },
+          {
+            "name": "X1(2900)/ls0",
+            "topology": [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  3,
+                  4
+                ],
+                "spin": "1",
+                "parametrization": "lineshape_X1(2900)_l1"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "l": 0,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  3,
+                  4
+                ],
+                "l": 1,
+                "s": "0"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.03815127408921663 + 0.1016559351606228i"
+          },
+          {
+            "name": "chi(c2)(3930)/ls0",
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "propagators": [
+              {
+                "node": [
+                  1,
+                  2
+                ],
+                "spin": "1",
+                "parametrization": "constant_Dst"
+              },
+              {
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "spin": "0",
+                "parametrization": "lineshape_chi(c2)(3930)_l2"
+              }
+            ],
+            "vertices": [
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    [
+                      1,
+                      2
+                    ],
+                    3
+                  ],
+                  4
+                ],
+                "l": 2,
+                "s": "2"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  3
+                ],
+                "l": 2,
+                "s": "1"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  1,
+                  2
+                ],
+                "l": 1,
+                "s": "0"
+              }
+            ],
+            "weight": "-0.04992001377928167 - 0.149726037724203i"
+          }
+        ],
+        "appendix": {
+          "source": "Converted from TF-PWA config_a.yml and final_params_full.json",
+          "tfpwa_dat_order": [
+            "D",
+            "K",
+            "D0",
+            "pi"
+          ],
+          "serialization_final_state_order": [
+            "D0",
+            "pi",
+            "D",
+            "K"
+          ],
+          "known_warnings": [
+            "X(3872): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+            "X(3940)(1+): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+            "X(3993): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+            "X(4300): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+            "NR(0-)SPp: TF-PWA nonresonant New model emitted as custom expression."
+          ],
+          "format_note": "Uses the official amplitude-serialization top-level schema with distributions/domains/functions/parameter_points."
+        }
+      }
+    }
+  ],
+  "domains": [
+    {
+      "name": "nominal_phase_space",
+      "type": "product_domain",
+      "parameters": [
+        {
+          "name": "m_parent",
+          "value": 5.27934
+        },
+        {
+          "name": "m_D0",
+          "value": 1.86483
+        },
+        {
+          "name": "m_pi",
+          "value": 0.13957039
+        },
+        {
+          "name": "m_D",
+          "value": 1.86965
+        },
+        {
+          "name": "m_K",
+          "value": 0.493677
+        }
+      ],
+      "axes": [
+        {
+          "name": "m2_D0pi",
+          "min": 4.017620923432151,
+          "max": 8.503131816169002
+        },
+        {
+          "name": "m2_DK",
+          "min": 5.585314508929,
+          "max": 10.725229449146955
+        },
+        {
+          "name": "m2_D0piD",
+          "min": 15.008266424259151,
+          "max": 22.902570349569004
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "constant_Dst",
+      "type": "custom",
+      "expression": "constant(1)"
+    },
+    {
+      "name": "lineshape_NR(0m)SPm_l1",
+      "type": "custom",
+      "expression": "constant(1)"
+    },
+    {
+      "name": "lineshape_NR(0m)SPp_l1",
+      "type": "custom",
+      "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m^2 - m0^2))"
+    },
+    {
+      "name": "lineshape_NR(1m)PPm_l1",
+      "type": "custom",
+      "expression": "constant(1)"
+    },
+    {
+      "name": "lineshape_NR(1p)PSp_l0",
+      "type": "custom",
+      "expression": "constant(1)"
+    },
+    {
+      "name": "lineshape_Psi(4040)_l1",
+      "type": "BreitWigner",
+      "mass": 4.039,
+      "width": 0.08,
+      "ma": 2.01026,
+      "mb": 1.86965,
+      "l": 1,
+      "d": 3.0
+    },
+    {
+      "name": "lineshape_X(3872)_l0",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(3872)_l2",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(3915)(0m)_l1",
+      "type": "BreitWigner",
+      "mass": 3.944541826791121,
+      "width": 0.12967347104307578,
+      "ma": 2.01026,
+      "mb": 1.86965,
+      "l": 1,
+      "d": 3.0
+    },
+    {
+      "name": "lineshape_X(3940)(1p)_l0",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(3940)(1p)_l2",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(3993)_l0",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(3993)_l2",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(4300)_l0",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X(4300)_l2",
+      "type": "custom",
+      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+    },
+    {
+      "name": "lineshape_X0(2900)_l0",
+      "type": "BreitWigner",
+      "mass": 2.866,
+      "width": 0.057,
+      "ma": 1.86965,
+      "mb": 0.493677,
+      "l": 0,
+      "d": 3.0
+    },
+    {
+      "name": "lineshape_X1(2900)_l1",
+      "type": "BreitWigner",
+      "mass": 2.904,
+      "width": 0.11,
+      "ma": 1.86965,
+      "mb": 0.493677,
+      "l": 1,
+      "d": 3.0
+    },
+    {
+      "name": "lineshape_chi(c2)(3930)_l2",
+      "type": "BreitWigner",
+      "mass": 3.9272,
+      "width": 0.024,
+      "ma": 2.01026,
+      "mb": 1.86965,
+      "l": 2,
+      "d": 3.0
+    }
+  ],
+  "misc": {
+    "amplitude_model_checksums": [],
+    "reference_tfpwa": {
+      "seed": 12345,
+      "chain_spec": "all",
+      "dat_order": [
+        "D",
+        "K",
+        "D0",
+        "pi"
+      ],
+      "p4": {
+        "D": [
+          [
+            1.8961391592236796,
+            0.3144503649333187,
+            -0.0078555635466872,
+            0.028492924668222553
+          ],
+          [
+            1.9486048503956355,
+            -0.30086342369148417,
+            -0.4379871355902329,
+            -0.1382686147594525
+          ],
+          [
+            2.034786519296102,
+            -0.7414471936434771,
+            0.29517569777386876,
+            -0.08883931050536092
+          ]
+        ],
+        "K": [
+          [
+            0.842959647348788,
+            0.593156267624585,
+            0.2588349227288141,
+            -0.2191668580854177
+          ],
+          [
+            1.1133371414885194,
+            -0.5599806401416563,
+            0.7697232072682565,
+            0.29958383993138993
+          ],
+          [
+            0.8247212326630867,
+            0.18425422602629393,
+            0.3706665658019737,
+            0.5148832959655455
+          ]
+        ],
+        "D0": [
+          [
+            2.1073476660587214,
+            -0.7911780776055732,
+            -0.5803513742091598,
+            -0.02351145918549677
+          ],
+          [
+            2.0620719089709514,
+            0.8161540991913361,
+            -0.30841036021049595,
+            -0.1154346783038555
+          ],
+          [
+            1.9642185253037252,
+            0.17140475909734998,
+            -0.5041711270840417,
+            -0.31144079601093805
+          ]
+        ],
+        "pi": [
+          [
+            0.43289353062892627,
+            -0.11642855495233037,
+            0.32937201502703284,
+            0.21418539260269187
+          ],
+          [
+            0.15532610888327328,
+            0.04468996464180455,
+            -0.02332571146752776,
+            -0.04588054686808199
+          ],
+          [
+            0.4556137432125868,
+            0.3857882085198334,
+            -0.16167113649180093,
+            -0.11460318944924658
+          ]
+        ]
+      },
+      "amplitudes": [
+        {
+          "real": 0.10291991529150207,
+          "imag": 0.1726691947214774
+        },
+        {
+          "real": -0.1751391467554237,
+          "imag": 0.741331524466396
+        },
+        {
+          "real": 0.440794403997878,
+          "imag": -0.05699417961905916
+        }
+      ]
+    },
+    "warnings": [
+      "X(3872): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+      "X(3940)(1+): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+      "X(3993): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+      "X(4300): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
+      "NR(0-)SPp: TF-PWA nonresonant New model emitted as custom expression."
+    ]
+  },
+  "parameter_points": [
+    {
+      "name": "final_params_full",
+      "parameters": [
+        {
+          "name": "Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0i",
+          "value": 9.430294833557134
+        },
+        {
+          "name": "Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0r",
+          "value": 0.10014673278615137
+        },
+        {
+          "name": "Bp->NR(0-)SPm.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->NR(0-)SPm.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0i",
+          "value": 2.8199693606594667
+        },
+        {
+          "name": "Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0r",
+          "value": 0.3518205841497765
+        },
+        {
+          "name": "Bp->NR(0-)SPp.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->NR(0-)SPp.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0i",
+          "value": 2.771068630414713
+        },
+        {
+          "name": "Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0r",
+          "value": 0.749176669395348
+        },
+        {
+          "name": "Bp->NR(1-)PPm.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->NR(1-)PPm.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0i",
+          "value": 0.0514378820699856
+        },
+        {
+          "name": "Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0r",
+          "value": 0.6743207906647163
+        },
+        {
+          "name": "Bp->NR(1.)PSp.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->NR(1.)PSp.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0i",
+          "value": 1.8333575751420952
+        },
+        {
+          "name": "Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.24060874339492827
+        },
+        {
+          "name": "Bp->Psi(4040).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->Psi(4040).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(3872).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(3872).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0i",
+          "value": -3.956554321156098
+        },
+        {
+          "name": "Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.24791804428488928
+        },
+        {
+          "name": "Bp->X(3915)(0-).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(3915)(0-).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(3940)(1.).KX(3940)(1.)->Dst.DDst->D0.pi_total_0i",
+          "value": -0.3552021079689381
+        },
+        {
+          "name": "Bp->X(3940)(1.).KX(3940)(1.)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.5841130772547641
+        },
+        {
+          "name": "Bp->X(3940)(1.).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(3940)(1.).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(3993).KX(3993)->Dst.DDst->D0.pi_total_0i",
+          "value": 0.47805249499223534
+        },
+        {
+          "name": "Bp->X(3993).KX(3993)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.40764625938137483
+        },
+        {
+          "name": "Bp->X(3993).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(3993).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X(4300).KX(4300)->Dst.DDst->D0.pi_total_0i",
+          "value": 0.3860236797579817
+        },
+        {
+          "name": "Bp->X(4300).KX(4300)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.12188415197563676
+        },
+        {
+          "name": "Bp->X(4300).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X(4300).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0i",
+          "value": 0.20819385727695455
+        },
+        {
+          "name": "Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0r",
+          "value": 0.10885587241638732
+        },
+        {
+          "name": "Bp->X0(2900).Dst_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X0(2900).Dst_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0i",
+          "value": -10.636542340064254
+        },
+        {
+          "name": "Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0r",
+          "value": 0.10857922852926928
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_1i",
+          "value": 2.8344980953014884
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_1r",
+          "value": 0.4684989926199431
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_2i",
+          "value": 15.691626833657145
+        },
+        {
+          "name": "Bp->X1(2900).Dst_g_ls_2r",
+          "value": 2.074820713049955
+        },
+        {
+          "name": "Bp->chi(c2)(3930).K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Bp->chi(c2)(3930).K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0i",
+          "value": 4.390570295871437
+        },
+        {
+          "name": "Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0r",
+          "value": 0.15782868607548226
+        },
+        {
+          "name": "Dst->D0.pi_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Dst->D0.pi_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "NR(0-)SPm->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "NR(0-)SPm->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "NR(0-)SPp->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "NR(0-)SPp->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "NR(0-)SPp_alpha",
+          "value": -0.11261265753519498
+        },
+        {
+          "name": "NR(0-)SPp_beta",
+          "value": 0.3362692520521029
+        },
+        {
+          "name": "NR(1-)PPm->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "NR(1-)PPm->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "NR(1.)PSp->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "NR(1.)PSp->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Psi(4040)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "Psi(4040)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "Psi(4040)_mass",
+          "value": 4.039
+        },
+        {
+          "name": "Psi(4040)_width",
+          "value": 0.08
+        },
+        {
+          "name": "X(3872)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X(3872)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3872)->Dst.D_g_ls_1i",
+          "value": -7.592002089027378
+        },
+        {
+          "name": "X(3872)->Dst.D_g_ls_1r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3872)_mass",
+          "value": 3.87165
+        },
+        {
+          "name": "X(3872)_theta0",
+          "value": -2.015922499113244
+        },
+        {
+          "name": "X(3872)_width",
+          "value": 0.00119
+        },
+        {
+          "name": "X(3915)(0-)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X(3915)(0-)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3915)(0-)_mass",
+          "value": 3.944541826791121
+        },
+        {
+          "name": "X(3915)(0-)_width",
+          "value": 0.12967347104307578
+        },
+        {
+          "name": "X(3940)(1.)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X(3940)(1.)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3940)(1.)->Dst.D_g_ls_1i",
+          "value": -0.6019841049396812
+        },
+        {
+          "name": "X(3940)(1.)->Dst.D_g_ls_1r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3940)(1.)_mass",
+          "value": 4.000356038444546
+        },
+        {
+          "name": "X(3940)(1.)_theta0",
+          "value": 0.7989909720607203
+        },
+        {
+          "name": "X(3940)(1.)_width",
+          "value": 0.1840988981535105
+        },
+        {
+          "name": "X(3993)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X(3993)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3993)->Dst.D_g_ls_1i",
+          "value": 2.9609852766403932
+        },
+        {
+          "name": "X(3993)->Dst.D_g_ls_1r",
+          "value": 1.0
+        },
+        {
+          "name": "X(3993)_mass",
+          "value": 4.012482696497617
+        },
+        {
+          "name": "X(3993)_theta0",
+          "value": 0.46985735503890574
+        },
+        {
+          "name": "X(3993)_width",
+          "value": 0.06273843568400221
+        },
+        {
+          "name": "X(4300)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X(4300)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X(4300)->Dst.D_g_ls_1i",
+          "value": -0.07896063546520433
+        },
+        {
+          "name": "X(4300)->Dst.D_g_ls_1r",
+          "value": 1.0
+        },
+        {
+          "name": "X(4300)_mass",
+          "value": 4.307256285732596
+        },
+        {
+          "name": "X(4300)_theta0",
+          "value": 1.0215278810525474
+        },
+        {
+          "name": "X(4300)_width",
+          "value": 0.058438730618967774
+        },
+        {
+          "name": "X0(2900)->D.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X0(2900)->D.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X0(2900)_mass",
+          "value": 2.866
+        },
+        {
+          "name": "X0(2900)_width",
+          "value": 0.057
+        },
+        {
+          "name": "X1(2900)->D.K_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "X1(2900)->D.K_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "X1(2900)_mass",
+          "value": 2.904
+        },
+        {
+          "name": "X1(2900)_width",
+          "value": 0.11
+        },
+        {
+          "name": "chi(c2)(3930)->Dst.D_g_ls_0i",
+          "value": 0.0
+        },
+        {
+          "name": "chi(c2)(3930)->Dst.D_g_ls_0r",
+          "value": 1.0
+        },
+        {
+          "name": "chi(c2)(3930)_mass",
+          "value": 3.9272
+        },
+        {
+          "name": "chi(c2)(3930)_width",
+          "value": 0.024
+        }
+      ]
+    }
+  ]
+}
