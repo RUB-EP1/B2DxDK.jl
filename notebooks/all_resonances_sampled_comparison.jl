@@ -1,7 +1,7 @@
 # Change only this line to test one active resonance, or use "all"
 # for the coherent sum of all implemented resonances:
 const selected_resonance = "all"
-const n_events = 50_000
+const n_events = 100_000
 #
 # Valid choices:
 # "all",
@@ -266,7 +266,9 @@ bwr_lineshape(ctx, m0, width, l, sign) = begin
     q0 = real(tfpwa_breakup(m0, nominal_mass["Dst"], nominal_mass["D"]))
     ff = BlattWeisskopf{l}(3.0)
     gsq = m0 * width / (2q0) * m0 / ff(q0)^2
-    sign * MultichannelBreitWigner(m0, [(; gsq, ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l, d = 3.0)])
+    # Event-specific alternative:
+    # sign * MultichannelBreitWigner(m0, [(; gsq, ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l, d = 3.0)])
+    sign * MultichannelBreitWigner(m0, [(; gsq, ma = nominal_mass["Dst"], mb = nominal_mass["D"], l, d = 3.0)])
 end
 
 function ad_hoc_mass(m0, m_min, m_max)
@@ -282,14 +284,23 @@ function bwr_ls_lineshapes(ctx, name, sign; below_threshold = false)
     gamma2 = sin(param_real(name * "_theta0"))
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
+    # Event-specific alternatives:
+    # channels = [
+    #     (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
+    #        ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 0, d = 3.0),
+    #     (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
+    #        ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 2, d = 3.0),
+    # ]
     channels = [
         (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-           ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 0, d = 3.0),
+           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 0, d = 3.0),
         (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-           ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 2, d = 3.0),
+           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 2, d = 3.0),
     ]
     bw = sign * MultichannelBreitWigner(m0, channels)
-    breakup_from_sigma = sigma -> tfpwa_breakup(sqrt(sigma), mass(ctx.P_Dst), mass(ctx.pDminus))
+    # Event-specific alternative:
+    # breakup_from_sigma = sigma -> tfpwa_breakup(sqrt(sigma), mass(ctx.P_Dst), mass(ctx.pDminus))
+    breakup_from_sigma = sigma -> tfpwa_breakup(sqrt(sigma), nominal_mass["Dst"], nominal_mass["D"])
     return bw * gamma0, bw * (ff2(breakup_from_sigma) * (gamma2 / ff2(q0)))
 end
 
@@ -342,9 +353,14 @@ function x2900_bwr_lineshape(ctx, name, l)
     q0 = real(tfpwa_breakup(nominal_mass[name], nominal_mass["D"], nominal_mass["K"]))
     ff = BlattWeisskopf{l}(3.0)
     gsq = nominal_mass[name] * param_real(name * "_width") / (2q0) * nominal_mass[name] / ff(q0)^2
+    # Event-specific alternative:
+    # return MultichannelBreitWigner(
+    #     nominal_mass[name],
+    #     [(; gsq, ma = mass(ctx.pDminus), mb = mass(ctx.pKplus), l, d = 3.0)],
+    # )
     return MultichannelBreitWigner(
         nominal_mass[name],
-        [(; gsq, ma = mass(ctx.pDminus), mb = mass(ctx.pKplus), l, d = 3.0)],
+        [(; gsq, ma = nominal_mass["D"], mb = nominal_mass["K"], l, d = 3.0)],
     )
 end
 
@@ -458,6 +474,34 @@ function save_scan(path::String, rows)
     end
 end
 
+function save_fit_fractions(path::String, component_names, component_amps_by_event)
+    coherent_norm = sum(abs2(sum(component_amps)) for component_amps in component_amps_by_event)
+    component_norms = [
+        sum(abs2(component_amps[idx]) for component_amps in component_amps_by_event)
+        for idx in eachindex(component_names)
+    ]
+    fit_fractions = component_norms ./ coherent_norm
+    incoherent_norm = sum(component_norms)
+    interference_fraction = (coherent_norm - incoherent_norm) / coherent_norm
+
+    open(path, "w") do io
+        println(io, join(["component", "sum_abs2_component", "fit_fraction", "fit_fraction_percent"], '\t'))
+        for (name, norm, fraction) in zip(component_names, component_norms, fit_fractions)
+            println(io, join(string.((name, norm, fraction, 100fraction)), '\t'))
+        end
+        println(io, join(string.(("interference", coherent_norm - incoherent_norm,
+                                 interference_fraction, 100interference_fraction)), '\t'))
+    end
+
+    println()
+    println("CascadeDecays fit fractions:")
+    for (name, fraction) in zip(component_names, fit_fractions)
+        println(@sprintf("  %-16s %.6e  (%.4f%%)", name, fraction, 100fraction))
+    end
+    println(@sprintf("  %-16s %.6e  (%.4f%%)", "interference", interference_fraction, 100interference_fraction))
+    return fit_fractions, interference_fraction
+end
+
 function binned_mean_grid(rows, values; nbins::Int = 60)
     xs = [row.m2_dst for row in rows]
     ys = [row.m2_r for row in rows]
@@ -530,8 +574,8 @@ function amp2_comparison_plot(path::String, rows; nbins::Int = 60)
         background_color = :white,
         background_color_inside = :white,
     )
-    p1 = heatmap(centers_x, centers_y, tf_grid'; title = "TF-PWA mean |A|^2", common...)
-    p2 = heatmap(centers_x, centers_y, cd_grid'; title = "CascadeDecays mean |A|^2", common...)
+    p1 = heatmap(centers_x, centers_y, tf_grid'; title = "Original TF-PWA mean |A|^2", common...)
+    p2 = heatmap(centers_x, centers_y, cd_grid'; title = "Nominal-mass-propagator CascadeDecays mean |A|^2", common...)
     savefig(plot(p1, p2; layout = (1, 2), size = (1900, 750), margin = 7Plots.mm), path)
 end
 
@@ -613,12 +657,15 @@ function run_all_resonance_scan()
     println("Computing coherent CascadeDecays sum event by event...")
 
     rows = NamedTuple[]
+    component_amps_by_event = Vector{Vector{ComplexF64}}()
     for idx in eachindex(sampled_events)
         ctx = event_context(sampled_events[idx])
-        cd_amp = all_resonance_cd_amplitude(ctx)
+        component_amps = ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names]
+        cd_amp = sum(component_amps)
         tfpwa_amp = tfpwa_amps[idx]
         rel_delta_re = abs(real(tfpwa_amp)) > 1e-12 ? (real(cd_amp) - real(tfpwa_amp)) / real(tfpwa_amp) : NaN
         rel_delta_im = abs(imag(tfpwa_amp)) > 1e-12 ? (imag(cd_amp) - imag(tfpwa_amp)) / imag(tfpwa_amp) : NaN
+        push!(component_amps_by_event, component_amps)
         push!(rows, (
             event = idx,
             m2_dst = mass(ctx.P_Dst)^2,
@@ -636,11 +683,13 @@ function run_all_resonance_scan()
     plots_dir = joinpath(@__DIR__, "Plots")
     mkpath(plots_dir)
     scan_path = joinpath(@__DIR__, "all_resonances_scan.txt")
+    fit_fraction_path = joinpath(@__DIR__, "all_resonances_fit_fractions.txt")
     rel_re_path = joinpath(plots_dir, "all_resonances_rel_re.png")
     rel_im_path = joinpath(plots_dir, "all_resonances_rel_im.png")
     amp2_path = joinpath(plots_dir, "all_resonances_amp2.png")
 
     save_scan(scan_path, rows)
+    save_fit_fractions(fit_fraction_path, all_resonance_names, component_amps_by_event)
     relative_difference_plot(rel_re_path, rows; component = :re)
     relative_difference_plot(rel_im_path, rows; component = :im)
     amp2_comparison_plot(amp2_path, rows)
@@ -650,6 +699,7 @@ function run_all_resonance_scan()
     rel_abs = [abs(row.delta) / max(abs(row.tfpwa_amp), eps(Float64)) for row in rows]
     println()
     println("Saved all-resonance event table: ", scan_path)
+    println("Saved all-resonance fit fractions: ", fit_fraction_path)
     println("Saved all-resonance plots:       ", rel_re_path)
     println("                                  ", rel_im_path)
     println("                                  ", amp2_path)
