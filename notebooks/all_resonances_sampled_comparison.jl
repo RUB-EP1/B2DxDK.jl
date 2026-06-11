@@ -176,7 +176,6 @@ import sys
 
 import numpy as np
 import tensorflow as tf
-import yaml
 
 repo_root, analysis_dir, output_path, n_events = sys.argv[1:5]
 n_events = int(n_events)
@@ -187,35 +186,17 @@ os.chdir(analysis_dir)
 
 import extra_amp
 from tf_pwa.config_loader import ConfigLoader
-from tf_pwa.phasespace import PhaseSpaceGenerator
-
-with open("config_a.yml", "r", encoding="utf-8") as f:
-    config_yml = yaml.safe_load(f)
 with open("final_params_full.json", "r", encoding="utf-8") as f:
     params_dict = json.load(f)["value"]
 
-nominal_mass = {
-    "Bp": float(config_yml["particle"]["\$top"]["Bp"]["mass"]),
-    "D": float(config_yml["particle"]["\$finals"]["D"]["mass"]),
-    "K": float(config_yml["particle"]["\$finals"]["K"]["mass"]),
-    "D0": float(config_yml["particle"]["\$finals"]["D0"]["mass"]),
-    "pi": float(config_yml["particle"]["\$finals"]["pi"]["mass"]),
-}
-
 seed = int(np.random.default_rng().integers(0, 2**31 - 1))
+np.random.seed(seed)
 tf.random.set_seed(seed)
-generator = PhaseSpaceGenerator(nominal_mass["Bp"], [nominal_mass[name] for name in ["D", "K", "D0", "pi"]])
-sample_phase_space_list = [np.asarray(v) for v in generator.generate(n_events)]
-sampled_p4 = dict(zip(["D", "K", "D0", "pi"], [v.tolist() for v in sample_phase_space_list]))
 
 config = ConfigLoader("config_a.yml")
-particle_map = {p.name: p for p in list(config.get_decay().outs)}
-p4_tfpwa = {
-    particle_map["D"]: tf.constant(sampled_p4["D"], dtype=tf.float64),
-    particle_map["D0"]: tf.constant(sampled_p4["D0"], dtype=tf.float64),
-    particle_map["K"]: tf.constant(sampled_p4["K"], dtype=tf.float64),
-    particle_map["pi"]: tf.constant(sampled_p4["pi"], dtype=tf.float64),
-}
+phsp_p = config.generate_phsp_p(n_events)
+p4_tfpwa = {particle: tf.constant(np.asarray(p4), dtype=tf.float64) for particle, p4 in phsp_p.items()}
+sampled_p4 = {particle.name: np.asarray(p4).tolist() for particle, p4 in phsp_p.items()}
 phsp_variables = config.data.cal_angle(p4_tfpwa)
 phsp_variables["c"] = np.full(n_events, -1.0)
 
@@ -462,12 +443,12 @@ end
 all_resonance_cd_amplitude(ctx) = sum(selected_cd_amplitude(ctx, name) for name in all_resonance_names)
 
 function save_scan(path::String, rows)
-    header = ["event", "m2_D0pi", "m2_D0piD", "m2_DK", "tfpwa_re", "tfpwa_im",
+    header = ["event", "m2_D0pi", "m2_D0piD", "m2_DK", "m2_DstK", "tfpwa_re", "tfpwa_im",
               "cd_re", "cd_im", "rel_delta_re", "rel_delta_im", "abs_delta"]
     open(path, "w") do io
         println(io, join(header, '\t'))
         for row in rows
-            values = Any[row.event, row.m2_dst, row.m2_r, row.m2_dk, real(row.tfpwa_amp), imag(row.tfpwa_amp),
+            values = Any[row.event, row.m2_dst, row.m2_r, row.m2_dk, row.m2_dstk, real(row.tfpwa_amp), imag(row.tfpwa_amp),
                          real(row.cd_amp), imag(row.cd_amp), row.rel_delta_re, row.rel_delta_im, abs(row.delta)]
             println(io, join(string.(values), '\t'))
         end
@@ -502,9 +483,27 @@ function save_fit_fractions(path::String, component_names, component_amps_by_eve
     return fit_fractions, interference_fraction
 end
 
+const plot_axis_candidates = [
+    (:m2_dst, "m^2(D0, pi) [GeV^2]"),
+    (:m2_r, "m^2(D0, pi, D) [GeV^2]"),
+    (:m2_dk, "m^2(D, K) [GeV^2]"),
+]
+
+function plot_axes(rows)
+    varying = filter(plot_axis_candidates) do (field, _)
+        vals = [getproperty(row, field) for row in rows]
+        lo, hi = extrema(vals)
+        span = hi - lo
+        span > 1e-8 * max(abs(lo), abs(hi), 1.0)
+    end
+    length(varying) >= 2 || error("Need at least two non-degenerate mass variables for 2D plots.")
+    return varying[1], varying[2]
+end
+
 function binned_mean_grid(rows, values; nbins::Int = 60)
-    xs = [row.m2_dst for row in rows]
-    ys = [row.m2_r for row in rows]
+    (xfield, xlabel), (yfield, ylabel) = plot_axes(rows)
+    xs = [getproperty(row, xfield) for row in rows]
+    ys = [getproperty(row, yfield) for row in rows]
     xedges = collect(range(minimum(xs), maximum(xs); length = nbins + 1))
     yedges = collect(range(minimum(ys), maximum(ys); length = nbins + 1))
     sums = zeros(Float64, nbins, nbins)
@@ -521,12 +520,12 @@ function binned_mean_grid(rows, values; nbins::Int = 60)
     for ix in 1:nbins, iy in 1:nbins
         counts[ix, iy] > 0 && (grid[ix, iy] = sums[ix, iy] / counts[ix, iy])
     end
-    return xedges, yedges, grid
+    return xedges, yedges, grid, xlabel, ylabel
 end
 
 function relative_difference_plot(path::String, rows; component::Symbol, nbins::Int = 60)
     values = component === :re ? [row.rel_delta_re for row in rows] : [row.rel_delta_im for row in rows]
-    xedges, yedges, grid = binned_mean_grid(rows, values; nbins)
+    xedges, yedges, grid, xlabel, ylabel = binned_mean_grid(rows, values; nbins)
     finite_values = grid[isfinite.(grid)]
     zlim = isempty(finite_values) ? 1.0 : quantile(abs.(finite_values), 0.98)
     zlim = max(zlim, eps(Float64))
@@ -542,8 +541,8 @@ function relative_difference_plot(path::String, rows; component::Symbol, nbins::
         (xedges[1:end-1] .+ xedges[2:end]) ./ 2,
         (yedges[1:end-1] .+ yedges[2:end]) ./ 2,
         scaled_grid',
-        xlabel = "m^2(D0, pi) [GeV^2]",
-        ylabel = "m^2(D0, pi, D) [GeV^2]",
+        xlabel = xlabel,
+        ylabel = ylabel,
         title = title,
         c = :balance,
         clim = (-scaled_zlim, scaled_zlim),
@@ -557,8 +556,8 @@ end
 function amp2_comparison_plot(path::String, rows; nbins::Int = 60)
     tf_values = [abs2(row.tfpwa_amp) for row in rows]
     cd_values = [abs2(row.cd_amp) for row in rows]
-    xedges, yedges, tf_grid = binned_mean_grid(rows, tf_values; nbins)
-    _, _, cd_grid = binned_mean_grid(rows, cd_values; nbins)
+    xedges, yedges, tf_grid, xlabel, ylabel = binned_mean_grid(rows, tf_values; nbins)
+    _, _, cd_grid, _, _ = binned_mean_grid(rows, cd_values; nbins)
     positive = vcat(vec(tf_grid[(isfinite.(tf_grid)) .& (tf_grid .> 0)]),
                     vec(cd_grid[(isfinite.(cd_grid)) .& (cd_grid .> 0)]))
     zmin = isempty(positive) ? eps(Float64) : minimum(positive)
@@ -566,8 +565,8 @@ function amp2_comparison_plot(path::String, rows; nbins::Int = 60)
     centers_x = (xedges[1:end-1] .+ xedges[2:end]) ./ 2
     centers_y = (yedges[1:end-1] .+ yedges[2:end]) ./ 2
     common = (
-        xlabel = "m^2(D0, pi) [GeV^2]",
-        ylabel = "m^2(D0, pi, D) [GeV^2]",
+        xlabel = xlabel,
+        ylabel = ylabel,
         c = :viridis,
         clim = (zmin, zmax),
         colorbar_scale = :log10,
@@ -577,6 +576,55 @@ function amp2_comparison_plot(path::String, rows; nbins::Int = 60)
     p1 = heatmap(centers_x, centers_y, tf_grid'; title = "Original TF-PWA mean |A|^2", common...)
     p2 = heatmap(centers_x, centers_y, cd_grid'; title = "Nominal-mass-propagator CascadeDecays mean |A|^2", common...)
     savefig(plot(p1, p2; layout = (1, 2), size = (1900, 750), margin = 7Plots.mm), path)
+end
+
+function weighted_histogram(xs, weights; nbins::Int = 80)
+    lo, hi = extrema(xs)
+    edges = collect(range(lo, hi; length = nbins + 1))
+    sums = zeros(Float64, nbins)
+    for (x, w) in zip(xs, weights)
+        if isfinite(x) && isfinite(w)
+            idx = x == hi ? nbins : clamp(searchsortedlast(edges, x), 1, nbins)
+            sums[idx] += w
+        end
+    end
+    centers = (edges[1:end-1] .+ edges[2:end]) ./ 2
+    return centers, sums
+end
+
+function save_resonance_amp2_histograms(plots_dir::String, rows, resonance_amps_by_event; nbins::Int = 80)
+    hist_dir = joinpath(plots_dir, "amplitude_histograms")
+    mkpath(hist_dir)
+    mass_specs = [
+        (field = :m2_r, label = "m(D*D) [GeV]", filename = "amp2_hist_m_DstD.png"),
+        (field = :m2_dk, label = "m(DK) [GeV]", filename = "amp2_hist_m_DK.png"),
+        (field = :m2_dstk, label = "m(D*K) [GeV]", filename = "amp2_hist_m_DstK.png"),
+    ]
+
+    for spec in mass_specs
+        xs = [sqrt(getproperty(row, spec.field)) for row in rows]
+        plt = plot(
+            xlabel = spec.label,
+            ylabel = "sum |A|^2 per bin",
+            title = "Resonance |A|^2 histograms vs $(spec.label)",
+            background_color = :white,
+            background_color_inside = :white,
+            legend = :outerright,
+            size = (1500, 850),
+            right_margin = 18Plots.mm,
+        )
+        for (idx, name) in enumerate(all_resonance_names)
+            weights = [abs2(amps[idx]) for amps in resonance_amps_by_event]
+            centers, sums = weighted_histogram(xs, weights; nbins)
+            plot!(plt, centers, sums; label = name, linewidth = 1.0, alpha = 0.65)
+        end
+        total_weights = [abs2(sum(amps)) for amps in resonance_amps_by_event]
+        centers, sums = weighted_histogram(xs, total_weights; nbins)
+        plot!(plt, centers, sums; label = "total", color = :black, linewidth = 3.0)
+        savefig(plt, joinpath(hist_dir, spec.filename))
+    end
+    println("Saved resonance |A|^2 histograms: ", hist_dir)
+    return hist_dir
 end
 
 function run_scan()
@@ -605,6 +653,7 @@ function run_scan()
             m2_dst = mass(ctx.P_Dst)^2,
             m2_r = mass(ctx.P_R)^2,
             m2_dk = mass(ctx.pDminus + ctx.pKplus)^2,
+            m2_dstk = mass(ctx.P_Dst + ctx.pKplus)^2,
             tfpwa_amp = tfpwa_amp,
             cd_amp = cd_amp,
             delta = cd_amp - tfpwa_amp,
@@ -657,20 +706,21 @@ function run_all_resonance_scan()
     println("Computing coherent CascadeDecays sum event by event...")
 
     rows = NamedTuple[]
-    component_amps_by_event = Vector{Vector{ComplexF64}}()
+    resonance_amps_by_event = Vector{Vector{ComplexF64}}()
     for idx in eachindex(sampled_events)
         ctx = event_context(sampled_events[idx])
-        component_amps = ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names]
-        cd_amp = sum(component_amps)
+        resonance_amps = ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names]
+        cd_amp = sum(resonance_amps)
         tfpwa_amp = tfpwa_amps[idx]
         rel_delta_re = abs(real(tfpwa_amp)) > 1e-12 ? (real(cd_amp) - real(tfpwa_amp)) / real(tfpwa_amp) : NaN
         rel_delta_im = abs(imag(tfpwa_amp)) > 1e-12 ? (imag(cd_amp) - imag(tfpwa_amp)) / imag(tfpwa_amp) : NaN
-        push!(component_amps_by_event, component_amps)
+        push!(resonance_amps_by_event, resonance_amps)
         push!(rows, (
             event = idx,
             m2_dst = mass(ctx.P_Dst)^2,
             m2_r = mass(ctx.P_R)^2,
             m2_dk = mass(ctx.pDminus + ctx.pKplus)^2,
+            m2_dstk = mass(ctx.P_Dst + ctx.pKplus)^2,
             tfpwa_amp = tfpwa_amp,
             cd_amp = cd_amp,
             delta = cd_amp - tfpwa_amp,
@@ -689,10 +739,11 @@ function run_all_resonance_scan()
     amp2_path = joinpath(plots_dir, "all_resonances_amp2.png")
 
     save_scan(scan_path, rows)
-    save_fit_fractions(fit_fraction_path, all_resonance_names, component_amps_by_event)
+    save_fit_fractions(fit_fraction_path, all_resonance_names, resonance_amps_by_event)
     relative_difference_plot(rel_re_path, rows; component = :re)
     relative_difference_plot(rel_im_path, rows; component = :im)
     amp2_comparison_plot(amp2_path, rows)
+    save_resonance_amp2_histograms(plots_dir, rows, resonance_amps_by_event)
 
     finite_re = [row.rel_delta_re for row in rows if isfinite(row.rel_delta_re)]
     finite_im = [row.rel_delta_im for row in rows if isfinite(row.rel_delta_im)]
