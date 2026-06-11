@@ -3,39 +3,38 @@
     {
       "name": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
       "type": "HadronicUnpolarizedIntensity",
-      "parameters": [],
       "decay_description": {
         "kinematics": {
           "initial_state": {
             "index": 0,
             "name": "Bp",
-            "mass": 5.27934,
-            "spin": "0"
+            "spin": "0",
+            "mass": 5.27934
           },
           "final_state": [
             {
               "index": 1,
               "name": "D0",
-              "mass": 1.86483,
-              "spin": "0"
+              "spin": "0",
+              "mass": 1.86483
             },
             {
               "index": 2,
               "name": "pi",
-              "mass": 0.13957039,
-              "spin": "0"
+              "spin": "0",
+              "mass": 0.13957039
             },
             {
               "index": 3,
               "name": "D",
-              "mass": 1.86965,
-              "spin": "0"
+              "spin": "0",
+              "mass": 1.86965
             },
             {
               "index": 4,
               "name": "K",
-              "mass": 0.493677,
-              "spin": "0"
+              "spin": "0",
+              "mass": 0.493677
             }
           ]
         },
@@ -51,27 +50,17 @@
         ],
         "chains": [
           {
-            "name": "NR(0-)SPm/ls0",
-            "topology": [
-              [
-                [
-                  1,
-                  2
-                ],
-                3
-              ],
-              4
-            ],
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -79,10 +68,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_NR(0m)SPm_l1"
               }
             ],
+            "weight": "-0.1001452087627779 - 0.0005524939822732542i",
             "vertices": [
               {
                 "type": "ls",
@@ -97,7 +86,9 @@
                   4
                 ],
                 "l": 0,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_NR0mSPm_Bp_to_R_K_L0",
+                "weight": "1 + 0i"
               },
               {
                 "type": "ls",
@@ -109,7 +100,9 @@
                   3
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR0mSPm_R_to_Dst_D_L1",
+                "weight": "3.167805891707197 + 0i"
               },
               {
                 "type": "ls",
@@ -118,13 +111,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.1001452087627779 - 0.0005524939822732542i"
-          },
-          {
-            "name": "NR(0-)SPp/ls0",
             "topology": [
               [
                 [
@@ -135,16 +125,20 @@
               ],
               4
             ],
+            "name": "NR(0-)SPm"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -152,10 +146,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_NR(0m)SPp_l1"
               }
             ],
+            "weight": "-0.3337804679205718 + 0.111212960873336i",
             "vertices": [
               {
                 "type": "ls",
@@ -170,7 +164,9 @@
                   4
                 ],
                 "l": 0,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_NR0mSPp_Bp_to_R_K_L0",
+                "weight": "1 + 0i"
               },
               {
                 "type": "ls",
@@ -182,7 +178,9 @@
                   3
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR0mSPp_R_to_Dst_D_L1",
+                "weight": "3.167805891707197 + 0i"
               },
               {
                 "type": "ls",
@@ -191,13 +189,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.3337804679205718 + 0.111212960873336i"
-          },
-          {
-            "name": "NR(1+)PSp/ls0",
             "topology": [
               [
                 [
@@ -208,16 +203,20 @@
               ],
               4
             ],
+            "name": "NR(0-)SPp"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -225,10 +224,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_NR(1p)PSp_l0"
               }
             ],
+            "weight": "0.6734289095819908 + 0.03467033980074432i",
             "vertices": [
               {
                 "type": "ls",
@@ -243,7 +242,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR1pPSp_Bp_to_R_K_L1",
+                "weight": "3.308247612112009 + 0i"
               },
               {
                 "type": "ls",
@@ -255,7 +256,9 @@
                   3
                 ],
                 "l": 0,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR1pPSp_R_to_Dst_D_L0",
+                "weight": "1 + 0i"
               },
               {
                 "type": "ls",
@@ -264,13 +267,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "0.6734289095819908 + 0.03467033980074432i"
-          },
-          {
-            "name": "NR(1-)PPm/ls0",
             "topology": [
               [
                 [
@@ -281,16 +281,20 @@
               ],
               4
             ],
+            "name": "NR(1+)PSp"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -298,10 +302,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_NR(1m)PPm_l1"
               }
             ],
+            "weight": "-0.6983358345395293 + 0.2712798263127683i",
             "vertices": [
               {
                 "type": "ls",
@@ -316,7 +320,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR1mPPm_Bp_to_R_K_L1",
+                "weight": "3.308247612112009 + 0i"
               },
               {
                 "type": "ls",
@@ -328,7 +334,9 @@
                   3
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_NR1mPPm_R_to_Dst_D_L1",
+                "weight": "3.167805891707197 + 0i"
               },
               {
                 "type": "ls",
@@ -337,13 +345,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.6983358345395293 + 0.2712798263127683i"
-          },
-          {
-            "name": "Psi(4040)/ls0",
             "topology": [
               [
                 [
@@ -354,16 +359,20 @@
               ],
               4
             ],
+            "name": "NR(1-)PPm"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "1",
                 "node": [
                   [
                     1,
@@ -371,10 +380,10 @@
                   ],
                   3
                 ],
-                "spin": "1",
                 "parametrization": "lineshape_Psi(4040)_l1"
               }
             ],
+            "weight": "-0.06245117128052565 + 0.2323626876324529i",
             "vertices": [
               {
                 "type": "ls",
@@ -389,7 +398,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_Psi4040_Bp_to_R_K_L1",
+                "weight": "3.161400694680968 + 0i"
               },
               {
                 "type": "ls",
@@ -401,7 +412,9 @@
                   3
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_Psi4040_R_to_Dst_D_L1",
+                "weight": "3.489829647405835 + 0i"
               },
               {
                 "type": "ls",
@@ -410,13 +423,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.06245117128052565 + 0.2323626876324529i"
-          },
-          {
-            "name": "X(3872)/ls0",
             "topology": [
               [
                 [
@@ -427,16 +437,20 @@
               ],
               4
             ],
+            "name": "Psi(4040)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -444,10 +458,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3872)_l0"
+                "parametrization": "lineshape_X(3872)"
               }
             ],
+            "weight": "1 + 0i",
             "vertices": [
               {
                 "type": "ls",
@@ -462,7 +476,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3872_Bp_to_R_K_L1",
+                "weight": "3.125427897429767 + 0i"
               },
               {
                 "type": "ls",
@@ -474,68 +490,9 @@
                   3
                 ],
                 "l": 0,
-                "s": "1"
-              },
-              {
-                "type": "ls",
-                "node": [
-                  1,
-                  2
-                ],
-                "l": 1,
-                "s": "0"
-              }
-            ],
-            "weight": "1 + 0i"
-          },
-          {
-            "name": "X(3872)/ls1",
-            "topology": [
-              [
-                [
-                  1,
-                  2
-                ],
-                3
-              ],
-              4
-            ],
-            "propagators": [
-              {
-                "node": [
-                  1,
-                  2
-                ],
-                "spin": "1",
-                "parametrization": "constant_Dst"
-              },
-              {
-                "node": [
-                  [
-                    1,
-                    2
-                  ],
-                  3
-                ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3872)_l2"
-              }
-            ],
-            "vertices": [
-              {
-                "type": "ls",
-                "node": [
-                  [
-                    [
-                      1,
-                      2
-                    ],
-                    3
-                  ],
-                  4
-                ],
-                "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3872_R_to_Dst_D_L0",
+                "weight": "-0.4305717613544974 + 0i"
               },
               {
                 "type": "ls",
@@ -547,7 +504,9 @@
                   3
                 ],
                 "l": 2,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3872_R_to_Dst_D_L2",
+                "weight": "-3.103451370527484 + 11.57389730957833i"
               },
               {
                 "type": "ls",
@@ -556,13 +515,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "0.2589930593433873 - 0.9658791825129852i"
-          },
-          {
-            "name": "X(3915)(0-)/ls0",
             "topology": [
               [
                 [
@@ -573,16 +529,20 @@
               ],
               4
             ],
+            "name": "X(3872)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -590,10 +550,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_X(3915)(0m)_l1"
               }
             ],
+            "weight": "-0.1700460664138185 + 0.1804097890338314i",
             "vertices": [
               {
                 "type": "ls",
@@ -608,7 +568,9 @@
                   4
                 ],
                 "l": 0,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_X39150m_Bp_to_R_K_L0",
+                "weight": "1 + 0i"
               },
               {
                 "type": "ls",
@@ -620,7 +582,9 @@
                   3
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X39150m_R_to_Dst_D_L1",
+                "weight": "4.113363193093463 + 0i"
               },
               {
                 "type": "ls",
@@ -629,13 +593,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.1700460664138185 + 0.1804097890338314i"
-          },
-          {
-            "name": "X(3940)(1+)/ls0",
             "topology": [
               [
                 [
@@ -646,16 +607,20 @@
               ],
               4
             ],
+            "name": "X(3915)(0-)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -663,10 +628,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3940)(1p)_l0"
+                "parametrization": "lineshape_X(3940)(1p)"
               }
             ],
+            "weight": "0.5476505303748366 - 0.2031427665465601i",
             "vertices": [
               {
                 "type": "ls",
@@ -681,7 +646,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X39401p_Bp_to_R_K_L1",
+                "weight": "3.151610296560469 + 0i"
               },
               {
                 "type": "ls",
@@ -693,68 +660,9 @@
                   3
                 ],
                 "l": 0,
-                "s": "1"
-              },
-              {
-                "type": "ls",
-                "node": [
-                  1,
-                  2
-                ],
-                "l": 1,
-                "s": "0"
-              }
-            ],
-            "weight": "0.5476505303748366 - 0.2031427665465601i"
-          },
-          {
-            "name": "X(3940)(1+)/ls1",
-            "topology": [
-              [
-                [
-                  1,
-                  2
-                ],
-                3
-              ],
-              4
-            ],
-            "propagators": [
-              {
-                "node": [
-                  1,
-                  2
-                ],
-                "spin": "1",
-                "parametrization": "constant_Dst"
-              },
-              {
-                "node": [
-                  [
-                    1,
-                    2
-                  ],
-                  3
-                ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3940)(1p)_l2"
-              }
-            ],
-            "vertices": [
-              {
-                "type": "ls",
-                "node": [
-                  [
-                    [
-                      1,
-                      2
-                    ],
-                    3
-                  ],
-                  4
-                ],
-                "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X39401p_R_to_Dst_D_L0",
+                "weight": "0.6974301868909262 + 0i"
               },
               {
                 "type": "ls",
@@ -766,7 +674,9 @@
                   3
                 ],
                 "l": 2,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X39401p_R_to_Dst_D_L2",
+                "weight": "11.13178083236043 - 7.648129238422012i"
               },
               {
                 "type": "ls",
@@ -775,13 +685,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "0.3363455945420279 - 0.4775559946772732i"
-          },
-          {
-            "name": "X(3993)/ls0",
             "topology": [
               [
                 [
@@ -792,16 +699,20 @@
               ],
               4
             ],
+            "name": "X(3940)(1+)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -809,10 +720,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3993)_l0"
+                "parametrization": "lineshape_X(3993)"
               }
             ],
+            "weight": "0.3619460797492374 + 0.1875380178571422i",
             "vertices": [
               {
                 "type": "ls",
@@ -827,7 +738,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3993_Bp_to_R_K_L1",
+                "weight": "3.154568924586946 + 0i"
               },
               {
                 "type": "ls",
@@ -839,68 +752,9 @@
                   3
                 ],
                 "l": 0,
-                "s": "1"
-              },
-              {
-                "type": "ls",
-                "node": [
-                  1,
-                  2
-                ],
-                "l": 1,
-                "s": "0"
-              }
-            ],
-            "weight": "0.3619460797492374 + 0.1875380178571422i"
-          },
-          {
-            "name": "X(3993)/ls1",
-            "topology": [
-              [
-                [
-                  1,
-                  2
-                ],
-                3
-              ],
-              4
-            ],
-            "propagators": [
-              {
-                "node": [
-                  1,
-                  2
-                ],
-                "spin": "1",
-                "parametrization": "constant_Dst"
-              },
-              {
-                "node": [
-                  [
-                    1,
-                    2
-                  ],
-                  3
-                ],
-                "spin": "0",
-                "parametrization": "lineshape_X(3993)_l2"
-              }
-            ],
-            "vertices": [
-              {
-                "type": "ls",
-                "node": [
-                  [
-                    [
-                      1,
-                      2
-                    ],
-                    3
-                  ],
-                  4
-                ],
-                "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3993_R_to_Dst_D_L0",
+                "weight": "0.8916328810710371 + 0i"
               },
               {
                 "type": "ls",
@@ -912,7 +766,9 @@
                   3
                 ],
                 "l": 2,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X3993_R_to_Dst_D_L2",
+                "weight": "-7.920062026413534 + 1.44618025840727i"
               },
               {
                 "type": "ls",
@@ -921,13 +777,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.3897458556615702 - 0.1194723431688587i"
-          },
-          {
-            "name": "X(4300)/ls0",
             "topology": [
               [
                 [
@@ -938,16 +791,20 @@
               ],
               4
             ],
+            "name": "X(3993)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -955,10 +812,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
-                "parametrization": "lineshape_X(4300)_l0"
+                "parametrization": "lineshape_X(4300)"
               }
             ],
+            "weight": "0.1129151231984244 + 0.04589031984966718i",
             "vertices": [
               {
                 "type": "ls",
@@ -973,7 +830,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X4300_Bp_to_R_K_L1",
+                "weight": "3.276360146269143 + 0i"
               },
               {
                 "type": "ls",
@@ -985,68 +844,9 @@
                   3
                 ],
                 "l": 0,
-                "s": "1"
-              },
-              {
-                "type": "ls",
-                "node": [
-                  1,
-                  2
-                ],
-                "l": 1,
-                "s": "0"
-              }
-            ],
-            "weight": "0.1129151231984244 + 0.04589031984966718i"
-          },
-          {
-            "name": "X(4300)/ls1",
-            "topology": [
-              [
-                [
-                  1,
-                  2
-                ],
-                3
-              ],
-              4
-            ],
-            "propagators": [
-              {
-                "node": [
-                  1,
-                  2
-                ],
-                "spin": "1",
-                "parametrization": "constant_Dst"
-              },
-              {
-                "node": [
-                  [
-                    1,
-                    2
-                  ],
-                  3
-                ],
-                "spin": "0",
-                "parametrization": "lineshape_X(4300)_l2"
-              }
-            ],
-            "vertices": [
-              {
-                "type": "ls",
-                "node": [
-                  [
-                    [
-                      1,
-                      2
-                    ],
-                    3
-                  ],
-                  4
-                ],
-                "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X4300_R_to_Dst_D_L0",
+                "weight": "0.5220634211787406 + 0i"
               },
               {
                 "type": "ls",
@@ -1058,7 +858,9 @@
                   3
                 ],
                 "l": 2,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X4300_R_to_Dst_D_L2",
+                "weight": "9.456118104313001 - 0.7482167306590216i"
               },
               {
                 "type": "ls",
@@ -1067,41 +869,42 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "0.1161830701334636 + 0.03684074805406105i"
-          },
-          {
-            "name": "X0(2900)/ls0",
             "topology": [
               [
-                1,
-                2
+                [
+                  1,
+                  2
+                ],
+                3
               ],
-              [
-                3,
-                4
-              ]
+              4
             ],
+            "name": "X(4300)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   3,
                   4
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_X0(2900)_l0"
               }
             ],
+            "weight": "0.1065052199416014 + 0.02249975743700171i",
             "vertices": [
               {
                 "type": "ls",
@@ -1116,7 +919,9 @@
                   ]
                 ],
                 "l": 1,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X02900_Bp_to_R_Dst_L1",
+                "weight": "3.162834284305301 + 0i"
               },
               {
                 "type": "ls",
@@ -1125,7 +930,9 @@
                   4
                 ],
                 "l": 0,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_X02900_R_to_D_K_L0",
+                "weight": "1 + 0i"
               },
               {
                 "type": "ls",
@@ -1134,13 +941,10 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "0.1065052199416014 + 0.02249975743700171i"
-          },
-          {
-            "name": "X1(2900)/ls0",
             "topology": [
               [
                 1,
@@ -1151,24 +955,28 @@
                 4
               ]
             ],
+            "name": "X0(2900)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "1",
                 "node": [
                   3,
                   4
                 ],
-                "spin": "1",
                 "parametrization": "lineshape_X1(2900)_l1"
               }
             ],
+            "weight": "-0.03815127408921663 + 0.1016559351606228i",
             "vertices": [
               {
                 "type": "ls",
@@ -1183,7 +991,43 @@
                   ]
                 ],
                 "l": 0,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_X12900_Bp_to_R_Dst_L0",
+                "weight": "1 + 0i"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "l": 1,
+                "s": "1",
+                "formfactor": "BlattWeisskopf_X12900_Bp_to_R_Dst_L1",
+                "weight": "-1.419716027360433 + 0.4502301520093807i"
+              },
+              {
+                "type": "ls",
+                "node": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "l": 2,
+                "s": "2",
+                "formfactor": "BlattWeisskopf_X12900_Bp_to_R_Dst_L2",
+                "weight": "-22.90442275242163 + 0.3742098874768454i"
               },
               {
                 "type": "ls",
@@ -1192,7 +1036,9 @@
                   4
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": "BlattWeisskopf_X12900_R_to_D_K_L1",
+                "weight": "3.288032451333073 + 0i"
               },
               {
                 "type": "ls",
@@ -1201,33 +1047,34 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.03815127408921663 + 0.1016559351606228i"
-          },
-          {
-            "name": "chi(c2)(3930)/ls0",
             "topology": [
               [
-                [
-                  1,
-                  2
-                ],
-                3
+                1,
+                2
               ],
-              4
+              [
+                3,
+                4
+              ]
             ],
+            "name": "X1(2900)"
+          },
+          {
             "propagators": [
               {
+                "spin": "1",
                 "node": [
                   1,
                   2
                 ],
-                "spin": "1",
                 "parametrization": "constant_Dst"
               },
               {
+                "spin": "0",
                 "node": [
                   [
                     1,
@@ -1235,10 +1082,10 @@
                   ],
                   3
                 ],
-                "spin": "0",
                 "parametrization": "lineshape_chi(c2)(3930)_l2"
               }
             ],
+            "weight": "-0.04992001377928167 - 0.149726037724203i",
             "vertices": [
               {
                 "type": "ls",
@@ -1253,7 +1100,9 @@
                   4
                 ],
                 "l": 2,
-                "s": "2"
+                "s": "2",
+                "formfactor": "BlattWeisskopf_chic23930_Bp_to_R_K_L2",
+                "weight": "10.47442572585148 + 0i"
               },
               {
                 "type": "ls",
@@ -1265,7 +1114,9 @@
                   3
                 ],
                 "l": 2,
-                "s": "1"
+                "s": "1",
+                "formfactor": "BlattWeisskopf_chic23930_R_to_Dst_D_L2",
+                "weight": "37.85566305631561 + 0i"
               },
               {
                 "type": "ls",
@@ -1274,10 +1125,21 @@
                   2
                 ],
                 "l": 1,
-                "s": "0"
+                "s": "0",
+                "formfactor": ""
               }
             ],
-            "weight": "-0.04992001377928167 - 0.149726037724203i"
+            "topology": [
+              [
+                [
+                  1,
+                  2
+                ],
+                3
+              ],
+              4
+            ],
+            "name": "chi(c2)(3930)"
           }
         ],
         "appendix": {
@@ -1295,15 +1157,68 @@
             "K"
           ],
           "known_warnings": [
-            "X(3872): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-            "X(3940)(1+): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-            "X(3993): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-            "X(4300): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
             "NR(0-)SPp: TF-PWA nonresonant New model emitted as custom expression."
           ],
-          "format_note": "Uses the official amplitude-serialization top-level schema with distributions/domains/functions/parameter_points."
+          "format_note": "Uses the official amplitude-serialization top-level schema with distributions/domains/functions/parameter_points.",
+          "weight_note": "Chain weight stores the TF-PWA total resonance coefficient. LS-vertex weights store the LS coupling coefficient times the nominal Blatt-Weisskopf convention mismatch factor for that vertex. The formfactor field stores the event-dependent Blatt-Weisskopf object inferred from TF-PWA barrier-factor metadata, or an empty string when no barrier factor is applied."
         }
-      }
+      },
+      "variables": [
+        {
+          "node": [
+            1,
+            2
+          ],
+          "mass_phi_costheta": [
+            "m_Dst",
+            "phi_Dst",
+            "cos_theta_Dst"
+          ]
+        },
+        {
+          "node": [
+            [
+              1,
+              2
+            ],
+            3
+          ],
+          "mass_phi_costheta": [
+            "m_DstD",
+            "phi_DstD",
+            "cos_theta_DstD"
+          ]
+        },
+        {
+          "node": [
+            3,
+            4
+          ],
+          "mass_phi_costheta": [
+            "m_DK",
+            "phi_DK",
+            "cos_theta_DK"
+          ]
+        },
+        {
+          "node": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "mass_phi_costheta": [
+            "m_Dst_DK",
+            "phi_Dst_DK",
+            "cos_theta_Dst_DK"
+          ]
+        }
+      ],
+      "parameters": []
     }
   ],
   "domains": [
@@ -1353,14 +1268,206 @@
   ],
   "functions": [
     {
+      "name": "BlattWeisskopf_NR0mSPm_Bp_to_R_K_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR0mSPm_R_to_Dst_D_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR0mSPp_Bp_to_R_K_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR0mSPp_R_to_Dst_D_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR1mPPm_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR1mPPm_R_to_Dst_D_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR1pPSp_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_NR1pPSp_R_to_Dst_D_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_Psi4040_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_Psi4040_R_to_Dst_D_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X02900_Bp_to_R_Dst_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X02900_R_to_D_K_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X12900_Bp_to_R_Dst_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X12900_Bp_to_R_Dst_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X12900_Bp_to_R_Dst_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X12900_R_to_D_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3872_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3872_R_to_Dst_D_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3872_R_to_Dst_D_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X39150m_Bp_to_R_K_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X39150m_R_to_Dst_D_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X39401p_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X39401p_R_to_Dst_D_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X39401p_R_to_Dst_D_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3993_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3993_R_to_Dst_D_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X3993_R_to_Dst_D_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X4300_Bp_to_R_K_L1",
+      "type": "BlattWeisskopf",
+      "l": 1,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X4300_R_to_Dst_D_L0",
+      "type": "BlattWeisskopf",
+      "l": 0,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_X4300_R_to_Dst_D_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_chic23930_Bp_to_R_K_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
+      "name": "BlattWeisskopf_chic23930_R_to_Dst_D_L2",
+      "type": "BlattWeisskopf",
+      "l": 2,
+      "radius": 3.0
+    },
+    {
       "name": "constant_Dst",
-      "type": "custom",
-      "expression": "constant(1)"
+      "type": "ConstantLineshape",
+      "value": 1.0
     },
     {
       "name": "lineshape_NR(0m)SPm_l1",
-      "type": "custom",
-      "expression": "constant(1)"
+      "type": "ConstantLineshape",
+      "value": -1
     },
     {
       "name": "lineshape_NR(0m)SPp_l1",
@@ -1369,17 +1476,18 @@
     },
     {
       "name": "lineshape_NR(1m)PPm_l1",
-      "type": "custom",
-      "expression": "constant(1)"
+      "type": "ConstantLineshape",
+      "value": -1
     },
     {
       "name": "lineshape_NR(1p)PSp_l0",
-      "type": "custom",
-      "expression": "constant(1)"
+      "type": "ConstantLineshape",
+      "value": 1
     },
     {
       "name": "lineshape_Psi(4040)_l1",
       "type": "BreitWigner",
+      "x": "m_DstD_sq",
       "mass": 4.039,
       "width": 0.08,
       "ma": 2.01026,
@@ -1388,18 +1496,31 @@
       "d": 3.0
     },
     {
-      "name": "lineshape_X(3872)_l0",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
-    },
-    {
-      "name": "lineshape_X(3872)_l2",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+      "name": "lineshape_X(3872)",
+      "type": "MultichannelBreitWigner",
+      "mass": 3.87165,
+      "channels": [
+        {
+          "gsq": 0.002386174026863198,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 0,
+          "d": 3.0
+        },
+        {
+          "gsq": 1.8480965854970057,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 2,
+          "d": 3.0
+        }
+      ],
+      "x": "m_DstD_sq"
     },
     {
       "name": "lineshape_X(3915)(0m)_l1",
       "type": "BreitWigner",
+      "x": "m_DstD_sq",
       "mass": 3.944541826791121,
       "width": 0.12967347104307578,
       "ma": 2.01026,
@@ -1408,38 +1529,75 @@
       "d": 3.0
     },
     {
-      "name": "lineshape_X(3940)(1p)_l0",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+      "name": "lineshape_X(3940)(1p)",
+      "type": "MultichannelBreitWigner",
+      "mass": 4.000356038444546,
+      "channels": [
+        {
+          "gsq": 1.471809866284593,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 0,
+          "d": 3.0
+        },
+        {
+          "gsq": 551.9501858082049,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 2,
+          "d": 3.0
+        }
+      ],
+      "x": "m_DstD_sq"
     },
     {
-      "name": "lineshape_X(3940)(1p)_l2",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+      "name": "lineshape_X(3993)",
+      "type": "MultichannelBreitWigner",
+      "mass": 4.012482696497617,
+      "channels": [
+        {
+          "gsq": 0.7855387619516672,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 0,
+          "d": 3.0
+        },
+        {
+          "gsq": 64.04667497594887,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 2,
+          "d": 3.0
+        }
+      ],
+      "x": "m_DstD_sq"
     },
     {
-      "name": "lineshape_X(3993)_l0",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
-    },
-    {
-      "name": "lineshape_X(3993)_l2",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
-    },
-    {
-      "name": "lineshape_X(4300)_l0",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
-    },
-    {
-      "name": "lineshape_X(4300)_l2",
-      "type": "custom",
-      "expression": "TF-PWA BWR_LS component. Requires shared l=0/l=2 denominator, theta0 mixing, and TF-PWA q0/ad_hoc conventions."
+      "name": "lineshape_X(4300)",
+      "type": "MultichannelBreitWigner",
+      "mass": 4.307256285732596,
+      "channels": [
+        {
+          "gsq": 0.158060551701163,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 0,
+          "d": 3.0
+        },
+        {
+          "gsq": 52.181107057431525,
+          "ma": 2.01026,
+          "mb": 1.86965,
+          "l": 2,
+          "d": 3.0
+        }
+      ],
+      "x": "m_DstD_sq"
     },
     {
       "name": "lineshape_X0(2900)_l0",
       "type": "BreitWigner",
+      "x": "m_DK_sq",
       "mass": 2.866,
       "width": 0.057,
       "ma": 1.86965,
@@ -1450,6 +1608,7 @@
     {
       "name": "lineshape_X1(2900)_l1",
       "type": "BreitWigner",
+      "x": "m_DK_sq",
       "mass": 2.904,
       "width": 0.11,
       "ma": 1.86965,
@@ -1460,6 +1619,7 @@
     {
       "name": "lineshape_chi(c2)(3930)_l2",
       "type": "BreitWigner",
+      "x": "m_DstD_sq",
       "mass": 3.9272,
       "width": 0.024,
       "ma": 2.01026,
@@ -1577,10 +1737,6 @@
       ]
     },
     "warnings": [
-      "X(3872): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-      "X(3940)(1+): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-      "X(3993): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
-      "X(4300): TF-PWA BWR_LS has shared multichannel denominator and LS mixing; emitted as custom metadata function.",
       "NR(0-)SPp: TF-PWA nonresonant New model emitted as custom expression."
     ]
   },
