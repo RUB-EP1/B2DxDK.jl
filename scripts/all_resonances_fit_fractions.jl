@@ -83,15 +83,14 @@ resolve_coupling(spec::ParamCouplingSpec) = prod(param_complex(key) for key in s
 
 struct VertexLSSpec
     two_ls::NTuple{2, Int}
-    orbital_l::Union{Int, Nothing}
+    use_barrier::Bool
     remove_particle2_phase::Bool
 end
 
-VertexLSSpec(two_ls; orbital_l = nothing, remove_particle2_phase = false) =
-    VertexLSSpec(two_ls, orbital_l, remove_particle2_phase)
+VertexLSSpec(two_ls; use_barrier = false, remove_particle2_phase = false) =
+    VertexLSSpec(two_ls, use_barrier, remove_particle2_phase)
 
-VertexLSSpec(two_ls::NTuple{2, Int}, orbital_l::Union{Int, Nothing}; remove_particle2_phase = false) =
-    VertexLSSpec(two_ls, orbital_l, remove_particle2_phase)
+vertex_barrier_l(spec::VertexLSSpec) = spec.use_barrier ? div(spec.two_ls[1], 2) : nothing
 
 struct ChainCouplingSpec
     branch::String
@@ -159,7 +158,7 @@ function resonance_coupling_spec(name::String)
             (
                 ChainCouplingSpec(
                     "default", 0,
-                    VertexLSSpec((0, 0), 0), VertexLSSpec((2, 2), 1),
+                    VertexLSSpec((0, 0); use_barrier = true), VertexLSSpec((2, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",)),
                     :bwr, 1, -1.0 + 0im,
                 ),
@@ -171,7 +170,7 @@ function resonance_coupling_spec(name::String)
             (
                 ChainCouplingSpec(
                     "default", 4,
-                    VertexLSSpec((4, 4), 2), VertexLSSpec((4, 2), 2),
+                    VertexLSSpec((4, 4); use_barrier = true), VertexLSSpec((4, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",)),
                     :bwr, 2, -1.0 + 0im,
                 ),
@@ -197,7 +196,7 @@ function resonance_coupling_spec(name::String)
             (
                 ChainCouplingSpec(
                     "default", 2,
-                    VertexLSSpec((2, 2), 1), VertexLSSpec((2, 2), 1),
+                    VertexLSSpec((2, 2); use_barrier = true), VertexLSSpec((2, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",)),
                     :bwr, 1, 1.0 + 0im,
                 ),
@@ -208,7 +207,7 @@ function resonance_coupling_spec(name::String)
             name, :standard, false, false,
             (
                 ChainCouplingSpec(
-                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2), 1),
+                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0",)),
                     :nr_exp,
                 ),
@@ -219,7 +218,7 @@ function resonance_coupling_spec(name::String)
             name, :standard, false, false,
             (
                 ChainCouplingSpec(
-                    "default", 2, VertexLSSpec((2, 2), 1), VertexLSSpec((0, 2)),
+                    "default", 2, VertexLSSpec((2, 2); use_barrier = true), VertexLSSpec((0, 2)),
                     ParamCouplingSpec(("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",)),
                     :constant, nothing, -1.0 + 0im,
                 ),
@@ -230,7 +229,7 @@ function resonance_coupling_spec(name::String)
             name, :standard, false, false,
             (
                 ChainCouplingSpec(
-                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2), 1),
+                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",)),
                     :constant, nothing, 1.0 + 0im,
                 ),
@@ -242,7 +241,7 @@ function resonance_coupling_spec(name::String)
             (
                 ChainCouplingSpec(
                     "default", 2,
-                    VertexLSSpec((2, 2), 1), VertexLSSpec((2, 2), 1),
+                    VertexLSSpec((2, 2); use_barrier = true), VertexLSSpec((2, 2); use_barrier = true),
                     ParamCouplingSpec(("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",)),
                     :constant, nothing, 1.0 + 0im,
                 ),
@@ -254,7 +253,7 @@ function resonance_coupling_spec(name::String)
             (
                 ChainCouplingSpec(
                     "default", 0,
-                    VertexLSSpec((2, 2), 1), VertexLSSpec((0, 0), 0),
+                    VertexLSSpec((2, 2); use_barrier = true), VertexLSSpec((0, 0); use_barrier = true),
                     ParamCouplingSpec(("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",)),
                     :x2900_bwr, 0,
                 ),
@@ -262,18 +261,18 @@ function resonance_coupling_spec(name::String)
         )
     elseif name == "X1(2900)"
         total = ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0",))
-        daughter = VertexLSSpec((2, 0), 1)
+        daughter = VertexLSSpec((2, 0); use_barrier = true)
         return ResonanceCouplingSpec(
             name, :dk, false, false,
             (
-                ChainCouplingSpec("l0", 2, VertexLSSpec((0, 0), 0; remove_particle2_phase = true), daughter, total, :x2900_bwr, 1),
+                ChainCouplingSpec("l0", 2, VertexLSSpec((0, 0); use_barrier = true, remove_particle2_phase = true), daughter, total, :x2900_bwr, 1),
                 ChainCouplingSpec(
-                    "l1", 2, VertexLSSpec((2, 2), 1; remove_particle2_phase = true), daughter,
+                    "l1", 2, VertexLSSpec((2, 2); use_barrier = true, remove_particle2_phase = true), daughter,
                     ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_1")),
                     :x2900_bwr, 1,
                 ),
                 ChainCouplingSpec(
-                    "l2", 2, VertexLSSpec((4, 4), 2; remove_particle2_phase = true), daughter,
+                    "l2", 2, VertexLSSpec((4, 4); use_barrier = true, remove_particle2_phase = true), daughter,
                     ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_2")),
                     :x2900_bwr, 1,
                 ),
@@ -322,10 +321,10 @@ function build_resonance_inputs_dataframe()
                 nominal_mass = nominal_mass[name],
                 propagator_two_j = chain.propagator_two_j,
                 root_two_ls = chain.root.two_ls,
-                root_l = chain.root.orbital_l,
+                root_l = vertex_barrier_l(chain.root),
                 root_remove_particle2_phase = chain.root.remove_particle2_phase,
                 daughter_two_ls = chain.daughter.two_ls,
-                daughter_l = chain.daughter.orbital_l,
+                daughter_l = vertex_barrier_l(chain.daughter),
                 coupling_param_keys = join(chain.coupling.keys, ";"),
                 bare_coupling_re = real(bare),
                 bare_coupling_im = imag(bare),
@@ -519,8 +518,8 @@ function dk_vertex_matching(resonance_name; root_l = nothing, dk_l = nothing)
 end
 
 function chain_vertex_matching(resonance_name, topology::Symbol, chain::ChainCouplingSpec)
-    root_l = chain.root.orbital_l
-    daughter_l = chain.daughter.orbital_l
+    root_l = vertex_barrier_l(chain.root)
+    daughter_l = vertex_barrier_l(chain.daughter)
     if topology == :standard
         return standard_vertex_matching(resonance_name; root_l = root_l, decay_l = daughter_l)
     elseif topology == :dk
@@ -541,8 +540,8 @@ function build_chain_from_spec(ctx, info::CollectedResonanceCouplingInfo, chain_
             chain.propagator_two_j,
             chain.root.two_ls,
             chain.daughter.two_ls;
-            root_l = chain.root.orbital_l,
-            dk_l = chain.daughter.orbital_l,
+            root_l = vertex_barrier_l(chain.root),
+            dk_l = vertex_barrier_l(chain.daughter),
             remove_root_particle2_phase = chain.root.remove_particle2_phase,
         )
     end
@@ -551,8 +550,8 @@ function build_chain_from_spec(ctx, info::CollectedResonanceCouplingInfo, chain_
         chain.propagator_two_j,
         chain.root.two_ls,
         chain.daughter.two_ls;
-        root_l = chain.root.orbital_l,
-        decay_l = chain.daughter.orbital_l,
+        root_l = vertex_barrier_l(chain.root),
+        decay_l = vertex_barrier_l(chain.daughter),
     )
 end
 
