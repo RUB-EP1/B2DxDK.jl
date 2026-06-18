@@ -77,6 +77,18 @@ param_complex(key) = param_real(key * "r") * cis(param_real(key * "i"))
 
 resolve_coupling_keys(keys) = prod(param_complex(key) for key in keys; init=1.0 + 0im)
 
+# =============================================================================
+# Block 2 — lineshape definitions
+# =============================================================================
+
+breakup_momentum(m0, m1, m2) =
+    sqrt(complex(((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4.0 * m0^2)))
+
+function ad_hoc_mass(m0, m_min, m_max)
+    k = (m_max - m_min) / 2
+    return k * (1 + tanh((2m0 - (m_max + m_min)) / k / 4)) + m_min
+end
+
 function lineshape_base(lineshape)
     name = lineshape isa Symbol ? string(lineshape) : lineshape
     endswith(name, "_neg") && return Symbol(chop(name, tail=4))
@@ -94,6 +106,107 @@ function bwr_decay_l(lineshape)
     base == :x2900_bwr_l1 && return 1
     return nothing
 end
+
+function lineshape_param_keys(resonance_name::String, lineshape)
+    keys = String[]
+    base = lineshape_base(lineshape)
+    if base in (:bwr_l1, :bwr_l2) ||
+       base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+        push!(keys, resonance_name * "_width")
+        base != :bwr_l1 && base != :bwr_l2 && push!(keys, resonance_name * "_theta0")
+    elseif base == :nr_exp
+        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
+    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
+        push!(keys, resonance_name * "_width")
+    end
+    return keys
+end
+
+function parametrization_keys(resonance_name::String, coupling_keys, lineshape)
+    return unique(vcat(collect(coupling_keys), lineshape_param_keys(resonance_name, lineshape)))
+end
+
+bwr_lineshape(m0, width, l) =
+    BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, 3.0)
+
+function bwr_ls_q0(name::String; below_threshold=false)
+    m0 = nominal_mass[name]
+    q0_mass = below_threshold ?
+              ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"]) :
+              m0
+    return real(breakup_momentum(q0_mass, nominal_mass["Dst"], nominal_mass["D"]))
+end
+
+function bwr_ls_coupling_params(name::String)
+    theta0 = param_real(name * "_theta0")
+    return (; gamma0=cos(theta0), gamma2=sin(theta0))
+end
+
+function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
+    (; gamma0, gamma2) = bwr_ls_coupling_params(name)
+    q0 = bwr_ls_q0(name; below_threshold)
+    ff0 = BlattWeisskopf{0}(3.0)
+    ff2 = BlattWeisskopf{2}(3.0)
+    channels = [
+        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
+            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=0, d=3.0),
+        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
+            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=2, d=3.0),
+    ]
+    return MultichannelBreitWigner(nominal_mass[name], channels)
+end
+
+function decay_reference_mass(resonance_name::String, lineshape)
+    base = lineshape_base(lineshape)
+    below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+    m0 = nominal_mass[resonance_name]
+    below_threshold || return m0
+    return ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"])
+end
+
+function chain_lineshape_static_matching_factor(resonance_name::String, lineshape)
+    sign = lineshape_matching_sign(lineshape)
+    base = lineshape_base(lineshape)
+    if base in (:bwr_ls_l0, :bwr_ls_l0_below_threshold)
+        return sign * bwr_ls_coupling_params(resonance_name).gamma0
+    elseif base in (:bwr_ls_l2, :bwr_ls_l2_below_threshold)
+        return sign * bwr_ls_coupling_params(resonance_name).gamma2
+    elseif base in (:bwr_l1, :bwr_l2, :constant)
+        return sign
+    end
+    return 1.0
+end
+
+x2900_bwr_lineshape(name, l) =
+    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, 3.0)
+
+function build_chain_lineshape(ctx, row)
+    resonance_name = row.resonance_name
+    base = lineshape_base(row.lineshape)
+    if base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+        below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+        return build_bwr_ls_lineshape(ctx, resonance_name; below_threshold)
+    elseif base in (:bwr_l1, :bwr_l2)
+        return bwr_lineshape(
+            nominal_mass[resonance_name], param_real(resonance_name * "_width"),
+            bwr_decay_l(row.lineshape),
+        )
+    elseif base == :constant
+        return ConstantLineshape(1.0 + 0.0im)
+    elseif base == :nr_exp
+        alpha = param_real("NR(0-)SPp_alpha")
+        beta = param_real("NR(0-)SPp_beta")
+        nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
+        return ConstantLineshape(nr_factor)
+    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
+        return x2900_bwr_lineshape(resonance_name, bwr_decay_l(row.lineshape))
+    end
+    error("Unknown lineshape $(row.lineshape) for $(resonance_name).")
+end
+
+# =============================================================================
+# Block 3 — resonance chain table
+# =============================================================================
 
 function production_coupling_key(name::String)
     name == "X(3940)(1.)" &&
@@ -231,39 +344,16 @@ function build_resonance_chains_df()
     return DataFrame(rows)
 end
 
-function lineshape_param_keys(resonance_name::String, lineshape)
-    keys = String[]
-    base = lineshape_base(lineshape)
-    if base in (:bwr_l1, :bwr_l2) ||
-       base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        push!(keys, resonance_name * "_width")
-        base != :bwr_l1 && base != :bwr_l2 && push!(keys, resonance_name * "_theta0")
-    elseif base == :nr_exp
-        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
-    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        push!(keys, resonance_name * "_width")
-    end
-    return keys
-end
-
-function parametrization_keys(resonance_name::String, coupling_keys, lineshape)
-    return unique(vcat(collect(coupling_keys), lineshape_param_keys(resonance_name, lineshape)))
-end
-
 const resonance_chains_df_raw = build_resonance_chains_df()
 
 # =============================================================================
-# Block 2 — CascadeDecays construction
-# (lineshape builders need event context; combined with block 3 in the event loop)
+# Block 4 — CascadeDecays construction
 # =============================================================================
 
 const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 const dxd_topology = DecayTopology((((1, 2), 3), 4))
 const dk_topology = DecayTopology(((1, 2), (3, 4)))
 const kinematic_task = KinematicTask((dxd_topology, dk_topology))
-
-breakup_momentum(m0, m1, m2) =
-    sqrt(complex(((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4.0 * m0^2)))
 
 nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
@@ -292,66 +382,6 @@ function event_context(row)
     )
 end
 
-bwr_lineshape(ctx, m0, width, l) = begin
-    q0 = real(breakup_momentum(m0, nominal_mass["Dst"], nominal_mass["D"]))
-    ff = BlattWeisskopf{l}(3.0)
-    gsq = m0 * width / (2q0) * m0 / ff(q0)^2
-    MultichannelBreitWigner(m0, [(; gsq, ma=nominal_mass["Dst"], mb=nominal_mass["D"], l, d=3.0)])
-end
-
-function ad_hoc_mass(m0, m_min, m_max)
-    k = (m_max - m_min) / 2
-    return k * (1 + tanh((2m0 - (m_max + m_min)) / k / 4)) + m_min
-end
-
-function bwr_ls_q0(name::String; below_threshold=false)
-    m0 = nominal_mass[name]
-    q0_mass = below_threshold ?
-              ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"]) :
-              m0
-    return real(breakup_momentum(q0_mass, nominal_mass["Dst"], nominal_mass["D"]))
-end
-
-function bwr_ls_coupling_params(name::String)
-    theta0 = param_real(name * "_theta0")
-    return (; gamma0=cos(theta0), gamma2=sin(theta0))
-end
-
-function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
-    (; gamma0, gamma2) = bwr_ls_coupling_params(name)
-    q0 = bwr_ls_q0(name; below_threshold)
-    ff0 = BlattWeisskopf{0}(3.0)
-    ff2 = BlattWeisskopf{2}(3.0)
-    channels = [
-        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=0, d=3.0),
-        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=2, d=3.0),
-    ]
-    return MultichannelBreitWigner(nominal_mass[name], channels)
-end
-
-function decay_reference_mass(resonance_name::String, lineshape)
-    base = lineshape_base(lineshape)
-    below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-    m0 = nominal_mass[resonance_name]
-    below_threshold || return m0
-    return ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"])
-end
-
-function chain_lineshape_static_matching_factor(resonance_name::String, lineshape)
-    sign = lineshape_matching_sign(lineshape)
-    base = lineshape_base(lineshape)
-    if base in (:bwr_ls_l0, :bwr_ls_l0_below_threshold)
-        return sign * bwr_ls_coupling_params(resonance_name).gamma0
-    elseif base in (:bwr_ls_l2, :bwr_ls_l2_below_threshold)
-        return sign * bwr_ls_coupling_params(resonance_name).gamma2
-    elseif base in (:bwr_l1, :bwr_l2, :constant)
-        return sign
-    end
-    return 1.0
-end
-
 function chain_static_matching_factor(row)
     return chain_vertex_matching_factor(row) *
            chain_lineshape_static_matching_factor(row.resonance_name, row.lineshape)
@@ -370,40 +400,6 @@ function enrich_resonance_chains_df!(df)
         for row in eachrow(df)
     ]
     return df
-end
-
-function x2900_bwr_lineshape(ctx, name, l)
-    q0 = real(breakup_momentum(nominal_mass[name], nominal_mass["D"], nominal_mass["K"]))
-    ff = BlattWeisskopf{l}(3.0)
-    gsq = nominal_mass[name] * param_real(name * "_width") / (2q0) * nominal_mass[name] / ff(q0)^2
-    return MultichannelBreitWigner(
-        nominal_mass[name],
-        [(; gsq, ma=nominal_mass["D"], mb=nominal_mass["K"], l, d=3.0)],
-    )
-end
-
-function build_chain_lineshape(ctx, row)
-    resonance_name = row.resonance_name
-    base = lineshape_base(row.lineshape)
-    if base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        return build_bwr_ls_lineshape(ctx, resonance_name; below_threshold)
-    elseif base in (:bwr_l1, :bwr_l2)
-        return bwr_lineshape(
-            ctx, nominal_mass[resonance_name], param_real(resonance_name * "_width"),
-            bwr_decay_l(row.lineshape),
-        )
-    elseif base == :constant
-        return ConstantLineshape(1.0 + 0.0im)
-    elseif base == :nr_exp
-        alpha = param_real("NR(0-)SPp_alpha")
-        beta = param_real("NR(0-)SPp_beta")
-        nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
-        return ConstantLineshape(nr_factor)
-    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        return x2900_bwr_lineshape(ctx, resonance_name, bwr_decay_l(row.lineshape))
-    end
-    error("Unknown lineshape $(row.lineshape) for $(resonance_name).")
 end
 
 function _propagator_spin_norm(chain)
@@ -540,7 +536,7 @@ function build_resonance_cascade(resonance_name::String, ctx)
 end
 
 # =============================================================================
-# Block 3 — evaluate CascadeDecay on a kinematic point
+# Block 5 — evaluate CascadeDecay on a kinematic point
 # =============================================================================
 
 # All external spins are 0, so amplitude(cascade, point) returns a 1-element helicity array.
@@ -553,7 +549,7 @@ function selected_cd_amplitude(ctx, name::String)
 end
 
 # =============================================================================
-# Fit-fraction analysis
+# Block 6 — fit-fraction analysis
 # =============================================================================
 
 function compute_fit_fractions(component_names, component_amps_by_event, weights)
