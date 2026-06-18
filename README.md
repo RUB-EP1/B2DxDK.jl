@@ -35,10 +35,14 @@ B2DxDK/
 │   ├── interference_tf.json       # TensorFlow results
 │   ├── paper_couplings.json      # Coupling parameters
 │   ├── backup_400001.json        # Precomputed integrals
+│   ├── b-decay-events.arrow      # Full weighted event sample
+│   ├── crosscheck.arrow          # 100-event subset for amplitude regression
+│   ├── crosscheck_amplitudes_reference.txt
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
 ├── scripts/
-│   ├── all_resonances_fit_fractions.jl   # Clean Julia-only fit-fraction script (see below)
+│   ├── all_resonances_fit_fractions.jl        # TF-PWA-aligned fit fractions (3-block CascadeDecays model)
+│   ├── all_resonances_amplitudes_100.jl       # Amplitude regression on data/crosscheck.arrow
 │   ├── cal_pw_fraction.py        # Python script for partial wave analysis
 │   └── angles/                   # Julia scripts to cross-check angular conventions
 └── README.md
@@ -107,15 +111,21 @@ The current analysis can be found in `Analysis/Amplitude.ipynb`.
 
 ### All-resonance fit fractions (Julia, TF-PWA aligned)
 
-`scripts/all_resonances_fit_fractions.jl` is a clean Julia-only script for computing
-resonance fit fractions from `data/b-decay-events.arrow`. It contains the same
-CascadeDecays amplitude model as `notebooks/all_resonances_sampled_comparison.jl`
-(without TF-PWA sampling, plotting, or comparison scaffolding).
+`scripts/all_resonances_fit_fractions.jl` is a Julia-only script for computing
+resonance fit fractions from `data/b-decay-events.arrow`. It uses
+[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 with the
+same TF-PWA-aligned amplitude model as `notebooks/all_resonances_sampled_comparison.jl`.
 
-The CascadeDecays model in that script is identical to the TF-PWA (Python) reference:
-on the same kinematics, amplitudes agree with TF-PWA to numerical precision (~10⁻⁹
-relative), and fit fractions from both workflows are consistent within statistical
-fluctuation.
+The script is split into three blocks:
+
+1. **Model inputs** (no CascadeDecays API): nominal masses, JSON fit parameters,
+   and a per-chain-branch table `resonance_inputs_df` with LS couplings, orbital
+   `l`, bare couplings, lineshape kind, and parametrization keys.
+2. **CascadeDecays construction**: `build_resonance_cascade(info, ctx)` builds a
+   `CascadeDecay` with TF-PWA matching factors folded into the couplings.
+   Lineshape evaluation still needs event context, so this runs inside the event loop.
+3. **Evaluation**: `evaluate_cascade_amplitude(cascade, point)` returns the scalar
+   helicity amplitude on a `KinematicPoint`.
 
 Run from the project root:
 
@@ -123,7 +133,19 @@ Run from the project root:
 julia --project=. scripts/all_resonances_fit_fractions.jl
 ```
 
-Output is written to `scripts/all_resonances_fit_fractions.txt`.
+Output is written to `scripts/all_resonances_fit_fractions.txt` and compared against
+`notebooks/all_resonances_fit_fractions.txt`.
+
+**Regression test** — event-by-event amplitudes on `data/crosscheck.arrow`
+(100 events extracted from `b-decay-events.arrow`):
+
+```bash
+julia --project=. scripts/all_resonances_amplitudes_100.jl
+```
+
+Compared against `data/crosscheck_amplitudes_reference.txt`; writes
+`data/crosscheck_amplitudes.txt`. The script exits with `PASS` when all
+components match within `1e-10` absolute tolerance.
 
 
 ## Reference files for the isolated `Psi(4040)` amplitude

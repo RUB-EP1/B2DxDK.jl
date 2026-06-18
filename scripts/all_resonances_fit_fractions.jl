@@ -7,7 +7,7 @@ using JSON
 using Printf
 using Statistics
 import ThreeBodyDecays
-using ThreeBodyDecays: Recoupling, RecouplingLS, VertexFunction
+using ThreeBodyDecays: Recoupling, RecouplingLS, @jp_str
 
 struct RemoveParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
@@ -21,6 +21,10 @@ function ThreeBodyDecays.amplitude(cs::RemoveParticleTwoPhaseLS, helicities, spi
     phase = isodd(div(exponent_num, 2)) ? -1 : 1
     return phase * ThreeBodyDecays.amplitude(RecouplingLS(cs.two_ls), helicities, spins)
 end
+
+# =============================================================================
+# Block 1 — model inputs (no CascadeDecays types or API)
+# =============================================================================
 
 const repo_root = normpath(joinpath(@__DIR__, ".."))
 const data_path = joinpath(repo_root, "data", "b-decay-events.arrow")
@@ -59,44 +63,316 @@ const all_resonance_names = [
     "X1(2900)",
 ]
 
-const topology = DecayTopology((((1, 2), 3), 4))
-const dk_topology = DecayTopology(((1, 2), (3, 4)))
-
-params = JSON.parsefile(params_path)["value"]
-for name in ["X(3872)", "X(3915)(0-)", "chi(c2)(3930)", "X(3940)(1.)", "X(3993)", "Psi(4040)", "X(4300)", "X0(2900)", "X1(2900)"]
-    haskey(params, name * "_mass") && (nominal_mass[name] = Float64(params[name * "_mass"]))
+const params = let
+    loaded = JSON.parsefile(params_path)["value"]
+    for name in ["X(3872)", "X(3915)(0-)", "chi(c2)(3930)", "X(3940)(1.)", "X(3993)", "Psi(4040)", "X(4300)", "X0(2900)", "X1(2900)"]
+        key = name * "_mass"
+        haskey(loaded, key) && (nominal_mass[name] = Float64(loaded[key]))
+    end
+    loaded
 end
 
 param_real(key) = Float64(params[key])
 param_complex(key) = param_real(key * "r") * cis(param_real(key * "i"))
 
+struct ParamCouplingSpec
+    keys::Tuple{Vararg{String}}
+end
+
+resolve_coupling(spec::ParamCouplingSpec) = prod(param_complex(key) for key in spec.keys; init=1.0 + 0im)
+
+struct VertexLSSpec
+    two_ls::NTuple{2, Int}
+    orbital_l::Union{Int, Nothing}
+    remove_particle2_phase::Bool
+end
+
+VertexLSSpec(two_ls; orbital_l = nothing, remove_particle2_phase = false) =
+    VertexLSSpec(two_ls, orbital_l, remove_particle2_phase)
+
+VertexLSSpec(two_ls::NTuple{2, Int}, orbital_l::Union{Int, Nothing}; remove_particle2_phase = false) =
+    VertexLSSpec(two_ls, orbital_l, remove_particle2_phase)
+
+struct ChainCouplingSpec
+    branch::String
+    propagator_two_j::Int
+    root::VertexLSSpec
+    daughter::VertexLSSpec
+    coupling::ParamCouplingSpec
+    lineshape::Symbol
+    bwr_l::Union{Int, Nothing}
+    bwr_sign::ComplexF64
+end
+
+ChainCouplingSpec(
+    branch, propagator_two_j, root, daughter, coupling, lineshape;
+    bwr_l = nothing, bwr_sign = 1.0 + 0im,
+) = ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l, bwr_sign)
+
+ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l) =
+    ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l, 1.0 + 0im)
+
+bare_coupling(chain::ChainCouplingSpec) = resolve_coupling(chain.coupling) * chain.bwr_sign
+
+struct ResonanceCouplingSpec
+    name::String
+    topology::Symbol
+    root_pwave_matching::Bool
+    bwr_below_threshold::Bool
+    chains::Tuple{Vararg{ChainCouplingSpec}}
+end
+
+struct ResolvedChainCouplingInfo
+    spec::ChainCouplingSpec
+    coupling_value::ComplexF64
+end
+
+struct CollectedResonanceCouplingInfo
+    spec::ResonanceCouplingSpec
+    chains::Tuple{Vararg{ResolvedChainCouplingInfo}}
+end
+
+function production_coupling_key(name::String)
+    name == "X(3940)(1.)" &&
+        return "Bp->X(3940)(1.).KX(3940)(1.)->Dst.DDst->D0.pi_total_0"
+    return "Bp->$(name).K$(name)->Dst.DDst->D0.pi_total_0"
+end
+
+function resonance_coupling_spec(name::String)
+    if name == "X(3872)"
+        total = ParamCouplingSpec(("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0",))
+        sign = -1.0 + 0im
+        return ResonanceCouplingSpec(
+            name, :standard, true, true,
+            (
+                ChainCouplingSpec("l0", 2, VertexLSSpec((2, 2)), VertexLSSpec((0, 2)), total, :bwr_ls_l0; bwr_sign = sign),
+                ChainCouplingSpec(
+                    "l2", 2, VertexLSSpec((2, 2)), VertexLSSpec((4, 2)),
+                    ParamCouplingSpec(("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0", "X(3872)->Dst.D_g_ls_1")),
+                    :bwr_ls_l2; bwr_sign = sign,
+                ),
+            ),
+        )
+    elseif name == "X(3915)(0-)"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 0,
+                    VertexLSSpec((0, 0), 0), VertexLSSpec((2, 2), 1),
+                    ParamCouplingSpec(("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",)),
+                    :bwr, 1, -1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "chi(c2)(3930)"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 4,
+                    VertexLSSpec((4, 4), 2), VertexLSSpec((4, 2), 2),
+                    ParamCouplingSpec(("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",)),
+                    :bwr, 2, -1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "X(3940)(1.)" || name == "X(3993)" || name == "X(4300)"
+        sign = name == "X(3993)" ? -1.0 + 0im : 1.0 + 0im
+        total = ParamCouplingSpec((production_coupling_key(name),))
+        return ResonanceCouplingSpec(
+            name, :standard, true, false,
+            (
+                ChainCouplingSpec("l0", 2, VertexLSSpec((2, 2)), VertexLSSpec((0, 2)), total, :bwr_ls_l0, nothing, sign),
+                ChainCouplingSpec(
+                    "l2", 2, VertexLSSpec((2, 2)), VertexLSSpec((4, 2)),
+                    ParamCouplingSpec((production_coupling_key(name), "$(name)->Dst.D_g_ls_1")),
+                    :bwr_ls_l2, nothing, sign,
+                ),
+            ),
+        )
+    elseif name == "Psi(4040)"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 2,
+                    VertexLSSpec((2, 2), 1), VertexLSSpec((2, 2), 1),
+                    ParamCouplingSpec(("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",)),
+                    :bwr, 1, 1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "NR(0-)SPp"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2), 1),
+                    ParamCouplingSpec(("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0",)),
+                    :nr_exp,
+                ),
+            ),
+        )
+    elseif name == "NR(1.)PSp"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 2, VertexLSSpec((2, 2), 1), VertexLSSpec((0, 2)),
+                    ParamCouplingSpec(("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",)),
+                    :constant, nothing, -1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "NR(0-)SPm"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 0, VertexLSSpec((0, 0)), VertexLSSpec((2, 2), 1),
+                    ParamCouplingSpec(("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",)),
+                    :constant, nothing, 1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "NR(1-)PPm"
+        return ResonanceCouplingSpec(
+            name, :standard, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 2,
+                    VertexLSSpec((2, 2), 1), VertexLSSpec((2, 2), 1),
+                    ParamCouplingSpec(("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",)),
+                    :constant, nothing, 1.0 + 0im,
+                ),
+            ),
+        )
+    elseif name == "X0(2900)"
+        return ResonanceCouplingSpec(
+            name, :dk, false, false,
+            (
+                ChainCouplingSpec(
+                    "default", 0,
+                    VertexLSSpec((2, 2), 1), VertexLSSpec((0, 0), 0),
+                    ParamCouplingSpec(("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",)),
+                    :x2900_bwr, 0,
+                ),
+            ),
+        )
+    elseif name == "X1(2900)"
+        total = ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0",))
+        daughter = VertexLSSpec((2, 0), 1)
+        return ResonanceCouplingSpec(
+            name, :dk, false, false,
+            (
+                ChainCouplingSpec("l0", 2, VertexLSSpec((0, 0), 0; remove_particle2_phase = true), daughter, total, :x2900_bwr, 1),
+                ChainCouplingSpec(
+                    "l1", 2, VertexLSSpec((2, 2), 1; remove_particle2_phase = true), daughter,
+                    ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_1")),
+                    :x2900_bwr, 1,
+                ),
+                ChainCouplingSpec(
+                    "l2", 2, VertexLSSpec((4, 4), 2; remove_particle2_phase = true), daughter,
+                    ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_2")),
+                    :x2900_bwr, 1,
+                ),
+            ),
+        )
+    end
+    error("No coupling spec implemented for $(name).")
+end
+
+function collect_resonance_coupling_info(name::String)
+    spec = resonance_coupling_spec(name)
+    chains = ntuple(i -> begin
+        chain = spec.chains[i]
+        ResolvedChainCouplingInfo(chain, resolve_coupling(chain.coupling))
+    end, length(spec.chains))
+    return CollectedResonanceCouplingInfo(spec, chains)
+end
+
+function lineshape_param_keys(resonance_name::String, chain::ChainCouplingSpec)
+    keys = String[]
+    if chain.lineshape in (:bwr, :bwr_ls_l0, :bwr_ls_l2)
+        push!(keys, resonance_name * "_width")
+        chain.lineshape != :bwr && push!(keys, resonance_name * "_theta0")
+    elseif chain.lineshape == :nr_exp
+        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
+    elseif chain.lineshape == :x2900_bwr
+        push!(keys, resonance_name * "_width")
+    end
+    return keys
+end
+
+function parametrization_keys(resonance_name::String, chain::ChainCouplingSpec)
+    return unique(vcat(collect(chain.coupling.keys), lineshape_param_keys(resonance_name, chain)))
+end
+
+function build_resonance_inputs_dataframe()
+    rows = NamedTuple[]
+    for name in all_resonance_names
+        spec = resonance_coupling_spec(name)
+        for chain in spec.chains
+            bare = bare_coupling(chain)
+            push!(rows, (
+                resonance_name = name,
+                branch = chain.branch,
+                topology = String(spec.topology),
+                nominal_mass = nominal_mass[name],
+                propagator_two_j = chain.propagator_two_j,
+                root_two_ls = chain.root.two_ls,
+                root_l = chain.root.orbital_l,
+                root_remove_particle2_phase = chain.root.remove_particle2_phase,
+                daughter_two_ls = chain.daughter.two_ls,
+                daughter_l = chain.daughter.orbital_l,
+                coupling_param_keys = join(chain.coupling.keys, ";"),
+                bare_coupling_re = real(bare),
+                bare_coupling_im = imag(bare),
+                lineshape = String(chain.lineshape),
+                bwr_l = chain.bwr_l,
+                root_pwave_matching = spec.root_pwave_matching,
+                bwr_below_threshold = spec.bwr_below_threshold,
+                parametrization = join(parametrization_keys(name, chain), ";"),
+            ))
+        end
+    end
+    return DataFrame(rows)
+end
+
+const resonance_inputs_df = build_resonance_inputs_dataframe()
+const resonance_coupling_info = Dict(
+    name => collect_resonance_coupling_info(name) for name in all_resonance_names
+)
+
+# =============================================================================
+# Block 2 — CascadeDecays construction
+# (lineshape builders need event context; combined with block 3 in the event loop)
+# =============================================================================
+
+const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
+const topology = DecayTopology((((1, 2), 3), 4))
+const dk_topology = DecayTopology(((1, 2), (3, 4)))
+const kinematic_task = KinematicTask((topology, dk_topology))
+
 breakup_momentum(m0, m1, m2) =
     sqrt(complex(((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4.0 * m0^2)))
 
-mismatch_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
+nominal_vertex_matching(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
-function row_to_sampled_p4(row)
-    return Dict(
-        "D" => [row.Dm_E, row.Dm_px, row.Dm_py, row.Dm_pz],
-        "K" => [row.Kp_E, row.Kp_px, row.Kp_py, row.Kp_pz],
-        "D0" => [row.D0_E, row.D0_px, row.D0_py, row.D0_pz],
-        "pi" => [row.pip_E, row.pip_px, row.pip_py, row.pip_pz],
-    )
-end
-
-function event_context(sampled_p4)
-    pDminus = FourVector(sampled_p4["D"][2], sampled_p4["D"][3], sampled_p4["D"][4]; E = sampled_p4["D"][1])
-    pD0 = FourVector(sampled_p4["D0"][2], sampled_p4["D0"][3], sampled_p4["D0"][4]; E = sampled_p4["D0"][1])
-    pKplus = FourVector(sampled_p4["K"][2], sampled_p4["K"][3], sampled_p4["K"][4]; E = sampled_p4["K"][1])
-    piplus = FourVector(sampled_p4["pi"][2], sampled_p4["pi"][3], sampled_p4["pi"][4]; E = sampled_p4["pi"][1])
+function event_context(row)
+    pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E = row.Dm_E)
+    pD0 = FourVector(row.D0_px, row.D0_py, row.D0_pz; E = row.D0_E)
+    pKplus = FourVector(row.Kp_px, row.Kp_py, row.Kp_pz; E = row.Kp_E)
+    piplus = FourVector(row.pip_px, row.pip_py, row.pip_pz; E = row.pip_E)
     objs = (pD0, piplus, pDminus, pKplus)
     P_Dst = pD0 + piplus
     P_R = P_Dst + pDminus
     P_B = P_R + pKplus
-    system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
-    x = cascade_kinematics(topology, system, objs)
+    masses = SystemMasses(mass.(objs)...; m0=mass(P_B))
+    system = CascadeSystem(external_spins, masses)
+    point = KinematicPoint(kinematic_task, objs)
     return (
-        sampled_p4 = sampled_p4,
         pDminus = pDminus,
         pD0 = pD0,
         pKplus = pKplus,
@@ -105,31 +381,7 @@ function event_context(sampled_p4)
         P_R = P_R,
         P_B = P_B,
         system = system,
-        x = x,
-    )
-end
-
-function dk_event_context(sampled_p4)
-    pDminus = FourVector(sampled_p4["D"][2], sampled_p4["D"][3], sampled_p4["D"][4]; E = sampled_p4["D"][1])
-    pD0 = FourVector(sampled_p4["D0"][2], sampled_p4["D0"][3], sampled_p4["D0"][4]; E = sampled_p4["D0"][1])
-    pKplus = FourVector(sampled_p4["K"][2], sampled_p4["K"][3], sampled_p4["K"][4]; E = sampled_p4["K"][1])
-    piplus = FourVector(sampled_p4["pi"][2], sampled_p4["pi"][3], sampled_p4["pi"][4]; E = sampled_p4["pi"][1])
-    objs = (pD0, piplus, pDminus, pKplus)
-    P_Dst = pD0 + piplus
-    P_DK = pDminus + pKplus
-    P_B = P_Dst + P_DK
-    system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
-    x = cascade_kinematics(dk_topology, system, objs)
-    return (
-        pDminus = pDminus,
-        pD0 = pD0,
-        pKplus = pKplus,
-        piplus = piplus,
-        P_Dst = P_Dst,
-        P_DK = P_DK,
-        P_B = P_B,
-        system = system,
-        x = x,
+        point = point,
     )
 end
 
@@ -164,51 +416,6 @@ function bwr_ls_lineshapes(ctx, name, sign; below_threshold = false)
     return bw * gamma0, bw * (ff2(breakup_from_sigma) * (gamma2 / ff2(q0)))
 end
 
-function chain_amplitude(ctx, lineshape, two_j, root_two_ls, decay_two_ls; root_l = nothing, decay_l = nothing)
-    root_vertex = root_l === nothing ?
-        VertexFunction(RecouplingLS(root_two_ls)) :
-        VertexFunction(RecouplingLS(root_two_ls), BlattWeisskopf{root_l}(3.0))
-    decay_vertex = decay_l === nothing ?
-        VertexFunction(RecouplingLS(decay_two_ls)) :
-        VertexFunction(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(3.0))
-    chain = CascadeDecays.DecayChain(
-        topology;
-        propagators = (
-            (1, 2) => (two_j = 2, lineshape = ConstantLineshape(1.0 + 0.0im)),
-            ((1, 2), 3) => (two_j = two_j, lineshape = lineshape),
-        ),
-        vertices = (
-            (((1, 2), 3), 4) => root_vertex,
-            ((1, 2), 3) => decay_vertex,
-            (1, 2) => VertexFunction(RecouplingLS((2, 0))),
-        ),
-    )
-    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, (0, 0, 0, 0, 0))
-end
-
-function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, remove_root_particle2_phase = false)
-    root_recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
-    root_vertex = root_l === nothing ?
-        VertexFunction(root_recoupling) :
-        VertexFunction(root_recoupling, BlattWeisskopf{root_l}(3.0))
-    dk_vertex = dk_l === nothing ?
-        VertexFunction(RecouplingLS(dk_two_ls)) :
-        VertexFunction(RecouplingLS(dk_two_ls), BlattWeisskopf{dk_l}(3.0))
-    chain = CascadeDecays.DecayChain(
-        dk_topology;
-        propagators = (
-            (1, 2) => (two_j = 2, lineshape = ConstantLineshape(1.0 + 0.0im)),
-            (3, 4) => (two_j = two_j, lineshape = lineshape),
-        ),
-        vertices = (
-            ((1, 2), (3, 4)) => root_vertex,
-            (3, 4) => dk_vertex,
-            (1, 2) => VertexFunction(RecouplingLS((2, 0))),
-        ),
-    )
-    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, (0, 0, 0, 0, 0))
-end
-
 function x2900_bwr_lineshape(ctx, name, l)
     q0 = real(breakup_momentum(nominal_mass[name], nominal_mass["D"], nominal_mass["K"]))
     ff = BlattWeisskopf{l}(3.0)
@@ -219,100 +426,179 @@ function x2900_bwr_lineshape(ctx, name, l)
     )
 end
 
-function selected_cd_amplitude(ctx, name::String)
-    if name == "X(3872)"
-        l0, l2 = bwr_ls_lineshapes(ctx, "X(3872)", -1.0 + 0im; below_threshold = true)
-        root_ff = BlattWeisskopf{1}(3.0)
-        root_mdep = root_ff(breakup_momentum(mass(ctx.P_B), mass(ctx.P_R), mass(ctx.pKplus))) /
-                    root_ff(breakup_momentum(nominal_mass["Bp"], nominal_mass["X(3872)"], nominal_mass["K"]))
-        amp_l0 = root_mdep * chain_amplitude(ctx, l0, 2, (2, 2), (0, 2))
-        amp_l2 = root_mdep * chain_amplitude(ctx, l2, 2, (2, 2), (4, 2))
-        return param_complex("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0") *
-               (amp_l0 + param_complex("X(3872)->Dst.D_g_ls_1") * amp_l2)
-    elseif name == "X(3915)(0-)"
-        raw = chain_amplitude(
-            ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, -1.0 + 0im),
-            0, (0, 0), (2, 2); root_l = 0, decay_l = 1,
+function chain_lineshape(ctx, resonance_name, chain::ChainCouplingSpec; bwr_below_threshold = false)
+    if chain.lineshape == :bwr_ls_l0 || chain.lineshape == :bwr_ls_l2
+        l0, l2 = bwr_ls_lineshapes(ctx, resonance_name, chain.bwr_sign; below_threshold = bwr_below_threshold)
+        return chain.lineshape == :bwr_ls_l0 ? l0 : l2
+    elseif chain.lineshape == :bwr
+        return bwr_lineshape(
+            ctx, nominal_mass[resonance_name], param_real(resonance_name * "_width"),
+            chain.bwr_l, chain.bwr_sign,
         )
-        correction = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "chi(c2)(3930)"
-        raw = chain_amplitude(
-            ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 2, -1.0 + 0im),
-            4, (4, 4), (4, 2); root_l = 2, decay_l = 2,
-        )
-        correction = mismatch_factor(2, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(2, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "X(3940)(1.)" || name == "X(3993)" || name == "X(4300)"
-        sign = name == "X(3993)" ? -1.0 + 0im : 1.0 + 0im
-        l0, l2 = bwr_ls_lineshapes(ctx, name, sign)
-        root_ff = BlattWeisskopf{1}(3.0)
-        root_mdep = root_ff(breakup_momentum(mass(ctx.P_B), mass(ctx.P_R), mass(ctx.pKplus))) /
-                    root_ff(breakup_momentum(nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]))
-        amp_l0 = root_mdep * chain_amplitude(ctx, l0, 2, (2, 2), (0, 2))
-        amp_l2 = root_mdep * chain_amplitude(ctx, l2, 2, (2, 2), (4, 2))
-        total_key = name == "X(3940)(1.)" ?
-            "Bp->X(3940)(1.).KX(3940)(1.)->Dst.DDst->D0.pi_total_0" :
-            "Bp->$(name).K$(name)->Dst.DDst->D0.pi_total_0"
-        return param_complex(total_key) * (amp_l0 + param_complex("$(name)->Dst.D_g_ls_1") * amp_l2)
-    elseif name == "Psi(4040)"
-        raw = chain_amplitude(
-            ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, 1.0 + 0im),
-            2, (2, 2), (2, 2); root_l = 1, decay_l = 1,
-        )
-        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "NR(0-)SPp"
+    elseif chain.lineshape == :constant
+        return ConstantLineshape(chain.bwr_sign)
+    elseif chain.lineshape == :nr_exp
         alpha = param_real("NR(0-)SPp_alpha")
         beta = param_real("NR(0-)SPp_beta")
         nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
-        raw = chain_amplitude(ctx, ConstantLineshape(nr_factor), 0, (0, 0), (2, 2); decay_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPp"], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "NR(1.)PSp"
-        raw = chain_amplitude(ctx, ConstantLineshape(-1.0 + 0im), 2, (2, 2), (0, 2); root_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1.)PSp"], nominal_mass["K"])
-        return param_complex("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "NR(0-)SPm"
-        raw = chain_amplitude(ctx, ConstantLineshape(1.0 + 0im), 0, (0, 0), (2, 2); decay_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPm"], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "NR(1-)PPm"
-        raw = chain_amplitude(ctx, ConstantLineshape(1.0 + 0im), 2, (2, 2), (2, 2); root_l = 1, decay_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1-)PPm"], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass["NR(1-)PPm"], nominal_mass["Dst"], nominal_mass["D"])
-        return param_complex("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0") * raw * correction
-    elseif name == "X0(2900)"
-        dk_ctx = dk_event_context(ctx.sampled_p4)
-        raw = dk_chain_amplitude(
-            dk_ctx, x2900_bwr_lineshape(dk_ctx, name, 0),
-            0, (2, 2), (0, 0); root_l = 1, dk_l = 0,
-        )
-        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                     mismatch_factor(0, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
-        return param_complex("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0") * raw * correction
-    elseif name == "X1(2900)"
-        dk_ctx = dk_event_context(ctx.sampled_p4)
-        lineshape = x2900_bwr_lineshape(dk_ctx, name, 1)
-        raw_l0 = dk_chain_amplitude(dk_ctx, lineshape, 2, (0, 0), (2, 0); root_l = 0, dk_l = 1, remove_root_particle2_phase = true)
-        raw_l1 = dk_chain_amplitude(dk_ctx, lineshape, 2, (2, 2), (2, 0); root_l = 1, dk_l = 1, remove_root_particle2_phase = true)
-        raw_l2 = dk_chain_amplitude(dk_ctx, lineshape, 2, (4, 4), (2, 0); root_l = 2, dk_l = 1, remove_root_particle2_phase = true)
-        correction_l0 = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
-        correction_l1 = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
-        correction_l2 = mismatch_factor(2, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
-        coherent = raw_l0 * correction_l0 +
-                   param_complex("Bp->X1(2900).Dst_g_ls_1") * raw_l1 * correction_l1 +
-                   param_complex("Bp->X1(2900).Dst_g_ls_2") * raw_l2 * correction_l2
-        return param_complex("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0") * coherent
+        return ConstantLineshape(nr_factor)
+    elseif chain.lineshape == :x2900_bwr
+        return x2900_bwr_lineshape(ctx, resonance_name, chain.bwr_l)
     end
-    error("No branch implemented for $(name).")
+    error("Unknown lineshape $(chain.lineshape) for $(resonance_name).")
 end
+
+function _propagator_spin_norm(chain)
+    # v0.1.0 includes prod(sqrt(two_j + 1)) in amplitude; divide to keep TF-PWA-aligned yields.
+    return prod(sqrt(two_j + 1) for two_j in chain.propagator_two_js; init=1.0)
+end
+
+function _root_vertex(root_two_ls, root_l = nothing; remove_root_particle2_phase = false)
+    recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
+    return root_l === nothing ? Vertex(recoupling) : Vertex(recoupling, BlattWeisskopf{root_l}(3.0))
+end
+
+function _decay_vertex(decay_two_ls, decay_l = nothing)
+    return decay_l === nothing ?
+        Vertex(RecouplingLS(decay_two_ls)) :
+        Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(3.0))
+end
+
+function build_standard_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_l = nothing, decay_l = nothing)
+    return DecayChain(
+        topology;
+        propagators = (
+            (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
+            ((1, 2), 3) => Propagator(two_j, lineshape),
+        ),
+        vertices = (
+            (((1, 2), 3), 4) => _root_vertex(root_two_ls, root_l),
+            ((1, 2), 3) => _decay_vertex(decay_two_ls, decay_l),
+            (1, 2) => Vertex(RecouplingLS((2, 0))),
+        ),
+    )
+end
+
+function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, remove_root_particle2_phase = false)
+    return DecayChain(
+        dk_topology;
+        propagators = (
+            (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
+            (3, 4) => Propagator(two_j, lineshape),
+        ),
+        vertices = (
+            ((1, 2), (3, 4)) => _root_vertex(root_two_ls, root_l; remove_root_particle2_phase),
+            (3, 4) => _decay_vertex(dk_two_ls, dk_l),
+            (1, 2) => Vertex(RecouplingLS((2, 0))),
+        ),
+    )
+end
+
+function root_pwave_matching(ctx, resonance_name)
+    root_ff = BlattWeisskopf{1}(3.0)
+    return root_ff(breakup_momentum(mass(ctx.P_B), mass(ctx.P_R), mass(ctx.pKplus))) /
+           root_ff(breakup_momentum(nominal_mass["Bp"], nominal_mass[resonance_name], nominal_mass["K"]))
+end
+
+function standard_vertex_matching(resonance_name; root_l = nothing, decay_l = nothing)
+    m_r = nominal_mass[resonance_name]
+    root = root_l === nothing ? 1.0 :
+           nominal_vertex_matching(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["K"])
+    decay = decay_l === nothing ? 1.0 :
+            nominal_vertex_matching(decay_l, 3.0, m_r, nominal_mass["Dst"], nominal_mass["D"])
+    return root * decay
+end
+
+function dk_vertex_matching(resonance_name; root_l = nothing, dk_l = nothing)
+    m_r = nominal_mass[resonance_name]
+    root = root_l === nothing ? 1.0 :
+           nominal_vertex_matching(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
+    dk = dk_l === nothing ? 1.0 :
+         nominal_vertex_matching(dk_l, 3.0, m_r, nominal_mass["D"], nominal_mass["K"])
+    return root * dk
+end
+
+function chain_vertex_matching(resonance_name, topology::Symbol, chain::ChainCouplingSpec)
+    root_l = chain.root.orbital_l
+    daughter_l = chain.daughter.orbital_l
+    if topology == :standard
+        return standard_vertex_matching(resonance_name; root_l = root_l, decay_l = daughter_l)
+    elseif topology == :dk
+        return dk_vertex_matching(resonance_name; root_l = root_l, dk_l = daughter_l)
+    end
+    error("Unknown topology $(topology).")
+end
+
+function build_chain_from_spec(ctx, info::CollectedResonanceCouplingInfo, chain_info::ResolvedChainCouplingInfo)
+    chain = chain_info.spec
+    resonance_name = info.spec.name
+    lineshape = chain_lineshape(
+        ctx, resonance_name, chain; bwr_below_threshold = info.spec.bwr_below_threshold,
+    )
+    if info.spec.topology == :dk
+        return build_dk_chain(
+            lineshape,
+            chain.propagator_two_j,
+            chain.root.two_ls,
+            chain.daughter.two_ls;
+            root_l = chain.root.orbital_l,
+            dk_l = chain.daughter.orbital_l,
+            remove_root_particle2_phase = chain.root.remove_particle2_phase,
+        )
+    end
+    return build_standard_chain(
+        lineshape,
+        chain.propagator_two_j,
+        chain.root.two_ls,
+        chain.daughter.two_ls;
+        root_l = chain.root.orbital_l,
+        decay_l = chain.daughter.orbital_l,
+    )
+end
+
+function chain_matchings(info::CollectedResonanceCouplingInfo, ctx)
+    return ntuple(i -> begin
+        chain = info.chains[i].spec
+        chain_matching = chain_vertex_matching(info.spec.name, info.spec.topology, chain)
+        info.spec.root_pwave_matching || return chain_matching
+        return root_pwave_matching(ctx, info.spec.name) * chain_matching
+    end, length(info.chains))
+end
+
+function build_resonance_cascade(info::CollectedResonanceCouplingInfo, ctx)
+    chains = ntuple(i -> build_chain_from_spec(ctx, info, info.chains[i]), length(info.chains))
+    couplings = ntuple(i -> info.chains[i].coupling_value, length(info.chains))
+    matchings = chain_matchings(info, ctx)
+    effective_couplings = ntuple(
+        i -> couplings[i] * matchings[i] / _propagator_spin_norm(chains[i]),
+        length(chains),
+    )
+    branch_names = ntuple(i -> info.chains[i].spec.branch, length(info.chains))
+    return CascadeDecay(
+        chains,
+        ctx.system,
+        topology;
+        couplings = effective_couplings,
+        names = branch_names,
+    )
+end
+
+# =============================================================================
+# Block 3 — evaluate CascadeDecay on a kinematic point
+# =============================================================================
+
+# All external spins are 0, so amplitude(cascade, point) returns a 1-element helicity array.
+evaluate_cascade_amplitude(cascade::CascadeDecay, point::KinematicPoint) =
+    only(amplitude(cascade, point))
+
+function selected_cd_amplitude(ctx, name::String)
+    cascade = build_resonance_cascade(resonance_coupling_info[name], ctx)
+    return evaluate_cascade_amplitude(cascade, ctx.point)
+end
+
+# =============================================================================
+# Fit-fraction analysis
+# =============================================================================
 
 function compute_fit_fractions(component_names, component_amps_by_event, weights)
     length(weights) == length(component_amps_by_event) ||
@@ -355,6 +641,7 @@ function main()
     println("====================================================")
     println("Input:  ", data_path)
     println("Output: ", output_path)
+    println("Model input rows (one per chain branch): ", nrow(resonance_inputs_df))
     println()
 
     df = DataFrame(Arrow.Table(data_path))
@@ -369,8 +656,11 @@ function main()
     sizehint!(resonance_amps_by_event, n_events)
 
     for idx in 1:n_events
-        ctx = event_context(row_to_sampled_p4(df[idx, :]))
-        push!(resonance_amps_by_event, ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names])
+        ctx = event_context(df[idx, :])
+        push!(
+            resonance_amps_by_event,
+            ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names],
+        )
         idx % 10_000 == 0 && println("  processed ", idx, " / ", n_events)
     end
 
@@ -413,4 +703,6 @@ function main()
     return fit_fractions, interference_fraction
 end
 
-main()
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end

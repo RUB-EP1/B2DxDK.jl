@@ -1,6 +1,7 @@
 venv
 
 amplitudes.txt
+data/crosscheck_amplitudes.txt
 
 Analysis/__pycache__
 notebooks/README_files/*
