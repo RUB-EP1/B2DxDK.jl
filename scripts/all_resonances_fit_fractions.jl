@@ -142,16 +142,77 @@ function bwr_ls_coupling_params(name::String)
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
+"""
+    build_bwr_ls_lineshape(ctx, name; below_threshold=false) -> MultichannelBreitWigner
+
+S+D `MultichannelBreitWigner` for \$R \\to D^* D\$ (`bwr_ls` model).
+
+
+# Propagator
+
+HadronicLineshapes evaluates
+
+```math
+\\frac{1}{\\hat m^2 - s - i \\sum_c g_c^2 \\,
+    \\frac{2\\, p_c(s)}{\\sqrt{s}} \\,
+    F_{\\ell_c}^2\\!\\bigl(p_c(s)\\bigr)}
+```
+
+with PDG phase-space factor \$\\rho_c(s) = 2 p_c / \\sqrt{s}\$ per channel.
+
+
+# Calibration of `gsq_c`
+
+`gsq_c` is **not** a bare \$g_c^2\$.  It is fixed from the fit width \$\\Gamma\$
+(`{name}_width`) and nominal breakup momentum \$q_0\$ by inverting the package relation
+at the reference point:
+
+```math
+\\mathrm{gsq}_c
+    = \\frac{\\hat m \\, \\Gamma_c}{2 q_0}
+      \\cdot \\frac{\\hat m}{F_{\\ell_c}^2(q_0)},
+    \\qquad
+    \\Gamma_c = \\Gamma \\, \\gamma_c^2 .
+```
+
+S/D mixing: \$\\gamma_0 = \\cos\\theta_0\$, \$\\gamma_2 = \\sin\\theta_0\$ from `{name}_theta0`.
+
+
+# Event-dependent numerator (TFPWA convention)
+
+The calibration uses event \$m_R^2 = \\mathrm{mass}(\\texttt{ctx.P\_R})^2\$ in place of
+nominal \$\\hat m^2\$, so
+
+```math
+\\mathrm{gsq}_c \\propto
+    \\frac{\\Gamma \\, \\gamma_c^2 \\, s_R}{2 q_0 \\, F_{\\ell_c}^2(q_0)} .
+```
+
+At evaluation, `MultichannelBreitWigner` multiplies by
+\$2 p(s)/\\sqrt{s} \\cdot F_{\\ell}^2(p(s))\$.
+The energy-dependent width is the **product** of these two factors, not a single constant
+\$g^2 \\cdot 2p/\\sqrt{s}\$ with fixed \$g\$.
+
+
+# Keyword arguments
+
+- `below_threshold=true`: evaluate \$q_0\$ with an ad-hoc mass when \$R\$ is below the
+  \$D^* D\$ opening.
+"""
 function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
+    dynamic_mass2 = mass(ctx.P_R)^2
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     q0 = bwr_ls_q0(name; below_threshold)
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
+    gsq_0 = param_real(name * "_width") * dynamic_mass2 / (2q0) * gamma0^2 / ff0(q0)^2
+    gsq_2 = param_real(name * "_width") * dynamic_mass2 / (2q0) * gamma2^2 / ff2(q0)^2
+    ma = nominal_mass["Dst"]
+    mb = nominal_mass["D"]
+    d = 3.0
     channels = [
-        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=0, d=3.0),
-        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=2, d=3.0),
+        (; gsq=gsq_0, ma, mb, l=0, d),
+        (; gsq=gsq_2, ma, mb, l=2, d),
     ]
     return MultichannelBreitWigner(nominal_mass[name], channels)
 end
