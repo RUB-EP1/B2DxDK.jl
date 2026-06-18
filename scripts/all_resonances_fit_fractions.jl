@@ -82,19 +82,17 @@ end
 resolve_coupling(spec::ParamCouplingSpec) = prod(param_complex(key) for key in spec.keys; init=1.0 + 0im)
 
 struct SimpleVertexLS
-    two_ls::NTuple{2, Int}
+    two_ls::NTuple{2,Int}
 end
 
-SimpleVertexLS(two_ls) = SimpleVertexLS(two_ls)
-
 struct BWVertexLS
-    two_ls::NTuple{2, Int}
+    two_ls::NTuple{2,Int}
     remove_particle2_phase::Bool
 end
 
-BWVertexLS(two_ls; remove_particle2_phase = false) = BWVertexLS(two_ls, remove_particle2_phase)
+BWVertexLS(two_ls; remove_particle2_phase=false) = BWVertexLS(two_ls, remove_particle2_phase)
 
-const VertexSpec = Union{SimpleVertexLS, BWVertexLS}
+const VertexSpec = Union{SimpleVertexLS,BWVertexLS}
 
 vertex_two_ls(v::SimpleVertexLS) = v.two_ls
 vertex_two_ls(v::BWVertexLS) = v.two_ls
@@ -112,24 +110,35 @@ struct ChainCouplingSpec
     daughter::VertexSpec
     coupling::ParamCouplingSpec
     lineshape::Symbol
-    bwr_l::Union{Int, Nothing}
-    bwr_sign::ComplexF64
 end
 
-ChainCouplingSpec(
-    branch, propagator_two_j, root, daughter, coupling, lineshape;
-    bwr_l = nothing, bwr_sign = 1.0 + 0im,
-) = ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l, bwr_sign)
+ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape) =
+    ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape)
 
-ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l) =
-    ChainCouplingSpec(branch, propagator_two_j, root, daughter, coupling, lineshape, bwr_l, 1.0 + 0im)
+function lineshape_base(lineshape::Symbol)
+    name = string(lineshape)
+    endswith(name, "_neg") && return Symbol(chop(name, tail=4))
+    return lineshape
+end
 
-bare_coupling(chain::ChainCouplingSpec) = resolve_coupling(chain.coupling) * chain.bwr_sign
+lineshape_matching_sign(lineshape::Symbol) =
+    endswith(string(lineshape), "_neg") ? -1.0 + 0im : 1.0 + 0im
+
+function bwr_decay_l(lineshape::Symbol)
+    base = lineshape_base(lineshape)
+    base == :bwr_l1 && return 1
+    base == :bwr_l2 && return 2
+    base == :x2900_bwr_l0 && return 0
+    base == :x2900_bwr_l1 && return 1
+    return nothing
+end
+
+bare_coupling(chain::ChainCouplingSpec) =
+    resolve_coupling(chain.coupling) * lineshape_matching_sign(chain.lineshape)
 
 struct ResonanceCouplingSpec
     name::String
     topology::Symbol
-    root_pwave_matching::Bool
     chains::Tuple{Vararg{ChainCouplingSpec}}
 end
 
@@ -152,71 +161,71 @@ end
 function resonance_coupling_spec(name::String)
     if name == "X(3872)"
         total = ParamCouplingSpec(("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0",))
-        sign = -1.0 + 0im
         return ResonanceCouplingSpec(
-            name, :standard, true,
+            name, :standard,
             (
-                ChainCouplingSpec("l0", 2, SimpleVertexLS((2, 2)), SimpleVertexLS((0, 2)), total, :bwr_ls_l0_below_threshold; bwr_sign = sign),
+                ChainCouplingSpec("l0", 2, BWVertexLS((2, 2)), SimpleVertexLS((0, 2)), total, :bwr_ls_l0_below_threshold_neg),
                 ChainCouplingSpec(
-                    "l2", 2, SimpleVertexLS((2, 2)), SimpleVertexLS((4, 2)),
+                    "l2", 2, BWVertexLS((2, 2)), SimpleVertexLS((4, 2)),
                     ParamCouplingSpec(("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0", "X(3872)->Dst.D_g_ls_1")),
-                    :bwr_ls_l2_below_threshold; bwr_sign = sign,
+                    :bwr_ls_l2_below_threshold_neg,
                 ),
             ),
         )
     elseif name == "X(3915)(0-)"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 0,
                     BWVertexLS((0, 0)), BWVertexLS((2, 2)),
                     ParamCouplingSpec(("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",)),
-                    :bwr, 1, -1.0 + 0im,
+                    :bwr_l1_neg,
                 ),
             ),
         )
     elseif name == "chi(c2)(3930)"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 4,
                     BWVertexLS((4, 4)), BWVertexLS((4, 2)),
                     ParamCouplingSpec(("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",)),
-                    :bwr, 2, -1.0 + 0im,
+                    :bwr_l2_neg,
                 ),
             ),
         )
     elseif name == "X(3940)(1.)" || name == "X(3993)" || name == "X(4300)"
-        sign = name == "X(3993)" ? -1.0 + 0im : 1.0 + 0im
+        l0_lineshape = name == "X(3993)" ? :bwr_ls_l0_neg : :bwr_ls_l0
+        l2_lineshape = name == "X(3993)" ? :bwr_ls_l2_neg : :bwr_ls_l2
         total = ParamCouplingSpec((production_coupling_key(name),))
         return ResonanceCouplingSpec(
-            name, :standard, true,
+            name, :standard,
             (
-                ChainCouplingSpec("l0", 2, SimpleVertexLS((2, 2)), SimpleVertexLS((0, 2)), total, :bwr_ls_l0, nothing, sign),
+                ChainCouplingSpec("l0", 2, BWVertexLS((2, 2)), SimpleVertexLS((0, 2)), total, l0_lineshape),
                 ChainCouplingSpec(
-                    "l2", 2, SimpleVertexLS((2, 2)), SimpleVertexLS((4, 2)),
+                    "l2", 2, BWVertexLS((2, 2)), SimpleVertexLS((4, 2)),
                     ParamCouplingSpec((production_coupling_key(name), "$(name)->Dst.D_g_ls_1")),
-                    :bwr_ls_l2, nothing, sign,
+                    l2_lineshape,
                 ),
             ),
         )
     elseif name == "Psi(4040)"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 2,
                     BWVertexLS((2, 2)), BWVertexLS((2, 2)),
                     ParamCouplingSpec(("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",)),
-                    :bwr, 1, 1.0 + 0im,
+                    :bwr_l1,
                 ),
             ),
         )
     elseif name == "NR(0-)SPp"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 0, SimpleVertexLS((0, 0)), BWVertexLS((2, 2)),
@@ -227,47 +236,47 @@ function resonance_coupling_spec(name::String)
         )
     elseif name == "NR(1.)PSp"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 2, BWVertexLS((2, 2)), SimpleVertexLS((0, 2)),
                     ParamCouplingSpec(("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",)),
-                    :constant, nothing, -1.0 + 0im,
+                    :constant_neg,
                 ),
             ),
         )
     elseif name == "NR(0-)SPm"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 0, SimpleVertexLS((0, 0)), BWVertexLS((2, 2)),
                     ParamCouplingSpec(("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",)),
-                    :constant, nothing, 1.0 + 0im,
+                    :constant,
                 ),
             ),
         )
     elseif name == "NR(1-)PPm"
         return ResonanceCouplingSpec(
-            name, :standard, false,
+            name, :standard,
             (
                 ChainCouplingSpec(
                     "default", 2,
                     BWVertexLS((2, 2)), BWVertexLS((2, 2)),
                     ParamCouplingSpec(("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",)),
-                    :constant, nothing, 1.0 + 0im,
+                    :constant,
                 ),
             ),
         )
     elseif name == "X0(2900)"
         return ResonanceCouplingSpec(
-            name, :dk, false,
+            name, :dk,
             (
                 ChainCouplingSpec(
                     "default", 0,
                     BWVertexLS((2, 2)), BWVertexLS((0, 0)),
                     ParamCouplingSpec(("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",)),
-                    :x2900_bwr, 0,
+                    :x2900_bwr_l0,
                 ),
             ),
         )
@@ -275,18 +284,18 @@ function resonance_coupling_spec(name::String)
         total = ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0",))
         daughter = BWVertexLS((2, 0))
         return ResonanceCouplingSpec(
-            name, :dk, false,
+            name, :dk,
             (
-                ChainCouplingSpec("l0", 2, BWVertexLS((0, 0); remove_particle2_phase = true), daughter, total, :x2900_bwr, 1),
+                ChainCouplingSpec("l0", 2, BWVertexLS((0, 0); remove_particle2_phase=true), daughter, total, :x2900_bwr_l1),
                 ChainCouplingSpec(
-                    "l1", 2, BWVertexLS((2, 2); remove_particle2_phase = true), daughter,
+                    "l1", 2, BWVertexLS((2, 2); remove_particle2_phase=true), daughter,
                     ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_1")),
-                    :x2900_bwr, 1,
+                    :x2900_bwr_l1,
                 ),
                 ChainCouplingSpec(
-                    "l2", 2, BWVertexLS((4, 4); remove_particle2_phase = true), daughter,
+                    "l2", 2, BWVertexLS((4, 4); remove_particle2_phase=true), daughter,
                     ParamCouplingSpec(("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0", "Bp->X1(2900).Dst_g_ls_2")),
-                    :x2900_bwr, 1,
+                    :x2900_bwr_l1,
                 ),
             ),
         )
@@ -297,20 +306,22 @@ end
 function collect_resonance_coupling_info(name::String)
     spec = resonance_coupling_spec(name)
     chains = ntuple(i -> begin
-        chain = spec.chains[i]
-        ResolvedChainCouplingInfo(chain, resolve_coupling(chain.coupling))
-    end, length(spec.chains))
+            chain = spec.chains[i]
+            ResolvedChainCouplingInfo(chain, resolve_coupling(chain.coupling))
+        end, length(spec.chains))
     return CollectedResonanceCouplingInfo(spec, chains)
 end
 
 function lineshape_param_keys(resonance_name::String, chain::ChainCouplingSpec)
     keys = String[]
-    if chain.lineshape in (:bwr, :bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+    base = lineshape_base(chain.lineshape)
+    if base in (:bwr_l1, :bwr_l2) ||
+       base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
         push!(keys, resonance_name * "_width")
-        chain.lineshape != :bwr && push!(keys, resonance_name * "_theta0")
-    elseif chain.lineshape == :nr_exp
+        base != :bwr_l1 && base != :bwr_l2 && push!(keys, resonance_name * "_theta0")
+    elseif base == :nr_exp
         append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
-    elseif chain.lineshape == :x2900_bwr
+    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
         push!(keys, resonance_name * "_width")
     end
     return keys
@@ -327,23 +338,22 @@ function build_resonance_inputs_dataframe()
         for chain in spec.chains
             bare = bare_coupling(chain)
             push!(rows, (
-                resonance_name = name,
-                branch = chain.branch,
-                topology = String(spec.topology),
-                nominal_mass = nominal_mass[name],
-                propagator_two_j = chain.propagator_two_j,
-                root_two_ls = vertex_two_ls(chain.root),
-                root_l = vertex_barrier_l(chain.root),
-                root_remove_particle2_phase = vertex_remove_particle2_phase(chain.root),
-                daughter_two_ls = vertex_two_ls(chain.daughter),
-                daughter_l = vertex_barrier_l(chain.daughter),
-                coupling_param_keys = join(chain.coupling.keys, ";"),
-                bare_coupling_re = real(bare),
-                bare_coupling_im = imag(bare),
-                lineshape = String(chain.lineshape),
-                bwr_l = chain.bwr_l,
-                root_pwave_matching = spec.root_pwave_matching,
-                parametrization = join(parametrization_keys(name, chain), ";"),
+                resonance_name=name,
+                branch=chain.branch,
+                topology=String(spec.topology),
+                nominal_mass=nominal_mass[name],
+                propagator_two_j=chain.propagator_two_j,
+                root_two_ls=vertex_two_ls(chain.root),
+                root_l=vertex_barrier_l(chain.root),
+                root_remove_particle2_phase=vertex_remove_particle2_phase(chain.root),
+                daughter_two_ls=vertex_two_ls(chain.daughter),
+                daughter_l=vertex_barrier_l(chain.daughter),
+                coupling_param_keys=join(chain.coupling.keys, ";"),
+                bare_coupling_re=real(bare),
+                bare_coupling_im=imag(bare),
+                lineshape=String(chain.lineshape),
+                bwr_l=bwr_decay_l(chain.lineshape),
+                parametrization=join(parametrization_keys(name, chain), ";"),
             ))
         end
     end
@@ -371,10 +381,10 @@ breakup_momentum(m0, m1, m2) =
 nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
 function event_context(row)
-    pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E = row.Dm_E)
-    pD0 = FourVector(row.D0_px, row.D0_py, row.D0_pz; E = row.D0_E)
-    pKplus = FourVector(row.Kp_px, row.Kp_py, row.Kp_pz; E = row.Kp_E)
-    piplus = FourVector(row.pip_px, row.pip_py, row.pip_pz; E = row.pip_E)
+    pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E=row.Dm_E)
+    pD0 = FourVector(row.D0_px, row.D0_py, row.D0_pz; E=row.D0_E)
+    pKplus = FourVector(row.Kp_px, row.Kp_py, row.Kp_pz; E=row.Kp_E)
+    piplus = FourVector(row.pip_px, row.pip_py, row.pip_pz; E=row.pip_E)
     objs = (pD0, piplus, pDminus, pKplus)
     P_Dst = pD0 + piplus
     P_R = P_Dst + pDminus
@@ -383,15 +393,15 @@ function event_context(row)
     system = CascadeSystem(external_spins, masses)
     point = KinematicPoint(kinematic_task, objs)
     return (
-        pDminus = pDminus,
-        pD0 = pD0,
-        pKplus = pKplus,
-        piplus = piplus,
-        P_Dst = P_Dst,
-        P_R = P_R,
-        P_B = P_B,
-        system = system,
-        point = point,
+        pDminus=pDminus,
+        pD0=pD0,
+        pKplus=pKplus,
+        piplus=piplus,
+        P_Dst=P_Dst,
+        P_R=P_R,
+        P_B=P_B,
+        system=system,
+        point=point,
     )
 end
 
@@ -399,7 +409,7 @@ bwr_lineshape(ctx, m0, width, l) = begin
     q0 = real(breakup_momentum(m0, nominal_mass["Dst"], nominal_mass["D"]))
     ff = BlattWeisskopf{l}(3.0)
     gsq = m0 * width / (2q0) * m0 / ff(q0)^2
-    MultichannelBreitWigner(m0, [(; gsq, ma = nominal_mass["Dst"], mb = nominal_mass["D"], l, d = 3.0)])
+    MultichannelBreitWigner(m0, [(; gsq, ma=nominal_mass["Dst"], mb=nominal_mass["D"], l, d=3.0)])
 end
 
 function ad_hoc_mass(m0, m_min, m_max)
@@ -407,50 +417,52 @@ function ad_hoc_mass(m0, m_min, m_max)
     return k * (1 + tanh((2m0 - (m_max + m_min)) / k / 4)) + m_min
 end
 
-function bwr_ls_q0(name::String; below_threshold = false)
+function bwr_ls_q0(name::String; below_threshold=false)
     m0 = nominal_mass[name]
     q0_mass = below_threshold ?
-        ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"]) :
-        m0
+              ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"]) :
+              m0
     return real(breakup_momentum(q0_mass, nominal_mass["Dst"], nominal_mass["D"]))
 end
 
 function bwr_ls_coupling_params(name::String)
     theta0 = param_real(name * "_theta0")
-    return (; gamma0 = cos(theta0), gamma2 = sin(theta0))
+    return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-function build_bwr_ls_lineshape(ctx, name::String; below_threshold = false)
+function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     q0 = bwr_ls_q0(name; below_threshold)
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
     channels = [
-        (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 0, d = 3.0),
-        (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 2, d = 3.0),
+        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
+            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=0, d=3.0),
+        (; gsq=param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
+            ma=nominal_mass["Dst"], mb=nominal_mass["D"], l=2, d=3.0),
     ]
     return MultichannelBreitWigner(nominal_mass[name], channels)
 end
 
 function chain_lineshape_matching_factor(ctx, resonance_name::String, chain::ChainCouplingSpec)
-    sign = chain.bwr_sign
-    if chain.lineshape in (:bwr_ls_l0, :bwr_ls_l0_below_threshold)
+    sign = lineshape_matching_sign(chain.lineshape)
+    base = lineshape_base(chain.lineshape)
+    if base in (:bwr_ls_l0, :bwr_ls_l0_below_threshold)
         return sign * bwr_ls_coupling_params(resonance_name).gamma0
-    elseif chain.lineshape in (:bwr_ls_l2, :bwr_ls_l2_below_threshold)
-        below_threshold = chain.lineshape == :bwr_ls_l2_below_threshold
+    elseif base in (:bwr_ls_l2, :bwr_ls_l2_below_threshold)
+        below_threshold = base == :bwr_ls_l2_below_threshold
         gamma2 = bwr_ls_coupling_params(resonance_name).gamma2
         q0 = bwr_ls_q0(resonance_name; below_threshold)
         return sign * gamma2 / BlattWeisskopf{2}(3.0)(q0)
-    elseif chain.lineshape in (:bwr, :constant)
+    elseif base in (:bwr_l1, :bwr_l2, :constant)
         return sign
     end
     return 1.0
 end
 
 function chain_lineshape_dynamic_matching_factor(_ctx, _resonance_name::String, chain::ChainCouplingSpec)
-    chain.lineshape in (:bwr_ls_l2, :bwr_ls_l2_below_threshold) || return 1.0
+    base = lineshape_base(chain.lineshape)
+    base in (:bwr_ls_l2, :bwr_ls_l2_below_threshold) || return 1.0
     breakup_from_sigma = sigma -> breakup_momentum(sqrt(sigma), nominal_mass["Dst"], nominal_mass["D"])
     return BlattWeisskopf{2}(3.0)(breakup_from_sigma)
 end
@@ -461,28 +473,29 @@ function x2900_bwr_lineshape(ctx, name, l)
     gsq = nominal_mass[name] * param_real(name * "_width") / (2q0) * nominal_mass[name] / ff(q0)^2
     return MultichannelBreitWigner(
         nominal_mass[name],
-        [(; gsq, ma = nominal_mass["D"], mb = nominal_mass["K"], l, d = 3.0)],
+        [(; gsq, ma=nominal_mass["D"], mb=nominal_mass["K"], l, d=3.0)],
     )
 end
 
 function build_chain_lineshape(ctx, resonance_name, chain::ChainCouplingSpec)
-    if chain.lineshape in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        below_threshold = chain.lineshape in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+    base = lineshape_base(chain.lineshape)
+    if base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+        below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
         return build_bwr_ls_lineshape(ctx, resonance_name; below_threshold)
-    elseif chain.lineshape == :bwr
+    elseif base in (:bwr_l1, :bwr_l2)
         return bwr_lineshape(
             ctx, nominal_mass[resonance_name], param_real(resonance_name * "_width"),
-            chain.bwr_l,
+            bwr_decay_l(chain.lineshape),
         )
-    elseif chain.lineshape == :constant
+    elseif base == :constant
         return ConstantLineshape(1.0 + 0.0im)
-    elseif chain.lineshape == :nr_exp
+    elseif base == :nr_exp
         alpha = param_real("NR(0-)SPp_alpha")
         beta = param_real("NR(0-)SPp_beta")
         nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
         return ConstantLineshape(nr_factor)
-    elseif chain.lineshape == :x2900_bwr
-        return x2900_bwr_lineshape(ctx, resonance_name, chain.bwr_l)
+    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
+        return x2900_bwr_lineshape(ctx, resonance_name, bwr_decay_l(chain.lineshape))
     end
     error("Unknown lineshape $(chain.lineshape) for $(resonance_name).")
 end
@@ -492,25 +505,25 @@ function _propagator_spin_norm(chain)
     return prod(sqrt(two_j + 1) for two_j in chain.propagator_two_js; init=1.0)
 end
 
-function _root_vertex(root_two_ls, root_l = nothing; remove_root_particle2_phase = false)
+function _root_vertex(root_two_ls, root_l=nothing; remove_root_particle2_phase=false)
     recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
     return root_l === nothing ? Vertex(recoupling) : Vertex(recoupling, BlattWeisskopf{root_l}(3.0))
 end
 
-function _decay_vertex(decay_two_ls, decay_l = nothing)
+function _decay_vertex(decay_two_ls, decay_l=nothing)
     return decay_l === nothing ?
-        Vertex(RecouplingLS(decay_two_ls)) :
-        Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(3.0))
+           Vertex(RecouplingLS(decay_two_ls)) :
+           Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(3.0))
 end
 
-function build_standard_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_l = nothing, decay_l = nothing)
+function build_standard_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_l=nothing, decay_l=nothing)
     return DecayChain(
         topology;
-        propagators = (
+        propagators=(
             (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
             ((1, 2), 3) => Propagator(two_j, lineshape),
         ),
-        vertices = (
+        vertices=(
             (((1, 2), 3), 4) => _root_vertex(root_two_ls, root_l),
             ((1, 2), 3) => _decay_vertex(decay_two_ls, decay_l),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
@@ -518,14 +531,14 @@ function build_standard_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_
     )
 end
 
-function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, remove_root_particle2_phase = false)
+function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l=nothing, dk_l=nothing, remove_root_particle2_phase=false)
     return DecayChain(
         dk_topology;
-        propagators = (
+        propagators=(
             (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
             (3, 4) => Propagator(two_j, lineshape),
         ),
-        vertices = (
+        vertices=(
             ((1, 2), (3, 4)) => _root_vertex(root_two_ls, root_l; remove_root_particle2_phase),
             (3, 4) => _decay_vertex(dk_two_ls, dk_l),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
@@ -533,13 +546,7 @@ function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothi
     )
 end
 
-function root_pwave_matching_factor(ctx, resonance_name)
-    root_ff = BlattWeisskopf{1}(3.0)
-    return root_ff(breakup_momentum(mass(ctx.P_B), mass(ctx.P_R), mass(ctx.pKplus))) /
-           root_ff(breakup_momentum(nominal_mass["Bp"], nominal_mass[resonance_name], nominal_mass["K"]))
-end
-
-function standard_vertex_matching_factor(resonance_name; root_l = nothing, decay_l = nothing)
+function standard_vertex_matching_factor(resonance_name; root_l=nothing, decay_l=nothing)
     m_r = nominal_mass[resonance_name]
     root = root_l === nothing ? 1.0 :
            nominal_vertex_matching_factor(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["K"])
@@ -548,7 +555,7 @@ function standard_vertex_matching_factor(resonance_name; root_l = nothing, decay
     return root * decay
 end
 
-function dk_vertex_matching_factor(resonance_name; root_l = nothing, dk_l = nothing)
+function dk_vertex_matching_factor(resonance_name; root_l=nothing, dk_l=nothing)
     m_r = nominal_mass[resonance_name]
     root = root_l === nothing ? 1.0 :
            nominal_vertex_matching_factor(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
@@ -561,9 +568,9 @@ function chain_vertex_matching_factor(resonance_name, topology::Symbol, chain::C
     root_l = vertex_barrier_l(chain.root)
     daughter_l = vertex_barrier_l(chain.daughter)
     if topology == :standard
-        return standard_vertex_matching_factor(resonance_name; root_l = root_l, decay_l = daughter_l)
+        return standard_vertex_matching_factor(resonance_name; root_l=root_l, decay_l=daughter_l)
     elseif topology == :dk
-        return dk_vertex_matching_factor(resonance_name; root_l = root_l, dk_l = daughter_l)
+        return dk_vertex_matching_factor(resonance_name; root_l=root_l, dk_l=daughter_l)
     end
     error("Unknown topology $(topology).")
 end
@@ -580,9 +587,9 @@ function build_chain_from_spec(ctx, info::CollectedResonanceCouplingInfo, chain_
             chain.propagator_two_j,
             vertex_two_ls(chain.root),
             vertex_two_ls(chain.daughter);
-            root_l = vertex_barrier_l(chain.root),
-            dk_l = vertex_barrier_l(chain.daughter),
-            remove_root_particle2_phase = vertex_remove_particle2_phase(chain.root),
+            root_l=vertex_barrier_l(chain.root),
+            dk_l=vertex_barrier_l(chain.daughter),
+            remove_root_particle2_phase=vertex_remove_particle2_phase(chain.root),
         )
     end
     return build_standard_chain(
@@ -590,17 +597,15 @@ function build_chain_from_spec(ctx, info::CollectedResonanceCouplingInfo, chain_
         chain.propagator_two_j,
         vertex_two_ls(chain.root),
         vertex_two_ls(chain.daughter);
-        root_l = vertex_barrier_l(chain.root),
-        decay_l = vertex_barrier_l(chain.daughter),
+        root_l=vertex_barrier_l(chain.root),
+        decay_l=vertex_barrier_l(chain.daughter),
     )
 end
 
 function chain_matching_factor(info::CollectedResonanceCouplingInfo, ctx, chain_idx::Int)
     chain = info.chains[chain_idx].spec
-    factor = chain_vertex_matching_factor(info.spec.name, info.spec.topology, chain) *
-             chain_lineshape_matching_factor(ctx, info.spec.name, chain)
-    info.spec.root_pwave_matching || return factor
-    return root_pwave_matching_factor(ctx, info.spec.name) * factor
+    return chain_vertex_matching_factor(info.spec.name, info.spec.topology, chain) *
+           chain_lineshape_matching_factor(ctx, info.spec.name, chain)
 end
 
 function chain_matching_factors(info::CollectedResonanceCouplingInfo, ctx)
@@ -620,8 +625,8 @@ function build_resonance_cascade(info::CollectedResonanceCouplingInfo, ctx)
         chains,
         ctx.system,
         topology;
-        couplings = effective_couplings,
-        names = branch_names,
+        couplings=effective_couplings,
+        names=branch_names,
     )
 end
 
@@ -668,7 +673,7 @@ end
 
 function load_saved_fit_fractions(path::String)
     isfile(path) || return nothing
-    saved = Dict{String, Float64}()
+    saved = Dict{String,Float64}()
     for line in eachline(path)
         startswith(line, "component") && continue
         fields = split(line, '\t')
