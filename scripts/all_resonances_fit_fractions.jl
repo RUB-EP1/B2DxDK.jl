@@ -77,36 +77,6 @@ param_complex(key) = param_real(key * "r") * cis(param_real(key * "i"))
 
 resolve_coupling_keys(keys) = prod(param_complex(key) for key in keys; init=1.0 + 0im)
 
-function push_chain!(
-    rows,
-    name::String,
-    branch::String,
-    topology::Symbol;
-    propagator_two_j::Int,
-    root_two_ls::NTuple{2,Int},
-    daughter_two_ls::NTuple{2,Int},
-    coupling_keys,
-    lineshape::Symbol,
-    root_remove_particle2_phase::Bool=false,
-)
-    push!(rows, (
-        resonance_name=name,
-        branch=branch,
-        topology=String(topology),
-        nominal_mass=nominal_mass[name],
-        propagator_two_j=propagator_two_j,
-        root_two_l=root_two_ls[1],
-        root_two_s=root_two_ls[2],
-        root_l=div(root_two_ls[1], 2),
-        root_remove_particle2_phase=root_remove_particle2_phase,
-        daughter_two_l=daughter_two_ls[1],
-        daughter_two_s=daughter_two_ls[2],
-        daughter_l=div(daughter_two_ls[1], 2),
-        coupling_keys=coupling_keys,
-        lineshape=String(lineshape),
-    ))
-end
-
 function lineshape_base(lineshape)
     name = lineshape isa Symbol ? string(lineshape) : lineshape
     endswith(name, "_neg") && return Symbol(chop(name, tail=4))
@@ -134,70 +104,130 @@ end
 function build_resonance_chains_df()
     rows = NamedTuple[]
     total_x3872 = ("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0",)
-    push_chain!(rows, "X(3872)", "l0", :DxD;
+    push!(rows, (
+        resonance_name="X(3872)", topology=:DxD,
+        nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
-        coupling_keys=total_x3872, lineshape=:bwr_ls_l0_below_threshold_neg)
-    push_chain!(rows, "X(3872)", "l2", :DxD;
+        root_remove_particle2_phase=false,
+        coupling_keys=total_x3872, lineshape="bwr_ls_l0_below_threshold_neg",
+    ))
+    push!(rows, (
+        resonance_name="X(3872)", topology=:DxD,
+        nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=(total_x3872..., "X(3872)->Dst.D_g_ls_1"),
-        lineshape=:bwr_ls_l2_below_threshold_neg)
-    push_chain!(rows, "X(3915)(0-)", "default", :DxD;
+        lineshape="bwr_ls_l2_below_threshold_neg",
+    ))
+    push!(rows, (
+        resonance_name="X(3915)(0-)", topology=:DxD,
+        nominal_mass=nominal_mass["X(3915)(0-)"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",),
-        lineshape=:bwr_l1_neg)
-    push_chain!(rows, "chi(c2)(3930)", "default", :DxD;
+        lineshape="bwr_l1_neg",
+    ))
+    push!(rows, (
+        resonance_name="chi(c2)(3930)", topology=:DxD,
+        nominal_mass=nominal_mass["chi(c2)(3930)"],
         propagator_two_j=4, root_two_ls=(4, 4), daughter_two_ls=(4, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",),
-        lineshape=:bwr_l2_neg)
+        lineshape="bwr_l2_neg",
+    ))
     for name in ("X(3940)(1.)", "X(3993)", "X(4300)")
-        l0_lineshape = name == "X(3993)" ? :bwr_ls_l0_neg : :bwr_ls_l0
-        l2_lineshape = name == "X(3993)" ? :bwr_ls_l2_neg : :bwr_ls_l2
+        l0_lineshape = name == "X(3993)" ? "bwr_ls_l0_neg" : "bwr_ls_l0"
+        l2_lineshape = name == "X(3993)" ? "bwr_ls_l2_neg" : "bwr_ls_l2"
         total = (production_coupling_key(name),)
-        push_chain!(rows, name, "l0", :DxD;
+        push!(rows, (
+            resonance_name=name, topology=:DxD,
+            nominal_mass=nominal_mass[name],
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
-            coupling_keys=total, lineshape=l0_lineshape)
-        push_chain!(rows, name, "l2", :DxD;
+            root_remove_particle2_phase=false,
+            coupling_keys=total, lineshape=l0_lineshape,
+        ))
+        push!(rows, (
+            resonance_name=name, topology=:DxD,
+            nominal_mass=nominal_mass[name],
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
+            root_remove_particle2_phase=false,
             coupling_keys=(total..., "$(name)->Dst.D_g_ls_1"),
-            lineshape=l2_lineshape)
+            lineshape=l2_lineshape,
+        ))
     end
-    push_chain!(rows, "Psi(4040)", "default", :DxD;
+    push!(rows, (
+        resonance_name="Psi(4040)", topology=:DxD,
+        nominal_mass=nominal_mass["Psi(4040)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",),
-        lineshape=:bwr_l1)
-    push_chain!(rows, "NR(0-)SPp", "default", :DxD;
+        lineshape="bwr_l1",
+    ))
+    push!(rows, (
+        resonance_name="NR(0-)SPp", topology=:DxD,
+        nominal_mass=nominal_mass["NR(0-)SPp"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0",),
-        lineshape=:nr_exp)
-    push_chain!(rows, "NR(1.)PSp", "default", :DxD;
+        lineshape="nr_exp",
+    ))
+    push!(rows, (
+        resonance_name="NR(1.)PSp", topology=:DxD,
+        nominal_mass=nominal_mass["NR(1.)PSp"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",),
-        lineshape=:constant_neg)
-    push_chain!(rows, "NR(0-)SPm", "default", :DxD;
+        lineshape="constant_neg",
+    ))
+    push!(rows, (
+        resonance_name="NR(0-)SPm", topology=:DxD,
+        nominal_mass=nominal_mass["NR(0-)SPm"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",),
-        lineshape=:constant)
-    push_chain!(rows, "NR(1-)PPm", "default", :DxD;
+        lineshape="constant",
+    ))
+    push!(rows, (
+        resonance_name="NR(1-)PPm", topology=:DxD,
+        nominal_mass=nominal_mass["NR(1-)PPm"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",),
-        lineshape=:constant)
-    push_chain!(rows, "X0(2900)", "default", :dk;
+        lineshape="constant",
+    ))
+    push!(rows, (
+        resonance_name="X0(2900)", topology=:dk,
+        nominal_mass=nominal_mass["X0(2900)"],
         propagator_two_j=0, root_two_ls=(2, 2), daughter_two_ls=(0, 0),
+        root_remove_particle2_phase=false,
         coupling_keys=("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",),
-        lineshape=:x2900_bwr_l0)
+        lineshape="x2900_bwr_l0",
+    ))
     total_x1 = ("Bp->X1(2900).DstX1(2900)->D.KDst->D0.pi_total_0",)
     daughter_x1 = (2, 0)
-    push_chain!(rows, "X1(2900)", "l0", :dk;
+    push!(rows, (
+        resonance_name="X1(2900)", topology=:dk,
+        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(0, 0), daughter_two_ls=daughter_x1,
-        coupling_keys=total_x1, lineshape=:x2900_bwr_l1, root_remove_particle2_phase=true)
-    push_chain!(rows, "X1(2900)", "l1", :dk;
+        root_remove_particle2_phase=true,
+        coupling_keys=total_x1, lineshape="x2900_bwr_l1",
+    ))
+    push!(rows, (
+        resonance_name="X1(2900)", topology=:dk,
+        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=daughter_x1,
+        root_remove_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_1"),
-        lineshape=:x2900_bwr_l1, root_remove_particle2_phase=true)
-    push_chain!(rows, "X1(2900)", "l2", :dk;
+        lineshape="x2900_bwr_l1",
+    ))
+    push!(rows, (
+        resonance_name="X1(2900)", topology=:dk,
+        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(4, 4), daughter_two_ls=daughter_x1,
+        root_remove_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_2"),
-        lineshape=:x2900_bwr_l1, root_remove_particle2_phase=true)
+        lineshape="x2900_bwr_l1",
+    ))
     return DataFrame(rows)
 end
 
@@ -441,21 +471,22 @@ function dk_vertex_matching_factor(resonance_name; root_l=nothing, dk_l=nothing)
     return root * dk
 end
 
+vertex_l(two_ls) = div(two_ls[1], 2)
+
 function chain_vertex_matching_factor(row)
-    topology = Symbol(row.topology)
-    root_l = row.root_l
-    daughter_l = row.daughter_l
-    if topology == :DxD
+    root_l = vertex_l(row.root_two_ls)
+    daughter_l = vertex_l(row.daughter_two_ls)
+    if row.topology == :DxD
         return dxd_vertex_matching_factor(
             row.resonance_name;
             root_l=root_l,
             decay_l=daughter_l,
             decay_m0=decay_reference_mass(row.resonance_name, row.lineshape),
         )
-    elseif topology == :dk
+    elseif row.topology == :dk
         return dk_vertex_matching_factor(row.resonance_name; root_l=root_l, dk_l=daughter_l)
     end
-    error("Unknown topology $(topology).")
+    error("Unknown topology $(row.topology).")
 end
 
 const resonance_chains_df = enrich_resonance_chains_df!(copy(resonance_chains_df_raw))
@@ -466,26 +497,26 @@ end
 
 function build_chain_from_row(ctx, row)
     lineshape = build_chain_lineshape(ctx, row)
-    root_two_ls = (row.root_two_l, row.root_two_s)
-    daughter_two_ls = (row.daughter_two_l, row.daughter_two_s)
-    if Symbol(row.topology) == :dk
+    root_l = vertex_l(row.root_two_ls)
+    daughter_l = vertex_l(row.daughter_two_ls)
+    if row.topology == :dk
         return build_dk_chain(
             lineshape,
             row.propagator_two_j,
-            root_two_ls,
-            daughter_two_ls;
-            root_l=row.root_l,
-            dk_l=row.daughter_l,
+            row.root_two_ls,
+            row.daughter_two_ls;
+            root_l=root_l,
+            dk_l=daughter_l,
             remove_root_particle2_phase=row.root_remove_particle2_phase,
         )
     end
     return build_dxd_chain(
         lineshape,
         row.propagator_two_j,
-        root_two_ls,
-        daughter_two_ls;
-        root_l=row.root_l,
-        decay_l=row.daughter_l,
+        row.root_two_ls,
+        row.daughter_two_ls;
+        root_l=root_l,
+        decay_l=daughter_l,
     )
 end
 
@@ -496,13 +527,15 @@ function build_resonance_cascade(resonance_name::String, ctx)
         rows[i].coupling_value * rows[i].static_matching_factor / _propagator_spin_norm(chains[i])
         for i in eachindex(rows)
     )
-    branch_names = Tuple(row.branch for row in rows)
+    names = Tuple(
+        "$(resonance_name)_L$(vertex_l(row.root_two_ls))" for row in rows
+    )
     return CascadeDecay(
         chains,
         ctx.system,
         dxd_topology;
         couplings=effective_couplings,
-        names=branch_names,
+        names=names,
     )
 end
 
@@ -564,7 +597,7 @@ function main()
     println("====================================================")
     println("Input:  ", data_path)
     println("Output: ", output_path)
-    println("Model input rows (one per chain branch): ", nrow(resonance_chains_df))
+    println("Model input rows (one per chain): ", nrow(resonance_chains_df))
     println()
 
     df = DataFrame(Arrow.Table(data_path))
