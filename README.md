@@ -136,6 +136,29 @@ julia --project=. scripts/all_resonances_fit_fractions.jl
 Output is written to `scripts/all_resonances_fit_fractions.txt` and compared against
 `notebooks/all_resonances_fit_fractions.txt`.
 
+#### `root_remove_particle2_phase` (X1(2900) only)
+
+Only the three `X1(2900)` branches in `scripts/all_resonances_fit_fractions.jl`
+set `root_remove_particle2_phase=true`. This is **not** interchangeable with the
+overall sign encoded by a `_neg` lineshape suffix or `lineshape_matching_sign`.
+
+- **What it is:** a static Jacob-Wick particle-2 helicity sign,
+  $(-1)^{(j_2-\lambda_2)/2}$ when $(j_2-\lambda_2)/2$ is odd, applied at the
+  $B^+\to X_1(2900)+({\rm D},K)$ production vertex. It depends only on the spin
+  and helicity quantum numbers of the second daughter line (here the spin-1
+  $({\rm D},K)$ subsystem), not on event angles or momenta.
+- **What it does in code:** `CascadeDecays` always applies this factor once in
+  `_vertex_coupling_value`. With `RemoveParticleTwoPhaseLS` on the root vertex,
+  the same factor is applied a second time inside the recoupling, so they cancel
+  and the net amplitude matches TF-PWA, which does not include this factor at
+  that vertex.
+- **Why it is not an overall sign:** an overall sign is one factor $\pm1$ on the
+  whole chain, independent of helicity. The particle-2 phase flips sign between
+  internal helicity components (e.g. $\lambda_2=+1$ vs $\lambda_2=-1$ for
+  $j_2=1$). Replacing `root_remove_particle2_phase=true` by a global `_neg` on
+  the lineshape would change the relative phases of helicity contributions and
+  would not reproduce the TF-PWA amplitude.
+
 **Regression test** — event-by-event amplitudes on `data/crosscheck.arrow`
 (100 events extracted from `b-decay-events.arrow`):
 
