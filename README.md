@@ -38,6 +38,7 @@ B2DxDK/
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
 ├── scripts/
+│   ├── all_resonances_fit_fractions.jl   # Clean Julia-only fit-fraction script (see below)
 │   ├── cal_pw_fraction.py        # Python script for partial wave analysis
 │   └── angles/                   # Julia scripts to cross-check angular conventions
 └── README.md
@@ -103,6 +104,26 @@ deactivate
 ```
 
 The current analysis can be found in `Analysis/Amplitude.ipynb`.
+
+### All-resonance fit fractions (Julia, TF-PWA aligned)
+
+`scripts/all_resonances_fit_fractions.jl` is a clean Julia-only script for computing
+resonance fit fractions from `data/b-decay-events.arrow`. It contains the same
+CascadeDecays amplitude model as `notebooks/all_resonances_sampled_comparison.jl`
+(without TF-PWA sampling, plotting, or comparison scaffolding).
+
+The CascadeDecays model in that script is identical to the TF-PWA (Python) reference:
+on the same kinematics, amplitudes agree with TF-PWA to numerical precision (~10⁻⁹
+relative), and fit fractions from both workflows are consistent within statistical
+fluctuation.
+
+Run from the project root:
+
+```bash
+julia --project=. scripts/all_resonances_fit_fractions.jl
+```
+
+Output is written to `scripts/all_resonances_fit_fractions.txt`.
 
 
 ## Reference files for the isolated `Psi(4040)` amplitude
