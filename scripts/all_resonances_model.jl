@@ -8,6 +8,13 @@ using StaticArrays
 import ThreeBodyDecays
 using ThreeBodyDecays: Recoupling, RecouplingLS, @jp_str
 
+"""
+    BuggyParticleTwoPhaseLS
+
+Workaround recoupling that applies the Jacob–Wick particle-2 phase a second time so it
+cancels the factor already built into CascadeDecays, matching TF-PWA (which omits it).
+Not a physically correct recoupling on its own.
+"""
 struct BuggyParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
 end
@@ -77,30 +84,30 @@ resolve_coupling_keys(keys) = prod(param_complex(key) for key in keys; init=1.0 
 
 # =============================================================================
 # Block 2 — lineshape definitions
-# Block 2a — new lineshapes
+# Block 2a — custom lineshapes
 # =============================================================================
 
 """
-    BuggyMultichannelBreitWigner
+    TFPWAMultichannelBreitWigner
 
 TFPWA-aligned multichannel Breit–Wigner: width term carries an extra factor of `σ`
 relative to [`MultichannelBreitWigner`](@ref), i.e. `gsq * σ * 2p/√σ * F_ℓ²` instead of
 `gsq * 2p/√σ * F_ℓ²`.  Store `gsq` calibrated without that `σ` factor.
 """
-struct BuggyMultichannelBreitWigner{N} <: HadronicLineshapes.AbstractFlexFunc
+struct TFPWAMultichannelBreitWigner{N} <: HadronicLineshapes.AbstractFlexFunc
     m::Float64
     channels::SVector{N,<:NamedTuple{(:gsq, :ma, :mb, :l, :d)}}
 end
 
-function BuggyMultichannelBreitWigner(
+function TFPWAMultichannelBreitWigner(
     m::Real,
     channels::Vector{<:NamedTuple{(:gsq, :ma, :mb, :l, :d)}},
 )
     N = length(channels)
-    return BuggyMultichannelBreitWigner(m, SVector{N}(channels...))
+    return TFPWAMultichannelBreitWigner(m, SVector{N}(channels...))
 end
 
-function (bw::BuggyMultichannelBreitWigner)(σ::Number)
+function (bw::TFPWAMultichannelBreitWigner)(σ::Number)
     m0 = bw.m
     mΓ = sum(bw.channels) do channel
         gsq, ma, mb, l, d = channel.gsq, channel.ma, channel.mb, channel.l, channel.d
@@ -110,7 +117,7 @@ function (bw::BuggyMultichannelBreitWigner)(σ::Number)
     end
     HadronicLineshapes.BW(σ, m0, mΓ / m0)
 end
-(bw::BuggyMultichannelBreitWigner)(σ::Real) = bw(σ + 1im * eps())
+(bw::TFPWAMultichannelBreitWigner)(σ::Real) = bw(σ + 1im * eps())
 
 """
     NRExpLineshape
@@ -134,9 +141,7 @@ function nr_exp_lineshape()
     return NRExpLineshape(alpha + 1im * beta, nominal_mass["NR(0-)SPp"])
 end
 
-# =============================================================================
-# Block 2 — lineshape definitions
-# Block 2b — helper functions
+# Block 2b — lineshape helpers
 # =============================================================================
 
 
@@ -191,7 +196,7 @@ function bwr_ls_coupling_params(name::String)
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-function dxd_buggy_multichannel_bwr_lineshape(name::String, q0::Real)
+function dxd_tfpwa_multichannel_bwr_lineshape(name::String, q0::Real)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     ff0 = BlattWeisskopf{0}(WELL_SIZE)
     ff2 = BlattWeisskopf{2}(WELL_SIZE)
@@ -204,7 +209,7 @@ function dxd_buggy_multichannel_bwr_lineshape(name::String, q0::Real)
         (; gsq=gsq_0, ma, mb, l=0, d=WELL_SIZE),
         (; gsq=gsq_2, ma, mb, l=2, d=WELL_SIZE),
     ]
-    return BuggyMultichannelBreitWigner(nominal_mass[name], channels)
+    return TFPWAMultichannelBreitWigner(nominal_mass[name], channels)
 end
 
 function decay_reference_mass(resonance_name::String, lineshape)
@@ -216,9 +221,9 @@ function build_chain_lineshape(row)
     resonance_name = row.resonance_name
     spec = lineshape_spec(row.lineshape)
     if spec.base in (:bwr_ls_l0, :bwr_ls_l2)
-        return dxd_buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_q0(resonance_name))
+        return dxd_tfpwa_multichannel_bwr_lineshape(resonance_name, bwr_ls_q0(resonance_name))
     elseif spec.adhoc_q0
-        return dxd_buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_adhoc_q0(resonance_name))
+        return dxd_tfpwa_multichannel_bwr_lineshape(resonance_name, bwr_ls_adhoc_q0(resonance_name))
     elseif spec.base in (:bwr_l1, :bwr_l2)
         return dxd_bwr_lineshape(resonance_name, spec.bwr_l)
     elseif spec.base == :constant
@@ -275,14 +280,12 @@ function build_resonance_chains_df()
         total = (production_coupling_key(name),)
         push!(rows, (
             resonance_name=name, topology=:DxD,
-            nominal_mass=nominal_mass[name],
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
             root_remove_particle2_phase=false,
             coupling_keys=total, lineshape=:bwr_ls_l0,
         ))
         push!(rows, (
             resonance_name=name, topology=:DxD,
-            nominal_mass=nominal_mass[name],
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
             root_remove_particle2_phase=false,
             coupling_keys=(total..., "$(name)->Dst.D_g_ls_1"),

@@ -2,6 +2,7 @@ venv
 
 amplitudes.txt
 data/crosscheck_amplitudes.txt
+scripts/all_resonances_fit_fractions.txt
 
 Analysis/__pycache__
 notebooks/README_files/*

@@ -117,10 +117,10 @@ The current analysis can be found in `Analysis/Amplitude.ipynb`.
 `notebooks/all_resonances_sampled_comparison.jl`.
 
 - `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
-  `data/b-decay-events.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
-- `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions;
-  writes `scripts/all_resonances_fit_fractions.txt` and compares to
-  `notebooks/all_resonances_fit_fractions.txt`
+  `data/crosscheck.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
+- `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
+  `data/b-decay-events.arrow`; compares to `notebooks/all_resonances_fit_fractions.txt`
+  (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
 
 Run the amplitude regression from the project root:
 
@@ -146,7 +146,7 @@ overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
   and helicity quantum numbers of the second daughter line (here the spin-1
   $({\rm D},K)$ subsystem), not on event angles or momenta.
 - **What it does in code:** `CascadeDecays` always applies this factor once in
-  `_vertex_coupling_value`. With `RemoveParticleTwoPhaseLS` on the root vertex,
+  `_vertex_coupling_value`. With `BuggyParticleTwoPhaseLS` on the root vertex,
   the same factor is applied a second time inside the recoupling, so they cancel
   and the net amplitude matches TF-PWA, which does not include this factor at
   that vertex.

@@ -4,12 +4,11 @@ using Printf
 
 include(joinpath(@__DIR__, "all_resonances_model.jl"))
 
-const data_path = joinpath(repo_root, "data", "b-decay-events.arrow")
+const data_path = joinpath(repo_root, "data", "crosscheck.arrow")
 const amplitude_reference_path = joinpath(repo_root, "data", "crosscheck_amplitudes_reference.txt")
-const N_EVENTS = 100
 
 # =============================================================================
-# Evaluate on first N_EVENTS
+# Evaluate on crosscheck.arrow (100-event subset of b-decay-events.arrow)
 # =============================================================================
 
 function load_amplitude_reference(path::String)
@@ -57,17 +56,16 @@ function max_amplitude_delta(reference_path::String, df, resonance_amps_by_event
     return max_abs_delta, max_rel_delta, ref_header
 end
 
-println("All-resonance amplitude crosscheck on b-decay-events.arrow")
-println("======================================================")
+println("All-resonance amplitude crosscheck on crosscheck.arrow")
+println("=====================================================")
 println("Input:  ", data_path)
-println("Events: first ", N_EVENTS)
 println("Model input rows (one per chain): ", nrow(resonance_chains_df))
 println()
 
 df = DataFrame(Arrow.Table(data_path))
-n_eval = min(N_EVENTS, nrow(df))
-println("Loaded ", nrow(df), " events; evaluating ", n_eval)
-println(@sprintf("  sum(weight[1:%d]) = %.6e", n_eval, sum(df.weight[1:n_eval])))
+n_eval = nrow(df)
+println("Loaded events: ", n_eval)
+println(@sprintf("  sum(weight) = %.6e", sum(df.weight)))
 println("Building resonance cascade...")
 
 cascade = build_all_resonance_cascade()
