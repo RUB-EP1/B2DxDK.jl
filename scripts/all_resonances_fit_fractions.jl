@@ -5,6 +5,7 @@ using FourVectors
 using HadronicLineshapes
 using JSON
 using Printf
+using StaticArrays
 using Statistics
 import ThreeBodyDecays
 using ThreeBodyDecays: Recoupling, RecouplingLS, @jp_str
@@ -81,6 +82,43 @@ resolve_coupling_keys(keys) = prod(param_complex(key) for key in keys; init=1.0 
 # Block 2 — lineshape definitions
 # =============================================================================
 
+"""
+    BuggyMultichannelBreitWigner
+
+TFPWA-aligned multichannel Breit–Wigner: width term carries an extra factor of `σ`
+relative to [`MultichannelBreitWigner`](@ref), i.e. `gsq * σ * 2p/√σ * F_ℓ²` instead of
+`gsq * 2p/√σ * F_ℓ²`.  Store `gsq` calibrated without that `σ` factor.
+"""
+struct BuggyMultichannelBreitWigner{N} <: HadronicLineshapes.AbstractFlexFunc
+    m::Float64
+    channels::SVector{N, <:NamedTuple{(:gsq, :ma, :mb, :l, :d)}}
+end
+
+function BuggyMultichannelBreitWigner(
+    m::Real,
+    channels::Vector{<:NamedTuple{(:gsq, :ma, :mb, :l, :d)}},
+)
+    N = length(channels)
+    return BuggyMultichannelBreitWigner(m, SVector{N}(channels...))
+end
+
+function (bw::BuggyMultichannelBreitWigner)(σ::Number)
+    m0 = bw.m
+    mΓ = sum(bw.channels) do channel
+        gsq, ma, mb, l, d = channel.gsq, channel.ma, channel.mb, channel.l, channel.d
+        FF = BlattWeisskopf{l}(d)
+        p = breakup(sqrt(σ), ma, mb)
+        gsq * σ * 2p / sqrt(σ) * FF(p)^2
+    end
+    HadronicLineshapes.BW(σ, m0, mΓ / m0)
+end
+(bw::BuggyMultichannelBreitWigner)(σ::Real) = bw(σ + 1im * eps())
+
+function (bw::BuggyMultichannelBreitWigner)(pars::Dict)
+    length(pars) == 1 || error("BuggyMultichannelBreitWigner expects one invariant-mass-squared argument")
+    bw(first(values(pars)))
+end
+
 breakup_momentum(m0, m1, m2) =
     sqrt(complex(((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4.0 * m0^2)))
 
@@ -146,13 +184,13 @@ function bwr_ls_coupling_params(name::String)
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-function build_bwr_ls_lineshape(ctx, name::String, q0::Real)
-    dynamic_mass2 = mass(ctx.P_R)^2
+function build_bwr_ls_lineshape(name::String, q0::Real)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
-    gsq_0 = param_real(name * "_width") * dynamic_mass2 / (2q0) * gamma0^2 / ff0(q0)^2
-    gsq_2 = param_real(name * "_width") * dynamic_mass2 / (2q0) * gamma2^2 / ff2(q0)^2
+    Γ0 = param_real(name * "_width")
+    gsq_0 = Γ0 / (2q0) * gamma0^2 / ff0(q0)^2
+    gsq_2 = Γ0 / (2q0) * gamma2^2 / ff2(q0)^2
     ma = nominal_mass["Dst"]
     mb = nominal_mass["D"]
     d = 3.0
@@ -160,12 +198,12 @@ function build_bwr_ls_lineshape(ctx, name::String, q0::Real)
         (; gsq=gsq_0, ma, mb, l=0, d),
         (; gsq=gsq_2, ma, mb, l=2, d),
     ]
-    return MultichannelBreitWigner(nominal_mass[name], channels)
+    return BuggyMultichannelBreitWigner(nominal_mass[name], channels)
 end
 
-build_bwr_ls_lineshape(ctx, name::String) = build_bwr_ls_lineshape(ctx, name, bwr_ls_q0(name))
-build_bwr_ls_adhoc_q0_lineshape(ctx, name::String) =
-    build_bwr_ls_lineshape(ctx, name, bwr_ls_adhoc_q0(name))
+build_bwr_ls_lineshape(name::String) = build_bwr_ls_lineshape(name, bwr_ls_q0(name))
+build_bwr_ls_adhoc_q0_lineshape(name::String) =
+    build_bwr_ls_lineshape(name, bwr_ls_adhoc_q0(name))
 
 function decay_reference_mass(resonance_name::String, lineshape)
     base = lineshape_base(lineshape)
@@ -193,9 +231,9 @@ function build_chain_lineshape(ctx, row)
     resonance_name = row.resonance_name
     base = lineshape_base(row.lineshape)
     if base in (:bwr_ls_l0, :bwr_ls_l2)
-        return build_bwr_ls_lineshape(ctx, resonance_name)
+        return build_bwr_ls_lineshape(resonance_name)
     elseif base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
-        return build_bwr_ls_adhoc_q0_lineshape(ctx, resonance_name)
+        return build_bwr_ls_adhoc_q0_lineshape(resonance_name)
     elseif base in (:bwr_l1, :bwr_l2)
         return bwr_lineshape(
             nominal_mass[resonance_name], param_real(resonance_name * "_width"),
