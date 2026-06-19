@@ -10,11 +10,11 @@ using Statistics
 import ThreeBodyDecays
 using ThreeBodyDecays: Recoupling, RecouplingLS, @jp_str
 
-struct RemoveParticleTwoPhaseLS <: Recoupling
+struct BuggyParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
 end
 
-function ThreeBodyDecays.amplitude(cs::RemoveParticleTwoPhaseLS, helicities, spins)
+function ThreeBodyDecays.amplitude(cs::BuggyParticleTwoPhaseLS, helicities, spins)
     _, _, two_j2 = spins
     _, two_lambda2 = helicities
     exponent_num = two_j2 - two_lambda2
@@ -553,7 +553,7 @@ function build_dk_chain(
     dk_l;
     remove_root_particle2_phase=false,
 )
-    root_recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
+    root_recoupling = remove_root_particle2_phase ? BuggyParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
     return DecayChain(
         dk_topology;
         propagators=(
