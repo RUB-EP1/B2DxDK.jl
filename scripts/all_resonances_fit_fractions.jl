@@ -175,19 +175,14 @@ const MC_BW_GAMMA = Dict(
 )
 
 const ADHOC_Q0_BASES = Set([:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2])
-const SIGN_ONLY_BASES = Set([:bwr_l1, :bwr_l2, :constant])
 
 function lineshape_spec(lineshape)
-    name = lineshape isa Symbol ? string(lineshape) : lineshape
-    neg = endswith(name, "_neg")
-    base = Symbol(neg ? chop(name, tail=4) : name)
+    base = lineshape isa Symbol ? lineshape : Symbol(lineshape)
     return (;
         base,
-        sign=neg ? -1.0 + 0im : 1.0 + 0im,
         bwr_l=get(BW_DECAY_L, base, nothing),
         mc_gamma=get(MC_BW_GAMMA, base, nothing),
         adhoc_q0=base in ADHOC_Q0_BASES,
-        sign_only=base in SIGN_ONLY_BASES,
     )
 end
 
@@ -209,15 +204,18 @@ function parametrization_keys(resonance_name::String, coupling_keys, lineshape)
     return unique(vcat(collect(coupling_keys), lineshape_param_keys(resonance_name, lineshape)))
 end
 
-bwr_lineshape(m0, width, l) =
-    BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, WELL_SIZE)
+dxd_bwr_lineshape(name::String, l) =
+    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["Dst"], nominal_mass["D"], l, WELL_SIZE)
+
+dk_bwr_lineshape(name::String, l) =
+    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, WELL_SIZE)
 
 function bwr_ls_coupling_params(name::String)
     theta0 = param_real(name * "_theta0")
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-function buggy_multichannel_bwr_lineshape(name::String, q0::Real)
+function dxd_buggy_multichannel_bwr_lineshape(name::String, q0::Real)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     ff0 = BlattWeisskopf{0}(WELL_SIZE)
     ff2 = BlattWeisskopf{2}(WELL_SIZE)
@@ -238,26 +236,21 @@ function decay_reference_mass(resonance_name::String, lineshape)
     return nominal_mass[resonance_name]
 end
 
-x2900_bwr_lineshape(name, l) =
-    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, WELL_SIZE)
-
 function build_chain_lineshape(row)
     resonance_name = row.resonance_name
     spec = lineshape_spec(row.lineshape)
     if spec.base in (:bwr_ls_l0, :bwr_ls_l2)
-        return buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_q0(resonance_name))
+        return dxd_buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_q0(resonance_name))
     elseif spec.adhoc_q0
-        return buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_adhoc_q0(resonance_name))
+        return dxd_buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_adhoc_q0(resonance_name))
     elseif spec.base in (:bwr_l1, :bwr_l2)
-        return bwr_lineshape(
-            nominal_mass[resonance_name], param_real(resonance_name * "_width"), spec.bwr_l,
-        )
+        return dxd_bwr_lineshape(resonance_name, spec.bwr_l)
     elseif spec.base == :constant
         return ConstantLineshape(1.0 + 0.0im)
     elseif spec.base == :nr_exp
         return nr_exp_lineshape()
     elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        return x2900_bwr_lineshape(resonance_name, spec.bwr_l)
+        return dk_bwr_lineshape(resonance_name, spec.bwr_l)
     end
     error("Unknown lineshape $(row.lineshape) for $(resonance_name).")
 end
@@ -280,7 +273,7 @@ function build_resonance_chains_df()
         nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
         root_remove_particle2_phase=false,
-        coupling_keys=total_x3872, lineshape="adhoc_q0_bwr_ls_l0_neg",
+        coupling_keys=total_x3872, lineshape="adhoc_q0_bwr_ls_l0",
     ))
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
@@ -288,7 +281,7 @@ function build_resonance_chains_df()
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
         root_remove_particle2_phase=false,
         coupling_keys=(total_x3872..., "X(3872)->Dst.D_g_ls_1"),
-        lineshape="adhoc_q0_bwr_ls_l2_neg",
+        lineshape="adhoc_q0_bwr_ls_l2",
     ))
     push!(rows, (
         resonance_name="X(3915)(0-)", topology=:DxD,
@@ -296,7 +289,7 @@ function build_resonance_chains_df()
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",),
-        lineshape="bwr_l1_neg",
+        lineshape="bwr_l1",
     ))
     push!(rows, (
         resonance_name="chi(c2)(3930)", topology=:DxD,
@@ -304,18 +297,16 @@ function build_resonance_chains_df()
         propagator_two_j=4, root_two_ls=(4, 4), daughter_two_ls=(4, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",),
-        lineshape="bwr_l2_neg",
+        lineshape="bwr_l2",
     ))
     for name in ("X(3940)(1.)", "X(3993)", "X(4300)")
-        l0_lineshape = name == "X(3993)" ? "bwr_ls_l0_neg" : "bwr_ls_l0"
-        l2_lineshape = name == "X(3993)" ? "bwr_ls_l2_neg" : "bwr_ls_l2"
         total = (production_coupling_key(name),)
         push!(rows, (
             resonance_name=name, topology=:DxD,
             nominal_mass=nominal_mass[name],
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
             root_remove_particle2_phase=false,
-            coupling_keys=total, lineshape=l0_lineshape,
+            coupling_keys=total, lineshape="bwr_ls_l0",
         ))
         push!(rows, (
             resonance_name=name, topology=:DxD,
@@ -323,7 +314,7 @@ function build_resonance_chains_df()
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
             root_remove_particle2_phase=false,
             coupling_keys=(total..., "$(name)->Dst.D_g_ls_1"),
-            lineshape=l2_lineshape,
+            lineshape="bwr_ls_l2",
         ))
     end
     push!(rows, (
@@ -348,7 +339,7 @@ function build_resonance_chains_df()
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",),
-        lineshape="constant_neg",
+        lineshape="constant",
     ))
     push!(rows, (
         resonance_name="NR(0-)SPm", topology=:DxD,
@@ -410,14 +401,36 @@ const resonance_chains_df_raw = build_resonance_chains_df()
 # Matching is evaluated per chain (one row of `resonance_chains_df`).  Total
 # matching is the product of vertex and lineshape contributions:
 #
-#     M_chain = M_vertex × M_lineshape / N_propagator_spin
+#     M_chain = M_sign × M_vertex × M_lineshape / N_propagator_spin
 #
 # Dependencies:
 #   M_vertex           — topology, resonance_name, root_two_ls, daughter_two_ls, lineshape
 #                        (lineshape sets decay reference mass for adhoc-q0 DxD chains)
-#   M_lineshape        — resonance_name, lineshape (multichannel γ₀/γ₂ split and sign)
+#   M_lineshape        — resonance_name, lineshape (multichannel γ₀/γ₂ split)
+#   M_sign             — `MAGIC_SIGNS[resonance_name]` (TF-PWA overall sign)
 #   N_propagator_spin  — propagator_two_j (CascadeDecays v0.1.0 spin norm; D* line fixed at jp"1+")
 # =============================================================================
+
+# Overall ±1 amplitude sign per resonance for TF-PWA alignment (see
+# notebooks/all_resonances_sampled_comparison.jl).  Not the same as Resonances.yml `C`.
+const MAGIC_SIGNS = Dict{String,Float64}(
+    "X(3872)" => -1.0,
+    "X(3915)(0-)" => -1.0,
+    "chi(c2)(3930)" => -1.0,
+    "X(3940)(1.)" => 1.0,
+    "X(3993)" => -1.0,
+    "Psi(4040)" => 1.0,
+    "X(4300)" => 1.0,
+    "NR(0-)SPp" => 1.0,
+    "NR(1.)PSp" => -1.0,
+    "NR(0-)SPm" => 1.0,
+    "NR(1-)PPm" => 1.0,
+    "X0(2900)" => 1.0,
+    "X1(2900)" => 1.0,
+)
+@assert Set(keys(MAGIC_SIGNS)) == Set(all_resonance_names)
+
+magic_sign(resonance_name::String) = MAGIC_SIGNS[resonance_name]
 
 const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chain
 
@@ -459,11 +472,9 @@ end
 function chain_lineshape_matching_factor(resonance_name::String, lineshape)
     spec = lineshape_spec(lineshape)
     if spec.mc_gamma === :gamma0
-        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma0
+        return bwr_ls_coupling_params(resonance_name).gamma0
     elseif spec.mc_gamma === :gamma2
-        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma2
-    elseif spec.sign_only
-        return spec.sign
+        return bwr_ls_coupling_params(resonance_name).gamma2
     end
     return 1.0
 end
@@ -473,6 +484,7 @@ chain_propagator_spin_norm(row) =
 
 function chain_matching_factor(row)
     return (
+        magic_sign(row.resonance_name) *
         chain_vertex_matching_factor(row) *
         chain_lineshape_matching_factor(row.resonance_name, row.lineshape) /
         chain_propagator_spin_norm(row)
@@ -510,9 +522,8 @@ function enrich_resonance_chains_df!(df)
     df.coupling_value = resolve_coupling_keys.(df.coupling_keys)
     df.matching_factor = chain_matching_factor.(eachrow(df))
     specs = lineshape_spec.(df.lineshape)
-    bare = df.coupling_value .* [spec.sign for spec in specs]
-    df.bare_coupling_re = real.(bare)
-    df.bare_coupling_im = imag.(bare)
+    df.bare_coupling_re = real.(df.coupling_value)
+    df.bare_coupling_im = imag.(df.coupling_value)
     df.coupling_param_keys = join.(df.coupling_keys, Ref(";"))
     df.bwr_l = [spec.bwr_l for spec in specs]
     df.parametrization = [
