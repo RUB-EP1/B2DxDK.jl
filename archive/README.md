@@ -3,7 +3,7 @@
 Material from developing and validating the $B^+ \to D^- D^{*+} K^+$ amplitude model.
 Not needed for the current production workflow.
 
-**Production** lives at the repo root: [`scripts/`](../scripts/) (CascadeDecays model and checks) and [`data/`](../data/) (couplings and event samples). Entry point: [`scripts/all_resonances_amplitude_crosscheck.jl`](../scripts/all_resonances_amplitude_crosscheck.jl). See the [root README](../README.md).
+**Production** lives at the repo root: [`src/`](../src/) (B2DxDK package), [`test/`](../test/) (regression checks), [`scripts/`](../scripts/) (fit-fraction analysis), and [`data/`](../data/) (couplings and event samples). Entry point: [`test/runtests.jl`](../test/runtests.jl). See the [root README](../README.md).
 
 ---
 

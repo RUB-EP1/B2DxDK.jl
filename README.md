@@ -33,6 +33,12 @@ B2DxDK/
 │   ├── b-decay-events.arrow
 │   ├── crosscheck.arrow
 │   └── crosscheck_amplitudes_reference.txt
+├── src/                          # B2DxDK.jl package — TF-PWA-aligned CascadeDecays model
+├── test/                         # Amplitude regression and model sanity checks
+├── scripts/
+│   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
+├── docs/
+│   └── all_resonances_model.jl                # Historical monolithic model (pre-refactor)
 ├── archive/                      # Historical investigation material — see archive/README.md
 │   ├── investigation/
 │   ├── threebodydecays/
@@ -40,10 +46,6 @@ B2DxDK/
 │   ├── angles/
 │   ├── data/
 │   └── notebooks/
-├── scripts/
-│   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
-│   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
-│   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
 └── README.md
 ```
 
@@ -81,9 +83,9 @@ below). Earlier ThreeBodyDecays.jl notebooks are archived under
    julia> using Pluto; Pluto.run()
    ```
 
-2. **Run cascade amplitude regression** (recommended entry point):
+2. **Run tests** (100-event amplitude regression + model checks):
    ```bash
-   julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
+   julia --project=. test/runtests.jl
    ```
 
 ### TF-PWA investigation (archived)
@@ -95,12 +97,12 @@ it is not required to run the Julia regression scripts below.
 
 ### All-resonance model and fit fractions (Julia, TF-PWA aligned)
 
-`scripts/all_resonances_model.jl` defines the TF-PWA-aligned amplitude model using
+The `B2DxDK` package (`src/`) defines the TF-PWA-aligned amplitude model using
 [CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 for **cascade**
 phase space ( $D^*$ at nominal mass).
 
-- `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
-  `data/crosscheck.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
+- `test/runtests.jl` — 100-event amplitude regression on `data/crosscheck.arrow`
+  (compared to `data/crosscheck_amplitudes_reference.txt`) plus model sanity checks
 - `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
   `data/b-decay-events.arrow`; compares to `archive/notebooks/all_resonances_fit_fractions.txt`
   (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
@@ -114,10 +116,10 @@ Earlier **ThreeBodyDecays.jl** model attempts are archived under
 TF-PWA investigation material is archived under
 [`archive/investigation/`](archive/investigation/README.md).
 
-Run the cascade amplitude regression from the project root:
+Run tests from the project root:
 
 ```bash
-julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
+julia --project=. test/runtests.jl
 ```
 
 Run full-sample fit fractions:
@@ -128,7 +130,7 @@ julia --project=. scripts/all_resonances_fit_fractions.jl
 
 #### `root_remove_particle2_phase` (X1(2900) only)
 
-Only the three `X1(2900)` branches in `scripts/all_resonances_model.jl`
+Only the three `X1(2900)` branches in the model (`src/resonance_table.jl`)
 set `root_remove_particle2_phase=true`. This is **not** interchangeable with the
 overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
 

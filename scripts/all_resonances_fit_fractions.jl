@@ -1,8 +1,8 @@
 using Arrow
+using B2DxDK
+using CascadeDecays
 using DataFrames
 using Printf
-
-include(joinpath(@__DIR__, "all_resonances_model.jl"))
 
 const data_path = joinpath(data_dir, "b-decay-events.arrow")
 const output_path = joinpath(repo_root, "scripts", "all_resonances_fit_fractions.txt")
