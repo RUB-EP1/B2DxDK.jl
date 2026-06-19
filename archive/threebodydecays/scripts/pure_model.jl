@@ -291,7 +291,7 @@ end;
 
 dalitz_dpd = let
 
-    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "crosscheck_event.json")
     event = JSON.parsefile(json_path)
     dpd = event["dpd_kinematics"]
 

@@ -32,10 +32,10 @@ B2DxDK/
 │   ├── final_params_full.json
 │   ├── b-decay-events.arrow
 │   ├── crosscheck.arrow
-│   ├── crosscheck_amplitudes_reference.txt
-│   └── crosscheck_event.json
+│   └── crosscheck_amplitudes_reference.txt
 ├── archive/
-│   ├── data/                     # Historical / auxiliary datasets
+│   ├── angles/                   # Angular convention cross-checks (see README there)
+│   ├── data/                     # Historical / auxiliary datasets (incl. crosscheck_event.json)
 │   ├── notebooks/                # Saved fit-fraction reference and plot outputs
 │   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule
 │   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check
@@ -43,8 +43,7 @@ B2DxDK/
 ├── scripts/
 │   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
 │   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
-│   ├── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
-│   └── angles/                   # Julia scripts to cross-check angular conventions
+│   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
 └── README.md
 ```
 
@@ -54,11 +53,8 @@ Key files under `data/` (used by `scripts/`):
 - `b-decay-events.arrow` — full weighted event sample
 - `crosscheck.arrow` — 100-event amplitude regression subset
 - `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
-- `crosscheck_event.json` — single event for angular cross-checks
 
-Additional historical datasets remain under `archive/data/`.
-
-The `scripts/angles` folder contains small Julia programs (e.g. `explicit.jl`, `with_LDA.jl`) that compute decay angles and cross-check the angular conventions used in the analysis.
+Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. Angular cross-check scripts are under [`archive/angles/`](archive/angles/README.md).
 
 ## Installation and Usage
 

@@ -76,7 +76,7 @@ function calculate_angles(pD, pK, pDx, pD0)
 end
 
 # Load Data
-vecs_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
+vecs_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "crosscheck_event.json")
 data = JSON.parsefile(vecs_path)
 pD_vec = [data["four_vectors"]["D"]["E"], data["four_vectors"]["D"]["px"], data["four_vectors"]["D"]["py"], data["four_vectors"]["D"]["pz"]]
 pD0_vec = [data["four_vectors"]["D0"]["E"], data["four_vectors"]["D0"]["px"], data["four_vectors"]["D0"]["py"], data["four_vectors"]["D0"]["pz"]]
