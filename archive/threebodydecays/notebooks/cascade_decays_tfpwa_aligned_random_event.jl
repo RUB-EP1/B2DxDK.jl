@@ -165,7 +165,7 @@ with open(output_path, "w", encoding="utf-8") as f:
 end
 
 function sample_events_and_reference(n_events::Int)
-    repo_root = normpath(joinpath(@__DIR__, ".."))
+    repo_root = normpath(joinpath(@__DIR__, "..", ".."))
     analysis_dir = joinpath(repo_root, "Analysis")
     python_exe = resolve_tfpwa_python()
 
@@ -476,11 +476,11 @@ function batch_scan_and_plot(topology, total_factor; n_events::Int = 5000)
         ))
     end
 
-    repo_root = normpath(joinpath(@__DIR__, ".."))
-    txt_path = joinpath(repo_root, "notebooks", "psi4040_scan.txt")
-    png_path_re = joinpath(repo_root, "notebooks", "psi4040_delta_re.png")
-    png_path_im = joinpath(repo_root, "notebooks", "psi4040_delta_im.png")
-    compare_png_path_re = joinpath(repo_root, "notebooks", "psi4040_amp2.png")
+    repo_root = normpath(joinpath(@__DIR__, "..", ".."))
+    txt_path = joinpath(@__DIR__, "psi4040_scan.txt")
+    png_path_re = joinpath(@__DIR__, "psi4040_delta_re.png")
+    png_path_im = joinpath(@__DIR__, "psi4040_delta_im.png")
+    compare_png_path_re = joinpath(@__DIR__, "psi4040_amp2.png")
 
     save_batch_results_txt(txt_path, rows)
     dalitz_heatmap(png_path_re, rows; component = :re)

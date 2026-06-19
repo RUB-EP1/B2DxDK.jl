@@ -29,7 +29,7 @@ The decay B+ → D- D*+ K+ involves several resonance contributions:
 ```
 B2DxDK/
 ├── notebooks/
-│   └── completion.jl          # Main Pluto.jl notebook
+│   └── tfpwa_model_aligned.jl   # Manual TF-PWA-aligned Psi(4040) probe (see Analysis/)
 ├── data/
 │   ├── interference_paper.json    # Paper results for comparison
 │   ├── interference_tf.json       # TensorFlow results
@@ -41,7 +41,8 @@ B2DxDK/
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
 ├── archive/
-│   └── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check (see README there)
+│   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check (see README there)
+│   └── threebodydecays/          # Earlier ThreeBodyDecays.jl model attempts (see README there)
 ├── scripts/
 │   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
 │   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
@@ -68,20 +69,21 @@ Any problems at this step, should be reported in the project issue tracker.
 
 ### Run the analysis
 
-1. **Install Pluto.jl**:
+The main reproducible workflow is the TF-PWA-aligned CascadeDecays scripts under `scripts/`
+(see [All-resonance model and fit fractions](#all-resonance-model-and-fit-fractions-julia-tf-pwa-aligned)
+below). Earlier ThreeBodyDecays.jl notebooks are archived under
+[`archive/threebodydecays/`](archive/threebodydecays/README.md).
+
+1. **Install Pluto.jl** (only if opening archived notebooks):
    ```julia
    julia> ] add Pluto
    julia> using Pluto; Pluto.run()
    ```
 
-2. **Open the notebook**:
-   - Navigate to the `notebooks/` directory
-   - Open `completion.jl` in Pluto
-
-3. **Run the analysis**:
-   - The notebook will automatically install required dependencies
-   - Execute cells sequentially to perform the analysis
-
+2. **Run cascade amplitude regression** (recommended entry point):
+   ```bash
+   julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
+   ```
 
 ### Using the amplitude extraction
 
@@ -126,6 +128,9 @@ phase space ( $D^*$ at nominal mass).
 
 Flat **4-body** phase-space cross-checks (historical; exposed TF-PWA running-mass conventions)
 are archived under [`archive/flat4b/`](archive/flat4b/README.md).
+
+Earlier **ThreeBodyDecays.jl** model attempts are archived under
+[`archive/threebodydecays/`](archive/threebodydecays/README.md).
 
 Run the cascade amplitude regression from the project root:
 
@@ -179,10 +184,6 @@ isolated `Psi(4040)` complex-amplitude calculation:
   - It links the main Python calls to the corresponding mathematical
     expressions, so the notebook calculation can be followed analytically.
 
-- `notebooks/cascade_decays_tfpwa_aligned.jl`
-  - A Julia implementation of the same isolated `Psi(4040)` amplitude using
-    only Julia packages, in particular `CascadeDecays.jl`,
-    `ThreeBodyDecays.jl`, `FourVectors.jl`, and `HadronicLineshapes.jl`.
-  - It prints the calculation in a Step 1-7 style comparable to the Python
-    execution-flow notebook and shows the remaining constant normalization
-    mismatch factor between the package-native Julia convention and TF-PWA.
+Archived Julia probes that used ThreeBodyDecays / CascadeDecays for the same test point
+are under [`archive/threebodydecays/notebooks/`](archive/threebodydecays/README.md)
+(`cascade_decays_tfpwa_aligned.jl`, etc.).
