@@ -28,9 +28,8 @@ The decay B+ → D- D*+ K+ involves several resonance contributions:
 
 ```
 B2DxDK/
-├── notebooks/
-│   └── tfpwa_model_aligned.jl   # Manual TF-PWA-aligned Psi(4040) probe (see Analysis/)
 ├── data/
+│   ├── final_params_full.json     # Fitted couplings for production CascadeDecays model
 │   ├── interference_paper.json    # Paper results for comparison
 │   ├── interference_tf.json       # TensorFlow results
 │   ├── paper_couplings.json      # Coupling parameters
@@ -41,6 +40,7 @@ B2DxDK/
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
 ├── archive/
+│   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule (see README there)
 │   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check (see README there)
 │   └── threebodydecays/          # Earlier ThreeBodyDecays.jl model attempts (see README there)
 ├── scripts/
@@ -85,34 +85,12 @@ below). Earlier ThreeBodyDecays.jl notebooks are archived under
    julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
    ```
 
-### Using the amplitude extraction
+### TF-PWA investigation (archived)
 
-This repository includes a slightly modified version of tf_pwa (https://github.com/jiangyi15/tf-pwa).
-
-Steps to make the analysis code operational:
-
-#### Option A: Conda-based setup (original)
-- Conda has to be installed on the system
-- Clone this repository
-- In console (inside the repo folder):
-  - `chmod +x setup_tf_pwa_with_conda.sh`
-  - `./setup_tf_pwa_with_conda.sh`
-
-#### Option B: venv-based setup (no Conda)
-
-From the project root:
-
-```bash
-chmod +x setup_tf_pwa_with_venv.sh
-./setup_tf_pwa_with_venv.sh
-
-# install tf_pwa into the virtual environment
-source venv/bin/activate
-pip install git+https://github.com/jiangyi15/tf-pwa.git
-deactivate
-```
-
-The current analysis can be found in `Analysis/Amplitude.ipynb`.
+Python/TF-PWA notebooks, execution-flow notes, the `tf-pwa` submodule, and environment
+setup scripts are under [`archive/investigation/`](archive/investigation/README.md).
+That material supported cross-checks while building the production CascadeDecays workflow;
+it is not required to run the Julia regression scripts below.
 
 ### All-resonance model and fit fractions (Julia, TF-PWA aligned)
 
@@ -131,6 +109,9 @@ are archived under [`archive/flat4b/`](archive/flat4b/README.md).
 
 Earlier **ThreeBodyDecays.jl** model attempts are archived under
 [`archive/threebodydecays/`](archive/threebodydecays/README.md).
+
+TF-PWA investigation material is archived under
+[`archive/investigation/`](archive/investigation/README.md).
 
 Run the cascade amplitude regression from the project root:
 
@@ -169,21 +150,19 @@ overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
 
 ## Reference files for the isolated `Psi(4040)` amplitude
 
-The repository also contains a small set of focused reference files for the
-isolated `Psi(4040)` complex-amplitude calculation:
+Archived TF-PWA and Julia probe material for the isolated `Psi(4040)` test point lives under
+[`archive/investigation/`](archive/investigation/README.md) and
+[`archive/threebodydecays/notebooks/`](archive/threebodydecays/README.md).
+
+Key Python references (paths relative to `archive/investigation/`):
 
 - `Analysis/psi4040_independent_amplitude_flow.ipynb`
-  - A self-contained Python notebook that reproduces the isolated TF-PWA
-    `Psi(4040)` amplitude step by step, using copied/adapted local functions,
-    the TF-PWA configuration values, and the hardcoded probe four-vectors.
-  - It is intended as the reference execution flow for the `Psi(4040)` test
-    point.
-
+  - Self-contained Python notebook reproducing the isolated TF-PWA `Psi(4040)` amplitude
+    step by step.
 - `Analysis/psi4040_python_function_formula_map.md`
-  - A function-to-formula map for the isolated Python notebook.
-  - It links the main Python calls to the corresponding mathematical
-    expressions, so the notebook calculation can be followed analytically.
+  - Function-to-formula map for the isolated Python notebook.
+- `ExecutionFlow/README.md`
+  - Documented TF-PWA execution flow for the same probe.
 
-Archived Julia probes that used ThreeBodyDecays / CascadeDecays for the same test point
-are under [`archive/threebodydecays/notebooks/`](archive/threebodydecays/README.md)
-(`cascade_decays_tfpwa_aligned.jl`, etc.).
+Julia counterparts: `archive/investigation/notebooks/tfpwa_model_aligned.jl` (manual TF-PWA alignment) and
+`archive/threebodydecays/notebooks/cascade_decays_tfpwa_aligned.jl` (package-based probe).

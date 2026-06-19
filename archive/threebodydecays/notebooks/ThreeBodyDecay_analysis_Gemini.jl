@@ -1,5 +1,5 @@
 using Pkg
-Pkg.activate(joinpath(@__DIR__, "..", ".."))
+Pkg.activate(joinpath(@__DIR__, "..", "..", ".."))
 # Pkg.instantiate()
 
 using ThreeBodyDecays.PartialWaveFunctions
@@ -176,7 +176,7 @@ end
 println("\n--- Calculation with vectors from event_vectors.json ---")
 
 # Load vectors
-vecs_path = joinpath(@__DIR__, "..", "..", "Analysis", "event_vectors.json")
+vecs_path = joinpath(@__DIR__, "..", "..", "..", "archive", "investigation", "Analysis", "event_vectors.json")
 vecs_data = JSON.parsefile(vecs_path)
 
 # Helper to convert list to SVector or Vector
@@ -263,7 +263,7 @@ test_point_new = DalitzAndDecay(σs_new, cos_theta_new, phi_new)
 println("\n--- Updating parameters from final_params_full.json ---")
 
 # Load JSON
-json_path = joinpath(@__DIR__, "..", "..", "Analysis", "final_params_full.json")
+json_path = joinpath(@__DIR__, "..", "..", "..", "data", "final_params_full.json")
 println("Loading parameters from: ", json_path)
 params_json = JSON.parsefile(json_path)
 val = params_json["value"]
@@ -489,7 +489,7 @@ const model_names = getproperty.(decay_chains, :resonance_name) .*
                     "_l" .* string.([ch.Hij.h.two_ls[1] |> d2 for ch in chains_updated])
 model_names .*= [(ch.k == 3) ? "_L$(ch.HRk.h.two_ls[1] |> d2)" : "" for ch in chains_updated]
 
-output_file = joinpath(@__DIR__, "..", "..", "Analysis", "amplitudes.txt")
+output_file = joinpath(@__DIR__, "..", "..", "..", "archive", "investigation", "Analysis", "amplitudes.txt")
 println("Writing results to: ", output_file)
 
 open(output_file, "a") do io

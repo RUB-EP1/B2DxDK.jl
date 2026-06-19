@@ -47,7 +47,7 @@ end
 # let # save to json
 #     decay_description, appendix = serializeToDict(model_pure)
 #     dict = add_hs3_fields(decay_description, appendix, "default-model")
-#     open(joinpath(@__DIR__, "..", "..", "data", "model_pure.json"), "w") do io
+#     open(joinpath(@__DIR__, "..", "..", "..", "data", "model_pure.json"), "w") do io
 #         JSON.print(io, dict, 4)
 #     end
 # end
@@ -55,7 +55,7 @@ end
 
 
 
-json_content = open(joinpath(@__DIR__, "..", "..", "data", "model_pure.json")) do io
+json_content = open(joinpath(@__DIR__, "..", "..", "..", "data", "model_pure.json")) do io
     JSON.parse(io)
 end
 rm("test.json")

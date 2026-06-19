@@ -34,7 +34,7 @@ FourVectors.FourVector(p::JSON.Object) = FourVector(p["px"], p["py"], p["pz"]; E
 
 
 objs = let
-    json_path = joinpath(@__DIR__, "..", "..", "data", "crosscheck_event.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
     event = JSON.parsefile(json_path)
     four_vectors_json = event["four_vectors"]
     # 

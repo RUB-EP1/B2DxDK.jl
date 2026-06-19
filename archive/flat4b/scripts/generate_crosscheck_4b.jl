@@ -58,7 +58,7 @@ import yaml
 repo_root, analysis_dir, output_path, n_events, seed = sys.argv[1:6]
 n_events = int(n_events)
 seed = int(seed)
-sys.path.insert(0, os.path.join(repo_root, "tf-pwa"))
+sys.path.insert(0, os.path.join(repo_root, "archive", "investigation", "tf-pwa"))
 sys.path.insert(0, analysis_dir)
 os.chdir(analysis_dir)
 
@@ -130,7 +130,7 @@ with open(output_path, "w", encoding="utf-8") as f:
 end
 
 function fetch_tfpwa_crosscheck_4b(n::Int, seed::Int)
-    analysis_dir = joinpath(repo_root, "Analysis")
+    analysis_dir = joinpath(repo_root, "archive", "investigation", "Analysis")
     python_exe = resolve_tfpwa_python()
     mktemp() do output_path, io
         close(io)

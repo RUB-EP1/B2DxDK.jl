@@ -42,8 +42,8 @@ begin
     # CODEX ALIGNMENT CHANGE:
     # Local parsers avoid extra Julia package installation while still taking
     # the parameters from the same YAML/JSON files used by the Python notebook.
-    repo_root = normpath(joinpath(@__DIR__, ".."))
-    analysis_dir = joinpath(repo_root, "Analysis")
+    const investigation_root = normpath(joinpath(@__DIR__, ".."))
+    analysis_dir = joinpath(investigation_root, "Analysis")
     config_text = read(joinpath(analysis_dir, "config_a.yml"), String)
     params_text = read(joinpath(analysis_dir, "final_params_full.json"), String)
 

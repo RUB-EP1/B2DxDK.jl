@@ -33,7 +33,7 @@ end
 # =============================================================================
 
 const repo_root = normpath(joinpath(@__DIR__, ".."))
-const params_path = joinpath(repo_root, "Analysis", "final_params_full.json")
+const params_path = joinpath(repo_root, "data", "final_params_full.json")
 
 const nominal_mass = Dict(
     "Bp" => 5.27934,

@@ -1,5 +1,5 @@
 using Pkg
-Pkg.activate(joinpath(@__DIR__, "..", ".."))
+Pkg.activate(joinpath(@__DIR__, "..", "..", ".."))
 
 using ThreeBodyDecays.PartialWaveFunctions
 using HadronicLineshapes
@@ -76,7 +76,7 @@ function calculate_angles(pD, pK, pDx, pD0)
 end
 
 # Load Data
-vecs_path = joinpath(@__DIR__, "..", "..", "data", "crosscheck_event.json")
+vecs_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
 data = JSON.parsefile(vecs_path)
 pD_vec = [data["four_vectors"]["D"]["E"], data["four_vectors"]["D"]["px"], data["four_vectors"]["D"]["py"], data["four_vectors"]["D"]["pz"]]
 pD0_vec = [data["four_vectors"]["D0"]["E"], data["four_vectors"]["D0"]["px"], data["four_vectors"]["D0"]["py"], data["four_vectors"]["D0"]["pz"]]
@@ -102,7 +102,7 @@ function ThreeBodyDecays.amplitude(three_body_model::ThreeBodyDecay, dd::DalitzA
     return sum(reshape(_O, 3) .* _D)
 end
 
-params = JSON.parsefile(joinpath(@__DIR__, "..", "..", "Analysis", "final_params_full.json"))["value"]
+params = JSON.parsefile(joinpath(@__DIR__, "..", "..", "..", "data", "final_params_full.json"))["value"]
 tbs = ThreeBodySystem(ThreeBodyMasses(mD, mK, mDx; m0=mB), ThreeBodySpinParities("0-", "0-", "1-"; jp0="0+")[1])
 
 # Filter and iterate for Psi(4040)
@@ -126,7 +126,7 @@ model = ThreeBodyDecay(["Psi(4040)_l1_L1"] .=> zip([1.0/norm_factor], [ch]))
 val = amplitude(model, DalitzAndDecay(σs, cosθ, ϕ))
 
 # Save Result
-output_path = joinpath(@__DIR__, "..", "..", "Analysis", "julia_psi4040_amplitudes.txt")
+output_path = joinpath(@__DIR__, "..", "..", "..", "archive", "investigation", "Analysis", "julia_psi4040_amplitudes.txt")
 open(output_path, "w") do f
     println(f, "Resonance (Psi(4040) [L=1, l=1]): $(real(val)) $(imag(val) >= 0 ? "+" : "-") $(abs(imag(val)))im")
 end

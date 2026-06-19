@@ -37,7 +37,7 @@ echo "  (venv) pip install -e /path/to/tf_pwa"
 echo
 echo "To run the Gemini analysis afterwards, use:"
 echo "  source venv/bin/activate"
-echo "  python Analysis/tf_pwa_analysis_Gemini.py"
+echo "  python archive/investigation/Analysis/tf_pwa_analysis_Gemini.py"
 
 echo "venv-based environment setup finished."
 

@@ -2,7 +2,8 @@
 
 ENV_NAME=tf-pwa-env
 PYTHON_VERSION=3.9
-PACKAGE_PATH=tf-pwa
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGE_PATH="$SCRIPT_DIR/tf-pwa"
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
@@ -15,7 +16,7 @@ conda install -y -c conda-forge \
 pip install --upgrade pip setuptools wheel
 pip install "tensorflow>=2.7" tensorflow-probability pyyaml graphviz
 
-cd $PACKAGE_PATH
+cd "$PACKAGE_PATH"
 pip install -e .
 
 echo "Environment $ENV_NAME is ready."

@@ -88,7 +88,7 @@ import yaml
 repo_root, analysis_dir, output_path, n_events = sys.argv[1:5]
 n_events = int(n_events)
 
-sys.path.insert(0, os.path.join(repo_root, "tf-pwa"))
+sys.path.insert(0, os.path.join(repo_root, "archive", "investigation", "tf-pwa"))
 sys.path.insert(0, analysis_dir)
 os.chdir(analysis_dir)
 
@@ -165,8 +165,8 @@ with open(output_path, "w", encoding="utf-8") as f:
 end
 
 function sample_events_and_reference(n_events::Int)
-    repo_root = normpath(joinpath(@__DIR__, "..", ".."))
-    analysis_dir = joinpath(repo_root, "Analysis")
+    repo_root = normpath(joinpath(@__DIR__, "..", "..", ".."))
+    analysis_dir = joinpath(repo_root, "archive", "investigation", "Analysis")
     python_exe = resolve_tfpwa_python()
 
     output_data = mktemp() do output_path, io
@@ -476,7 +476,7 @@ function batch_scan_and_plot(topology, total_factor; n_events::Int = 5000)
         ))
     end
 
-    repo_root = normpath(joinpath(@__DIR__, "..", ".."))
+    repo_root = normpath(joinpath(@__DIR__, "..", "..", ".."))
     txt_path = joinpath(@__DIR__, "psi4040_scan.txt")
     png_path_re = joinpath(@__DIR__, "psi4040_delta_re.png")
     png_path_im = joinpath(@__DIR__, "psi4040_delta_im.png")

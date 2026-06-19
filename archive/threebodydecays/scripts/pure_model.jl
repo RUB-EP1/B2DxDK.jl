@@ -2,7 +2,7 @@
 # It is circular permutation of Dx D K
 
 using Pkg
-Pkg.activate(joinpath(@__DIR__, "..", ".."))
+Pkg.activate(joinpath(@__DIR__, "..", "..", ".."))
 Pkg.instantiate()
 # 
 using ThreeBodyDecays.PartialWaveFunctions
@@ -134,11 +134,11 @@ end
 
 
 params = let
-    json_path = joinpath(@__DIR__, "..", "..", "data", "final_params.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "final_params.json")
     JSON.parsefile(json_path)["value"]
 end
 
-config = YAML.load_file(joinpath(@__DIR__, "..", "..", "data", "config_c.yml"))
+config = YAML.load_file(joinpath(@__DIR__, "..", "..", "..", "data", "config_c.yml"))
 
 
 
@@ -291,7 +291,7 @@ end;
 
 dalitz_dpd = let
 
-    json_path = joinpath(@__DIR__, "..", "..", "data", "crosscheck_event.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
     event = JSON.parsefile(json_path)
     dpd = event["dpd_kinematics"]
 
