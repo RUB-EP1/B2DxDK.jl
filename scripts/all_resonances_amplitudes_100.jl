@@ -77,12 +77,19 @@ function main(; compare_to = crosscheck_reference_path)
     n_events = nrow(df)
     println("Loaded events: ", n_events)
 
+    cascade = build_all_resonance_cascade()
     resonance_amps_by_event = Vector{Vector{ComplexF64}}()
     sizehint!(resonance_amps_by_event, n_events)
 
     for idx in 1:n_events
-        ctx = event_context(df[idx, :])
-        push!(resonance_amps_by_event, ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names])
+        point = event_point(df[idx, :])
+        push!(
+            resonance_amps_by_event,
+            ComplexF64[
+                only(amplitude(cascade[resonance_chain_names(name)], point))
+                for name in all_resonance_names
+            ],
+        )
     end
 
     save_amplitudes(crosscheck_output_path, df, resonance_amps_by_event)

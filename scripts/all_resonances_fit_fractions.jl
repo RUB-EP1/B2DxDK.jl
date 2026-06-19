@@ -114,18 +114,41 @@ function (bw::BuggyMultichannelBreitWigner)(σ::Number)
 end
 (bw::BuggyMultichannelBreitWigner)(σ::Real) = bw(σ + 1im * eps())
 
-function (bw::BuggyMultichannelBreitWigner)(pars::Dict)
-    length(pars) == 1 || error("BuggyMultichannelBreitWigner expects one invariant-mass-squared argument")
-    bw(first(values(pars)))
+"""
+    NRExpLineshape
+
+Nonresonant exponential: `-exp(-αβ * (σ - m0²))` with invariant mass squared `σ`.
+"""
+struct NRExpLineshape <: HadronicLineshapes.AbstractFlexFunc
+    αβ::ComplexF64
+    m0::Float64
 end
 
-breakup_momentum(m0, m1, m2) =
-    sqrt(complex(((m0^2 - (m1 + m2)^2) * (m0^2 - (m1 - m2)^2)) / (4.0 * m0^2)))
+function (ls::NRExpLineshape)(σ::Number)
+    -exp(-ls.αβ * (σ - ls.m0^2))
+end
+(ls::NRExpLineshape)(σ::Real) = ls(σ + 1im * eps())
+
+function nr_exp_lineshape()
+    alpha = param_real("NR(0-)SPp_alpha")
+    beta = param_real("NR(0-)SPp_beta")
+    return NRExpLineshape(alpha + 1im * beta, nominal_mass["NR(0-)SPp"])
+end
 
 function ad_hoc_mass(m0, m_min, m_max)
     k = (m_max - m_min) / 2
     return k * (1 + tanh((2m0 - (m_max + m_min)) / k / 4)) + m_min
 end
+
+dxd_adhoc_q0_mass(name::String) = ad_hoc_mass(
+    nominal_mass[name],
+    nominal_mass["Dst"] + nominal_mass["D"],
+    nominal_mass["Bp"] - nominal_mass["K"],
+)
+
+bwr_ls_q0(name::String) = breakup(nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
+bwr_ls_adhoc_q0(name::String) =
+    breakup(dxd_adhoc_q0_mass(name), nominal_mass["Dst"], nominal_mass["D"])
 
 function lineshape_base(lineshape)
     name = lineshape isa Symbol ? string(lineshape) : lineshape
@@ -167,24 +190,12 @@ end
 bwr_lineshape(m0, width, l) =
     BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, 3.0)
 
-dxd_adhoc_q0_mass(name::String) = ad_hoc_mass(
-    nominal_mass[name],
-    nominal_mass["Dst"] + nominal_mass["D"],
-    nominal_mass["Bp"] - nominal_mass["K"],
-)
-
-bwr_ls_q0(name::String) =
-    real(breakup_momentum(nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"]))
-
-bwr_ls_adhoc_q0(name::String) =
-    real(breakup_momentum(dxd_adhoc_q0_mass(name), nominal_mass["Dst"], nominal_mass["D"]))
-
 function bwr_ls_coupling_params(name::String)
     theta0 = param_real(name * "_theta0")
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-function build_bwr_ls_lineshape(name::String, q0::Real)
+function buggy_multichannel_bwr_lineshape(name::String, q0::Real)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
@@ -201,9 +212,10 @@ function build_bwr_ls_lineshape(name::String, q0::Real)
     return BuggyMultichannelBreitWigner(nominal_mass[name], channels)
 end
 
-build_bwr_ls_lineshape(name::String) = build_bwr_ls_lineshape(name, bwr_ls_q0(name))
-build_bwr_ls_adhoc_q0_lineshape(name::String) =
-    build_bwr_ls_lineshape(name, bwr_ls_adhoc_q0(name))
+buggy_multichannel_bwr_lineshape(name::String) =
+    buggy_multichannel_bwr_lineshape(name, bwr_ls_q0(name))
+adhoc_q0_buggy_multichannel_bwr_lineshape(name::String) =
+    buggy_multichannel_bwr_lineshape(name, bwr_ls_adhoc_q0(name))
 
 function decay_reference_mass(resonance_name::String, lineshape)
     base = lineshape_base(lineshape)
@@ -227,13 +239,13 @@ end
 x2900_bwr_lineshape(name, l) =
     BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, 3.0)
 
-function build_chain_lineshape(ctx, row)
+function build_chain_lineshape(row)
     resonance_name = row.resonance_name
     base = lineshape_base(row.lineshape)
     if base in (:bwr_ls_l0, :bwr_ls_l2)
-        return build_bwr_ls_lineshape(resonance_name)
+        return buggy_multichannel_bwr_lineshape(resonance_name)
     elseif base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
-        return build_bwr_ls_adhoc_q0_lineshape(resonance_name)
+        return adhoc_q0_buggy_multichannel_bwr_lineshape(resonance_name)
     elseif base in (:bwr_l1, :bwr_l2)
         return bwr_lineshape(
             nominal_mass[resonance_name], param_real(resonance_name * "_width"),
@@ -242,10 +254,7 @@ function build_chain_lineshape(ctx, row)
     elseif base == :constant
         return ConstantLineshape(1.0 + 0.0im)
     elseif base == :nr_exp
-        alpha = param_real("NR(0-)SPp_alpha")
-        beta = param_real("NR(0-)SPp_beta")
-        nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
-        return ConstantLineshape(nr_factor)
+        return nr_exp_lineshape()
     elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
         return x2900_bwr_lineshape(resonance_name, bwr_decay_l(row.lineshape))
     end
@@ -402,32 +411,25 @@ const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 const dxd_topology = DecayTopology((((1, 2), 3), 4))
 const dk_topology = DecayTopology(((1, 2), (3, 4)))
 const kinematic_task = KinematicTask((dxd_topology, dk_topology))
+const standard_system = CascadeSystem(
+    external_spins,
+    SystemMasses(
+        nominal_mass["D0"],
+        nominal_mass["pi"],
+        nominal_mass["D"],
+        nominal_mass["K"];
+        m0=nominal_mass["Bp"],
+    ),
+)
 
 nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
-function event_context(row)
+function event_point(row)
     pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E=row.Dm_E)
     pD0 = FourVector(row.D0_px, row.D0_py, row.D0_pz; E=row.D0_E)
     pKplus = FourVector(row.Kp_px, row.Kp_py, row.Kp_pz; E=row.Kp_E)
     piplus = FourVector(row.pip_px, row.pip_py, row.pip_pz; E=row.pip_E)
-    objs = (pD0, piplus, pDminus, pKplus)
-    P_Dst = pD0 + piplus
-    P_R = P_Dst + pDminus
-    P_B = P_R + pKplus
-    masses = SystemMasses(mass.(objs)...; m0=mass(P_B))
-    system = CascadeSystem(external_spins, masses)
-    point = KinematicPoint(kinematic_task, objs)
-    return (
-        pDminus=pDminus,
-        pD0=pD0,
-        pKplus=pKplus,
-        piplus=piplus,
-        P_Dst=P_Dst,
-        P_R=P_R,
-        P_B=P_B,
-        system=system,
-        point=point,
-    )
+    return KinematicPoint(kinematic_task, (pD0, piplus, pDminus, pKplus))
 end
 
 function chain_static_matching_factor(row)
@@ -539,8 +541,8 @@ function resonance_chain_rows(name::String)
     resonance_chains_df[resonance_chains_df.resonance_name.==name, :]
 end
 
-function build_chain_from_row(ctx, row)
-    lineshape = build_chain_lineshape(ctx, row)
+function build_chain_from_row(row)
+    lineshape = build_chain_lineshape(row)
     root_l = vertex_l(row.root_two_ls)
     daughter_l = vertex_l(row.daughter_two_ls)
     if row.topology == :dk
@@ -564,40 +566,37 @@ function build_chain_from_row(ctx, row)
     )
 end
 
-function build_resonance_cascade(resonance_name::String, ctx)
+function chain_name(resonance_name::String, row)
+    "$(resonance_name)_L$(vertex_l(row.root_two_ls))_d$(vertex_l(row.daughter_two_ls))"
+end
+
+function resonance_chain_names(resonance_name::String)
+    [chain_name(resonance_name, row) for row in eachrow(resonance_chain_rows(resonance_name))]
+end
+
+function build_resonance_cascade(resonance_name::String)
     rows = collect(eachrow(resonance_chain_rows(resonance_name)))
-    chains = Tuple(build_chain_from_row(ctx, row) for row in rows)
+    chains = Tuple(build_chain_from_row(row) for row in rows)
     effective_couplings = Tuple(
         rows[i].coupling_value * rows[i].static_matching_factor / _propagator_spin_norm(chains[i])
         for i in eachindex(rows)
     )
-    names = Tuple(
-        "$(resonance_name)_L$(vertex_l(row.root_two_ls))" for row in rows
-    )
+    names = Tuple(chain_name(resonance_name, row) for row in rows)
     return CascadeDecay(
         chains,
-        ctx.system,
+        standard_system,
         dxd_topology;
         couplings=effective_couplings,
         names=names,
     )
 end
 
-# =============================================================================
-# Block 5 — evaluate CascadeDecay on a kinematic point
-# =============================================================================
-
-# All external spins are 0, so amplitude(cascade, point) returns a 1-element helicity array.
-evaluate_cascade_amplitude(cascade::CascadeDecay, point::KinematicPoint) =
-    only(amplitude(cascade, point))
-
-function selected_cd_amplitude(ctx, name::String)
-    cascade = build_resonance_cascade(name, ctx)
-    return evaluate_cascade_amplitude(cascade, ctx.point)
+function build_all_resonance_cascade(names=all_resonance_names)
+    merge([build_resonance_cascade(name) for name in names]...)
 end
 
 # =============================================================================
-# Block 6 — fit-fraction analysis
+# Block 5 — fit-fraction analysis
 # =============================================================================
 
 function compute_fit_fractions(component_names, component_amps_by_event, weights)
@@ -650,16 +649,21 @@ function main()
     println("Loaded events: ", n_events)
     println("Using event weights from column: weight")
     println(@sprintf("  sum(weight) = %.6e", sum(weights)))
+    println("Building resonance cascade...")
+    cascade = build_all_resonance_cascade()
     println("Computing per-resonance amplitudes...")
 
     resonance_amps_by_event = Vector{Vector{ComplexF64}}()
     sizehint!(resonance_amps_by_event, n_events)
 
     for idx in 1:n_events
-        ctx = event_context(df[idx, :])
+        point = event_point(df[idx, :])
         push!(
             resonance_amps_by_event,
-            ComplexF64[selected_cd_amplitude(ctx, name) for name in all_resonance_names],
+            ComplexF64[
+                only(amplitude(cascade[resonance_chain_names(name)], point))
+                for name in all_resonance_names
+            ],
         )
         idx % 10_000 == 0 && println("  processed ", idx, " / ", n_events)
     end
