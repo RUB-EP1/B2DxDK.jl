@@ -2,6 +2,10 @@
 # for the coherent sum of all implemented resonances:
 const selected_resonance = "all"
 const n_events = 100_000
+# Flat 4-body phase space: m(D0,pi) varies event-by-event, so Breit-Wigner
+# channel masses and running breakup momenta must use event kinematics.
+# Cascade phase space (config.generate_phsp_p): D* is fixed at nominal mass.
+const use_flat4b_phase_space = true
 #
 # Valid choices:
 # "all",
@@ -167,6 +171,8 @@ end
 function resolve_tfpwa_python()
     candidates = String[]
     haskey(ENV, "TFPWA_PYTHON") && push!(candidates, ENV["TFPWA_PYTHON"])
+    push!(candidates, normpath(joinpath(@__DIR__, "..", ".venv-tfpwa", "bin", "python")))
+    push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "bin", "python"))
     push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "python.exe"))
     push!(candidates, "python")
     for candidate in candidates
@@ -188,6 +194,7 @@ import sys
 
 import numpy as np
 import tensorflow as tf
+import yaml
 
 repo_root, analysis_dir, output_path, n_events = sys.argv[1:5]
 n_events = int(n_events)
@@ -198,17 +205,39 @@ os.chdir(analysis_dir)
 
 import extra_amp
 from tf_pwa.config_loader import ConfigLoader
+from tf_pwa.phasespace import PhaseSpaceGenerator
+with open("config_a.yml", "r", encoding="utf-8") as f:
+    config_yml = yaml.safe_load(f)
 with open("final_params_full.json", "r", encoding="utf-8") as f:
     params_dict = json.load(f)["value"]
+
+nominal_mass = {
+    "Bp": float(config_yml["particle"]["\$top"]["Bp"]["mass"]),
+    "D": float(config_yml["particle"]["\$finals"]["D"]["mass"]),
+    "K": float(config_yml["particle"]["\$finals"]["K"]["mass"]),
+    "D0": float(config_yml["particle"]["\$finals"]["D0"]["mass"]),
+    "pi": float(config_yml["particle"]["\$finals"]["pi"]["mass"]),
+}
 
 seed = int(np.random.default_rng().integers(0, 2**31 - 1))
 np.random.seed(seed)
 tf.random.set_seed(seed)
 
+generator = PhaseSpaceGenerator(
+    nominal_mass["Bp"],
+    [nominal_mass[name] for name in ["D", "K", "D0", "pi"]],
+)
+sample_phase_space_list = [np.asarray(v) for v in generator.generate(n_events)]
+sampled_p4 = dict(zip(["D", "K", "D0", "pi"], [v.tolist() for v in sample_phase_space_list]))
+
 config = ConfigLoader("config_a.yml")
-phsp_p = config.generate_phsp_p(n_events)
-p4_tfpwa = {particle: tf.constant(np.asarray(p4), dtype=tf.float64) for particle, p4 in phsp_p.items()}
-sampled_p4 = {particle.name: np.asarray(p4).tolist() for particle, p4 in phsp_p.items()}
+particle_map = {p.name: p for p in list(config.get_decay().outs)}
+p4_tfpwa = {
+    particle_map["D"]: tf.constant(sampled_p4["D"], dtype=tf.float64),
+    particle_map["D0"]: tf.constant(sampled_p4["D0"], dtype=tf.float64),
+    particle_map["K"]: tf.constant(sampled_p4["K"], dtype=tf.float64),
+    particle_map["pi"]: tf.constant(sampled_p4["pi"], dtype=tf.float64),
+}
 phsp_variables = config.data.cal_angle(p4_tfpwa)
 phsp_variables["c"] = np.full(n_events, -1.0)
 
@@ -259,9 +288,9 @@ bwr_lineshape(ctx, m0, width, l, sign) = begin
     q0 = real(tfpwa_breakup(m0, nominal_mass["Dst"], nominal_mass["D"]))
     ff = BlattWeisskopf{l}(3.0)
     gsq = m0 * width / (2q0) * m0 / ff(q0)^2
-    # Event-specific alternative:
-    # sign * MultichannelBreitWigner(m0, [(; gsq, ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l, d = 3.0)])
-    sign * MultichannelBreitWigner(m0, [(; gsq, ma = nominal_mass["Dst"], mb = nominal_mass["D"], l, d = 3.0)])
+    ma = use_flat4b_phase_space ? mass(ctx.P_Dst) : nominal_mass["Dst"]
+    mb = use_flat4b_phase_space ? mass(ctx.pDminus) : nominal_mass["D"]
+    sign * MultichannelBreitWigner(m0, [(; gsq, ma, mb, l, d = 3.0)])
 end
 
 function ad_hoc_mass(m0, m_min, m_max)
@@ -277,23 +306,20 @@ function bwr_ls_lineshapes(ctx, name, sign; below_threshold = false)
     gamma2 = sin(param_real(name * "_theta0"))
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
-    # Event-specific alternatives:
-    # channels = [
-    #     (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-    #        ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 0, d = 3.0),
-    #     (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-    #        ma = mass(ctx.P_Dst), mb = mass(ctx.pDminus), l = 2, d = 3.0),
-    # ]
+    ma = use_flat4b_phase_space ? mass(ctx.P_Dst) : nominal_mass["Dst"]
+    mb = use_flat4b_phase_space ? mass(ctx.pDminus) : nominal_mass["D"]
     channels = [
         (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma0^2 / ff0(q0)^2,
-           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 0, d = 3.0),
+           ma, mb, l = 0, d = 3.0),
         (; gsq = param_real(name * "_width") * mass(ctx.P_R)^2 / (2q0) * gamma2^2 / ff2(q0)^2,
-           ma = nominal_mass["Dst"], mb = nominal_mass["D"], l = 2, d = 3.0),
+           ma, mb, l = 2, d = 3.0),
     ]
     bw = sign * MultichannelBreitWigner(m0, channels)
-    # Event-specific alternative:
-    # breakup_from_sigma = sigma -> tfpwa_breakup(sqrt(sigma), mass(ctx.P_Dst), mass(ctx.pDminus))
-    breakup_from_sigma = sigma -> tfpwa_breakup(sqrt(sigma), nominal_mass["Dst"], nominal_mass["D"])
+    breakup_from_sigma = if use_flat4b_phase_space
+        sigma -> tfpwa_breakup(sqrt(sigma), mass(ctx.P_Dst), mass(ctx.pDminus))
+    else
+        sigma -> tfpwa_breakup(sqrt(sigma), nominal_mass["Dst"], nominal_mass["D"])
+    end
     return bw * gamma0, bw * (ff2(breakup_from_sigma) * (gamma2 / ff2(q0)))
 end
 
@@ -346,15 +372,9 @@ function x2900_bwr_lineshape(ctx, name, l)
     q0 = real(tfpwa_breakup(nominal_mass[name], nominal_mass["D"], nominal_mass["K"]))
     ff = BlattWeisskopf{l}(3.0)
     gsq = nominal_mass[name] * param_real(name * "_width") / (2q0) * nominal_mass[name] / ff(q0)^2
-    # Event-specific alternative:
-    # return MultichannelBreitWigner(
-    #     nominal_mass[name],
-    #     [(; gsq, ma = mass(ctx.pDminus), mb = mass(ctx.pKplus), l, d = 3.0)],
-    # )
-    return MultichannelBreitWigner(
-        nominal_mass[name],
-        [(; gsq, ma = nominal_mass["D"], mb = nominal_mass["K"], l, d = 3.0)],
-    )
+    ma = use_flat4b_phase_space ? mass(ctx.pDminus) : nominal_mass["D"]
+    mb = use_flat4b_phase_space ? mass(ctx.pKplus) : nominal_mass["K"]
+    return MultichannelBreitWigner(nominal_mass[name], [(; gsq, ma, mb, l, d = 3.0)])
 end
 
 function selected_cd_amplitude(ctx, name::String)
@@ -599,7 +619,10 @@ function amp2_comparison_plot(path::String, rows; nbins::Int = 60)
         background_color_inside = :white,
     )
     p1 = heatmap(centers_x, centers_y, tf_grid'; title = "Original TF-PWA mean |A|^2", common...)
-    p2 = heatmap(centers_x, centers_y, cd_grid'; title = "Nominal-mass-propagator CascadeDecays mean |A|^2", common...)
+    cd_title = use_flat4b_phase_space ?
+        "Event-mass-propagator CascadeDecays mean |A|^2" :
+        "Nominal-mass-propagator CascadeDecays mean |A|^2"
+    p2 = heatmap(centers_x, centers_y, cd_grid'; title = cd_title, common...)
     savefig(plot(p1, p2; layout = (1, 2), size = (1900, 750), margin = 7Plots.mm), path)
 end
 
@@ -786,8 +809,10 @@ function run_all_resonance_scan()
     !isempty(finite_im) && println(@sprintf("Mean relative Delta Im         = %.6e", mean(finite_im)))
 end
 
-if selected_resonance == "all"
-    run_all_resonance_scan()
-else
-    run_scan()
+if abspath(PROGRAM_FILE) == @__FILE__
+    if selected_resonance == "all"
+        run_all_resonance_scan()
+    else
+        run_scan()
+    end
 end

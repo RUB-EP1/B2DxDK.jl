@@ -1,4 +1,5 @@
 venv
+.venv-tfpwa
 
 amplitudes.txt
 data/crosscheck_amplitudes.txt
