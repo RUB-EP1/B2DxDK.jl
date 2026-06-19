@@ -1,7 +1,7 @@
 # Cross check of kinematic variables
 
 The `scripts/angles` folder contains small Julia programs used to **cross-check the angular conventions** of the B\(^+\) → D\(^-\) D\(*+\) K\(^+\) analysis.  
-They take four-vectors (e.g. from `data/crosscheck_event.json`) and compute the decay angles that enter the amplitude model.  
+They take four-vectors (e.g. from `archive/data/crosscheck_event.json`) and compute the decay angles that enter the amplitude model.  
 
 This folder has its **own Julia environment** (see `Project.toml` and `Manifest.toml`) because it depends on specific geometry and kinematics utilities that are not needed by the rest of the project. Keeping these dependencies isolated avoids polluting the main environment and ensures reproducible angular cross-checks.
 

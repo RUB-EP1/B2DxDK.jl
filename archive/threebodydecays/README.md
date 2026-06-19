@@ -25,9 +25,9 @@ scripts/
   serialization.jl                           # ThreeBodyDecaysIO custom lineshape helpers
 ```
 
-Shared inputs (`data/`) remain at the repo root; TF-PWA investigation files are under
-`archive/investigation/`. Archived scripts use `joinpath(@__DIR__, "..", "..", "..", ...)`
-to reach the repo root.
+Shared inputs are under `archive/data/`; TF-PWA investigation files are under
+`archive/investigation/`. Archived scripts use `joinpath(@__DIR__, "..", "..", "..", "archive", "data", ...)`
+to reach them from `archive/threebodydecays/`.
 
 ## Commands
 

@@ -37,7 +37,7 @@ end
 
 const flat4b_root = normpath(joinpath(@__DIR__, ".."))
 const repo_root = normpath(joinpath(flat4b_root, "..", ".."))
-const params_path = joinpath(repo_root, "data", "final_params_full.json")
+const params_path = joinpath(repo_root, "archive", "data", "final_params_full.json")
 
 const nominal_mass = Dict(
     "Bp" => 5.27934,

@@ -4,8 +4,8 @@ using Printf
 
 include(joinpath(@__DIR__, "all_resonances_model.jl"))
 
-const data_path = joinpath(repo_root, "data", "crosscheck.arrow")
-const amplitude_reference_path = joinpath(repo_root, "data", "crosscheck_amplitudes_reference.txt")
+const data_path = joinpath(data_dir, "crosscheck.arrow")
+const amplitude_reference_path = joinpath(data_dir, "crosscheck_amplitudes_reference.txt")
 
 # =============================================================================
 # Evaluate on crosscheck.arrow (100-event subset of b-decay-events.arrow)

@@ -5,7 +5,7 @@ using JSON
 using CSV
 
 
-t = CSV.read(joinpath("data", "fit_frac1_pw.csv"), DataFrame)
+t = CSV.read(joinpath(@__DIR__, "fit_frac1_pw.csv"), DataFrame)
 # 
 nWaves = size(t, 1)
 
@@ -15,7 +15,7 @@ mn = let
 end
 
 # 
-δt = CSV.read(joinpath("data", "fit_frac1_pw_err.csv"), DataFrame)
+δt = CSV.read(joinpath(@__DIR__, "fit_frac1_pw_err.csv"), DataFrame)
 # 
 δmn = let
     m = δt[:, 2:end] |> Matrix
@@ -50,6 +50,6 @@ d = LittleDict(
     "matrix" => mn,
     "uncertainty" => δmn)
 
-open(joinpath((@__DIR__, "..", "data", "interference_tf.json")), "w") do io
+open(joinpath(@__DIR__, "interference_tf.json"), "w") do io
     JSON.print(io, d)
 end

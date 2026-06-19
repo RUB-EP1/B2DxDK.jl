@@ -4,9 +4,9 @@ using Printf
 
 include(joinpath(@__DIR__, "all_resonances_model.jl"))
 
-const data_path = joinpath(repo_root, "data", "b-decay-events.arrow")
+const data_path = joinpath(data_dir, "b-decay-events.arrow")
 const output_path = joinpath(repo_root, "scripts", "all_resonances_fit_fractions.txt")
-const saved_reference_path = joinpath(repo_root, "notebooks", "all_resonances_fit_fractions.txt")
+const saved_reference_path = joinpath(repo_root, "archive", "notebooks", "all_resonances_fit_fractions.txt")
 
 # =============================================================================
 # Fit-fraction analysis

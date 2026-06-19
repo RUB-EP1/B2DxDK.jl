@@ -28,32 +28,29 @@ The decay B+ → D- D*+ K+ involves several resonance contributions:
 
 ```
 B2DxDK/
-├── data/
-│   ├── final_params_full.json     # Fitted couplings for production CascadeDecays model
-│   ├── interference_paper.json    # Paper results for comparison
-│   ├── interference_tf.json       # TensorFlow results
-│   ├── paper_couplings.json      # Coupling parameters
-│   ├── backup_400001.json        # Precomputed integrals
-│   ├── b-decay-events.arrow      # Full weighted event sample
-│   ├── crosscheck.arrow          # 100-event subset for amplitude regression
-│   ├── crosscheck_amplitudes_reference.txt
-│   ├── crosscheck_event.json     # Single event used for angular cross-checks
-│   └── ...                       # Additional data files
 ├── archive/
-│   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule (see README there)
-│   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check (see README there)
-│   └── threebodydecays/          # Earlier ThreeBodyDecays.jl model attempts (see README there)
+│   ├── data/                     # Event samples, couplings, cross-check references
+│   ├── notebooks/                # Saved fit-fraction reference and plot outputs
+│   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule
+│   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check
+│   └── threebodydecays/          # Earlier ThreeBodyDecays.jl model attempts
 ├── scripts/
 │   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
 │   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
 │   ├── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
-│   ├── cal_pw_fraction.py        # Python script for partial wave analysis
 │   └── angles/                   # Julia scripts to cross-check angular conventions
 └── README.md
 ```
 
-The `scripts/angles` folder contains small Julia programs (e.g. `explicit.jl`, `with_LDA.jl`) that compute decay angles and cross-check the angular conventions used in the analysis.  
-The file `data/crosscheck_event.json` provides a representative event whose four-vectors and derived angles are used as a reference input for these checks.
+Key files under `archive/data/`:
+
+- `final_params_full.json` — fitted couplings for the production CascadeDecays model
+- `b-decay-events.arrow` — full weighted event sample
+- `crosscheck.arrow` — 100-event amplitude regression subset
+- `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
+- `crosscheck_event.json` — single event for angular cross-checks
+
+The `scripts/angles` folder contains small Julia programs (e.g. `explicit.jl`, `with_LDA.jl`) that compute decay angles and cross-check the angular conventions used in the analysis.
 
 ## Installation and Usage
 
@@ -99,9 +96,9 @@ it is not required to run the Julia regression scripts below.
 phase space ( $D^*$ at nominal mass).
 
 - `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
-  `data/crosscheck.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
+  `archive/data/crosscheck.arrow` (compared to `archive/data/crosscheck_amplitudes_reference.txt`)
 - `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
-  `data/b-decay-events.arrow`; compares to `notebooks/all_resonances_fit_fractions.txt`
+  `archive/data/b-decay-events.arrow`; compares to `archive/notebooks/all_resonances_fit_fractions.txt`
   (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
 
 Flat **4-body** phase-space cross-checks (historical; exposed TF-PWA running-mass conventions)

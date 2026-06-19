@@ -4,7 +4,7 @@ Historical Python/TF-PWA investigation material used while reproducing and cross
 the $B^+ \to D^- D^{*+} K^+$ amplitude before the production CascadeDecays Julia workflow.
 
 Production Julia code lives at the repo root under `scripts/`. Fitted couplings used by
-`scripts/all_resonances_model.jl` are in `data/final_params_full.json`.
+`scripts/all_resonances_model.jl` are in `archive/data/final_params_full.json`.
 
 ## Layout
 

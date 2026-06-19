@@ -223,7 +223,7 @@ $I_{ij} = |c_i||c_j||X_{ij}|\cos(Δ_{ij}+\phi_j-\phi_i)$
 """
 
 # ╔═╡ b55a1ceb-d12d-424c-80e5-9198aa83b9b2
-integrals_backup_file = joinpath(@__DIR__, "..", "..", "..", "data", "backup_$(nMC_draft).json");
+integrals_backup_file = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "backup_$(nMC_draft).json");
 
 # ╔═╡ 5958dc67-7e6e-44ab-8c43-53cfc23a2d92
 function integral_matrices(model, phsp_sample)
@@ -317,7 +317,7 @@ md"""
 
 # ╔═╡ 67f1ce27-701f-4b90-bcf9-4b61e69bea42
 interference_data = let
-    file_name = joinpath(@__DIR__, "..", "..", "..", "data", "interference_tf.json")
+    file_name = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "interference_tf.json")
     open(JSON.parse, file_name)
 end;
 
@@ -431,7 +431,7 @@ Compare the files to paper tables
 
 # ╔═╡ f8e10abf-9a7d-435a-aa72-77b10ef52838
 paper_matrix = let
-    _name = joinpath(@__DIR__, "..", "..", "..", "data", "interference_paper.json")
+    _name = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "interference_paper.json")
     _data = open(JSON.parse, _name)
     segs = map(w -> split(w, "_")[1], model_pure.names) |> unique
     from_diag_to_matrix(
@@ -442,7 +442,7 @@ end;
 
 # ╔═╡ e0d11ae3-84f2-4a3c-a06d-f2eaa0389519
 δpaper_matrix = let
-    _name = joinpath(@__DIR__, "..", "..", "..", "data", "interference_paper.json")
+    _name = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "interference_paper.json")
     _data = open(JSON.parse, _name)
     segs = map(w -> split(w, "_")[1], model_pure.names) |> unique
     from_diag_to_matrix(
@@ -479,7 +479,7 @@ and their phases
 
 # ╔═╡ 5022e509-3f16-41fc-a89a-3668cef32e03
 bare_couplings = begin
-    _data = open(JSON.parse, joinpath(@__DIR__, "..", "..", "..", "data", "paper_couplings.json"))["couplings"]
+    _data = open(JSON.parse, joinpath(@__DIR__, "..", "..", "..", "archive", "data", "paper_couplings.json"))["couplings"]
     Dict(k => Meta.parse(v) |> eval |> angle for (k, v) in _data)
 end
 

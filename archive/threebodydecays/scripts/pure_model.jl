@@ -134,11 +134,11 @@ end
 
 
 params = let
-    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "final_params.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "final_params.json")
     JSON.parsefile(json_path)["value"]
 end
 
-config = YAML.load_file(joinpath(@__DIR__, "..", "..", "..", "data", "config_c.yml"))
+config = YAML.load_file(joinpath(@__DIR__, "..", "..", "..", "archive", "data", "config_c.yml"))
 
 
 
@@ -291,7 +291,7 @@ end;
 
 dalitz_dpd = let
 
-    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "crosscheck_event.json")
     event = JSON.parsefile(json_path)
     dpd = event["dpd_kinematics"]
 
