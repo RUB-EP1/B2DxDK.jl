@@ -1,42 +1,52 @@
 # Archive
 
-Material that supported developing and validating the $B^+ \to D^- D^{*+} K^+$ amplitude model,
-but is **not** part of the current production workflow.
+Material from developing and validating the $B^+ \to D^- D^{*+} K^+$ amplitude model.
+Not needed for the current production workflow.
 
-Production code and inputs live at the repo root:
+**Production** lives at the repo root: [`scripts/`](../scripts/) (CascadeDecays model and checks) and [`data/`](../data/) (couplings and event samples). Entry point: [`scripts/all_resonances_amplitude_crosscheck.jl`](../scripts/all_resonances_amplitude_crosscheck.jl). See the [root README](../README.md).
 
-| Location | Role |
-|----------|------|
-| [`scripts/`](../scripts/) | TF-PWA-aligned [CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) model, amplitude regression, fit fractions |
-| [`data/`](../data/) | Fitted couplings (`final_params_full.json`), event samples, amplitude cross-check reference |
+---
 
-Start with [`scripts/all_resonances_amplitude_crosscheck.jl`](../scripts/all_resonances_amplitude_crosscheck.jl).
-See the [root README](../README.md) for installation and usage.
+## investigation/
 
-## Folders
+Python/TF-PWA notebooks, configs, step-by-step execution-flow notes, the `tf-pwa` submodule, and environment setup scripts. This was the main reference while building the Julia model.
 
-| Folder | What it is | Details |
-|--------|------------|---------|
-| [`investigation/`](investigation/) | Python/TF-PWA notebooks, configs, execution-flow notes, `tf-pwa` submodule, environment setup | [investigation/README.md](investigation/README.md) |
-| [`threebodydecays/`](threebodydecays/) | Earlier Julia model attempts using [ThreeBodyDecays.jl](https://github.com/RUB-EP1/ThreeBodyDecays.jl) (superseded by CascadeDecays) | [threebodydecays/README.md](threebodydecays/README.md) |
-| [`flat4b/`](flat4b/) | Flat 4-body phase-space cross-check vs TF-PWA (cascade production uses fixed $D^*$ mass) | [flat4b/README.md](flat4b/README.md) |
-| [`angles/`](angles/) | Standalone Julia checks of helicity / decay-angle conventions | [angles/README.md](angles/README.md) |
-| [`data/`](data/) | Historical and auxiliary datasets not needed by `scripts/` — interference matrices, older parameter files, `crosscheck_event.json`, fit-fraction CSVs, helper scripts | *(no separate README)* |
-| [`notebooks/`](notebooks/) | Saved reference outputs from earlier work — fit-fraction table (`all_resonances_fit_fractions.txt`), comparison plots under `Plots/` | *(no separate README)* |
+→ [investigation/README.md](investigation/README.md)
 
-## How the pieces relate
+## threebodydecays/
+
+Earlier Julia attempts to reproduce the amplitude with [ThreeBodyDecays.jl](https://github.com/RUB-EP1/ThreeBodyDecays.jl). Superseded by the CascadeDecays workflow in `scripts/`.
+
+→ [threebodydecays/README.md](threebodydecays/README.md)
+
+## flat4b/
+
+Cross-check against TF-PWA when all four momenta are sampled from flat 4-body phase space (production uses cascade phase space with $D^*$ at nominal mass).
+
+→ [flat4b/README.md](flat4b/README.md)
+
+## angles/
+
+Small standalone Julia scripts that cross-check helicity and decay-angle conventions. Uses `archive/data/crosscheck_event.json`.
+
+→ [angles/README.md](angles/README.md)
+
+## data/
+
+Historical datasets not used by `scripts/`: interference matrices, older parameter files, fit-fraction CSVs, helper scripts, and the single-event JSON for angular checks.
+
+## notebooks/
+
+Saved outputs from earlier work: reference fit-fraction table and comparison plots (`Plots/`).
+
+---
+
+Rough lineage:
 
 ```text
-investigation/     TF-PWA reference implementation & Psi(4040) probes
-       │
-       ├── threebodydecays/   first Julia reimplementation (ThreeBodyDecays.jl)
-       ├── flat4b/            flat 4b phsp exposed running-mass / BW conventions
-       └── angles/            angular convention sanity checks
-       │
-       ▼
-scripts/ + data/     production CascadeDecays workflow (repo root)
+investigation/  →  threebodydecays/, flat4b/, angles/
+                          ↓
+              scripts/ + data/  (repo root)
 ```
 
-The archive is kept for reproducibility and for understanding design choices (e.g. why
-event-dependent breakup masses matter in flat 4-body phase space, or why `BuggyParticleTwoPhaseLS`
-exists). None of it is required to run the production regression scripts.
+The archive is kept for reproducibility and context (running-width conventions, recoupling workarounds, and similar). You can ignore it if you only want to run the production regression scripts.
