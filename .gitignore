@@ -1,8 +1,11 @@
 venv
+.venv-tfpwa
 
 amplitudes.txt
 data/crosscheck_amplitudes.txt
+archive/data/crosscheck_amplitudes.txt
 scripts/all_resonances_fit_fractions.txt
 
 Analysis/__pycache__
-notebooks/README_files/*
+archive/investigation/Analysis/__pycache__
+archive/notebooks/README_files/*
