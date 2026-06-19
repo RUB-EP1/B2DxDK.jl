@@ -288,7 +288,7 @@ end
 # ╔═╡ bc772bda-5498-4fe4-8c67-d6bb330be5b5
 # get four-vectors from json
 objs = let
-    json_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "crosscheck_event.json")
+    json_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
     event = JSON.parsefile(json_path)
     four_vectors_json = event["four_vectors"]
     # 

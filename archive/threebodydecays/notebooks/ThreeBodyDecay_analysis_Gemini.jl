@@ -263,7 +263,7 @@ test_point_new = DalitzAndDecay(σs_new, cos_theta_new, phi_new)
 println("\n--- Updating parameters from final_params_full.json ---")
 
 # Load JSON
-json_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "final_params_full.json")
+json_path = joinpath(@__DIR__, "..", "..", "..", "data", "final_params_full.json")
 println("Loading parameters from: ", json_path)
 params_json = JSON.parsefile(json_path)
 val = params_json["value"]

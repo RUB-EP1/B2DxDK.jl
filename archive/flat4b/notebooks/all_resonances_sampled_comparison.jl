@@ -107,7 +107,7 @@ const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 const flat4b_root = normpath(joinpath(@__DIR__, ".."))
 const repo_root = normpath(joinpath(flat4b_root, "..", ".."))
 
-params_path = normpath(joinpath(repo_root, "archive", "data", "final_params_full.json"))
+params_path = normpath(joinpath(repo_root, "data", "final_params_full.json"))
 params = JSON.parsefile(params_path)["value"]
 for name in ["X(3872)", "X(3915)(0-)", "chi(c2)(3930)", "X(3940)(1.)", "X(3993)", "Psi(4040)", "X(4300)", "X0(2900)", "X1(2900)"]
     haskey(params, name * "_mass") && (nominal_mass[name] = Float64(params[name * "_mass"]))

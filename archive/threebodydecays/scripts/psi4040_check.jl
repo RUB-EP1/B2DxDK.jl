@@ -76,7 +76,7 @@ function calculate_angles(pD, pK, pDx, pD0)
 end
 
 # Load Data
-vecs_path = joinpath(@__DIR__, "..", "..", "..", "archive", "data", "crosscheck_event.json")
+vecs_path = joinpath(@__DIR__, "..", "..", "..", "data", "crosscheck_event.json")
 data = JSON.parsefile(vecs_path)
 pD_vec = [data["four_vectors"]["D"]["E"], data["four_vectors"]["D"]["px"], data["four_vectors"]["D"]["py"], data["four_vectors"]["D"]["pz"]]
 pD0_vec = [data["four_vectors"]["D0"]["E"], data["four_vectors"]["D0"]["px"], data["four_vectors"]["D0"]["py"], data["four_vectors"]["D0"]["pz"]]
@@ -102,7 +102,7 @@ function ThreeBodyDecays.amplitude(three_body_model::ThreeBodyDecay, dd::DalitzA
     return sum(reshape(_O, 3) .* _D)
 end
 
-params = JSON.parsefile(joinpath(@__DIR__, "..", "..", "..", "archive", "data", "final_params_full.json"))["value"]
+params = JSON.parsefile(joinpath(@__DIR__, "..", "..", "..", "data", "final_params_full.json"))["value"]
 tbs = ThreeBodySystem(ThreeBodyMasses(mD, mK, mDx; m0=mB), ThreeBodySpinParities("0-", "0-", "1-"; jp0="0+")[1])
 
 # Filter and iterate for Psi(4040)

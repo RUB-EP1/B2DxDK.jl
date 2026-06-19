@@ -28,8 +28,14 @@ The decay B+ → D- D*+ K+ involves several resonance contributions:
 
 ```
 B2DxDK/
+├── data/                         # Production inputs for scripts/
+│   ├── final_params_full.json
+│   ├── b-decay-events.arrow
+│   ├── crosscheck.arrow
+│   ├── crosscheck_amplitudes_reference.txt
+│   └── crosscheck_event.json
 ├── archive/
-│   ├── data/                     # Event samples, couplings, cross-check references
+│   ├── data/                     # Historical / auxiliary datasets
 │   ├── notebooks/                # Saved fit-fraction reference and plot outputs
 │   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule
 │   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check
@@ -42,13 +48,15 @@ B2DxDK/
 └── README.md
 ```
 
-Key files under `archive/data/`:
+Key files under `data/` (used by `scripts/`):
 
 - `final_params_full.json` — fitted couplings for the production CascadeDecays model
 - `b-decay-events.arrow` — full weighted event sample
 - `crosscheck.arrow` — 100-event amplitude regression subset
 - `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
 - `crosscheck_event.json` — single event for angular cross-checks
+
+Additional historical datasets remain under `archive/data/`.
 
 The `scripts/angles` folder contains small Julia programs (e.g. `explicit.jl`, `with_LDA.jl`) that compute decay angles and cross-check the angular conventions used in the analysis.
 
@@ -96,9 +104,9 @@ it is not required to run the Julia regression scripts below.
 phase space ( $D^*$ at nominal mass).
 
 - `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
-  `archive/data/crosscheck.arrow` (compared to `archive/data/crosscheck_amplitudes_reference.txt`)
+  `data/crosscheck.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
 - `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
-  `archive/data/b-decay-events.arrow`; compares to `archive/notebooks/all_resonances_fit_fractions.txt`
+  `data/b-decay-events.arrow`; compares to `archive/notebooks/all_resonances_fit_fractions.txt`
   (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
 
 Flat **4-body** phase-space cross-checks (historical; exposed TF-PWA running-mass conventions)

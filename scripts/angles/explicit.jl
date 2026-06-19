@@ -8,7 +8,7 @@ using DataFrames
 # -------------------------------------------------------------------------
 # Read four-vectors and DPD kinematics from JSON file
 # -------------------------------------------------------------------------
-json_path = joinpath(@__DIR__, "..", "..", "archive", "data", "crosscheck_event.json")
+json_path = joinpath(@__DIR__, "..", "..", "data", "crosscheck_event.json")
 event = JSON.parsefile(json_path)
 
 fv  = event["four_vectors"]
