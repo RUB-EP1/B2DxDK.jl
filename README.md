@@ -33,13 +33,13 @@ B2DxDK/
 │   ├── b-decay-events.arrow
 │   ├── crosscheck.arrow
 │   └── crosscheck_amplitudes_reference.txt
-├── archive/
-│   ├── angles/                   # Angular convention cross-checks (see README there)
-│   ├── data/                     # Historical / auxiliary datasets (incl. crosscheck_event.json)
-│   ├── notebooks/                # Saved fit-fraction reference and plot outputs
-│   ├── investigation/            # TF-PWA Analysis, ExecutionFlow, tf-pwa submodule
-│   ├── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check
-│   └── threebodydecays/          # Earlier ThreeBodyDecays.jl model attempts
+├── archive/                      # Historical investigation material — see archive/README.md
+│   ├── investigation/
+│   ├── threebodydecays/
+│   ├── flat4b/
+│   ├── angles/
+│   ├── data/
+│   └── notebooks/
 ├── scripts/
 │   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
 │   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
@@ -54,7 +54,7 @@ Key files under `data/` (used by `scripts/`):
 - `crosscheck.arrow` — 100-event amplitude regression subset
 - `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
 
-Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. Angular cross-check scripts are under [`archive/angles/`](archive/angles/README.md).
+Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. Angular cross-check scripts are under [`archive/angles/`](archive/angles/README.md). For a guide to all archived material, see [`archive/README.md`](archive/README.md).
 
 ## Installation and Usage
 
