@@ -111,7 +111,7 @@ function lineshape_param_keys(resonance_name::String, lineshape)
     keys = String[]
     base = lineshape_base(lineshape)
     if base in (:bwr_l1, :bwr_l2) ||
-       base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
+       base in (:bwr_ls_l0, :bwr_ls_l2, :adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
         push!(keys, resonance_name * "_width")
         base != :bwr_l1 && base != :bwr_l2 && push!(keys, resonance_name * "_theta0")
     elseif base == :nr_exp
@@ -129,80 +129,26 @@ end
 bwr_lineshape(m0, width, l) =
     BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, 3.0)
 
-function bwr_ls_q0(name::String; below_threshold=false)
-    m0 = nominal_mass[name]
-    q0_mass = below_threshold ?
-              ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"]) :
-              m0
-    return real(breakup_momentum(q0_mass, nominal_mass["Dst"], nominal_mass["D"]))
-end
+dxd_adhoc_q0_mass(name::String) = ad_hoc_mass(
+    nominal_mass[name],
+    nominal_mass["Dst"] + nominal_mass["D"],
+    nominal_mass["Bp"] - nominal_mass["K"],
+)
+
+bwr_ls_q0(name::String) =
+    real(breakup_momentum(nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"]))
+
+bwr_ls_adhoc_q0(name::String) =
+    real(breakup_momentum(dxd_adhoc_q0_mass(name), nominal_mass["Dst"], nominal_mass["D"]))
 
 function bwr_ls_coupling_params(name::String)
     theta0 = param_real(name * "_theta0")
     return (; gamma0=cos(theta0), gamma2=sin(theta0))
 end
 
-"""
-    build_bwr_ls_lineshape(ctx, name; below_threshold=false) -> MultichannelBreitWigner
-
-S+D `MultichannelBreitWigner` for \$R \\to D^* D\$ (`bwr_ls` model).
-
-
-# Propagator
-
-HadronicLineshapes evaluates
-
-```math
-\\frac{1}{\\hat m^2 - s - i \\sum_c g_c^2 \\,
-    \\frac{2\\, p_c(s)}{\\sqrt{s}} \\,
-    F_{\\ell_c}^2\\!\\bigl(p_c(s)\\bigr)}
-```
-
-with PDG phase-space factor \$\\rho_c(s) = 2 p_c / \\sqrt{s}\$ per channel.
-
-
-# Calibration of `gsq_c`
-
-`gsq_c` is **not** a bare \$g_c^2\$.  It is fixed from the fit width \$\\Gamma\$
-(`{name}_width`) and nominal breakup momentum \$q_0\$ by inverting the package relation
-at the reference point:
-
-```math
-\\mathrm{gsq}_c
-    = \\frac{\\hat m \\, \\Gamma_c}{2 q_0}
-      \\cdot \\frac{\\hat m}{F_{\\ell_c}^2(q_0)},
-    \\qquad
-    \\Gamma_c = \\Gamma \\, \\gamma_c^2 .
-```
-
-S/D mixing: \$\\gamma_0 = \\cos\\theta_0\$, \$\\gamma_2 = \\sin\\theta_0\$ from `{name}_theta0`.
-
-
-# Event-dependent numerator (TFPWA convention)
-
-The calibration uses event \$m_R^2 = \\mathrm{mass}(\\texttt{ctx.P\_R})^2\$ in place of
-nominal \$\\hat m^2\$, so
-
-```math
-\\mathrm{gsq}_c \\propto
-    \\frac{\\Gamma \\, \\gamma_c^2 \\, s_R}{2 q_0 \\, F_{\\ell_c}^2(q_0)} .
-```
-
-At evaluation, `MultichannelBreitWigner` multiplies by
-\$2 p(s)/\\sqrt{s} \\cdot F_{\\ell}^2(p(s))\$.
-The energy-dependent width is the **product** of these two factors, not a single constant
-\$g^2 \\cdot 2p/\\sqrt{s}\$ with fixed \$g\$.
-
-
-# Keyword arguments
-
-- `below_threshold=true`: evaluate \$q_0\$ with an ad-hoc mass when \$R\$ is below the
-  \$D^* D\$ opening.
-"""
-function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
+function build_bwr_ls_lineshape(ctx, name::String, q0::Real)
     dynamic_mass2 = mass(ctx.P_R)^2
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
-    q0 = bwr_ls_q0(name; below_threshold)
     ff0 = BlattWeisskopf{0}(3.0)
     ff2 = BlattWeisskopf{2}(3.0)
     gsq_0 = param_real(name * "_width") * dynamic_mass2 / (2q0) * gamma0^2 / ff0(q0)^2
@@ -217,20 +163,22 @@ function build_bwr_ls_lineshape(ctx, name::String; below_threshold=false)
     return MultichannelBreitWigner(nominal_mass[name], channels)
 end
 
+build_bwr_ls_lineshape(ctx, name::String) = build_bwr_ls_lineshape(ctx, name, bwr_ls_q0(name))
+build_bwr_ls_adhoc_q0_lineshape(ctx, name::String) =
+    build_bwr_ls_lineshape(ctx, name, bwr_ls_adhoc_q0(name))
+
 function decay_reference_mass(resonance_name::String, lineshape)
     base = lineshape_base(lineshape)
-    below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-    m0 = nominal_mass[resonance_name]
-    below_threshold || return m0
-    return ad_hoc_mass(m0, nominal_mass["Dst"] + nominal_mass["D"], nominal_mass["Bp"] - nominal_mass["K"])
+    base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2) && return dxd_adhoc_q0_mass(resonance_name)
+    return nominal_mass[resonance_name]
 end
 
 function chain_lineshape_static_matching_factor(resonance_name::String, lineshape)
     sign = lineshape_matching_sign(lineshape)
     base = lineshape_base(lineshape)
-    if base in (:bwr_ls_l0, :bwr_ls_l0_below_threshold)
+    if base in (:bwr_ls_l0, :adhoc_q0_bwr_ls_l0)
         return sign * bwr_ls_coupling_params(resonance_name).gamma0
-    elseif base in (:bwr_ls_l2, :bwr_ls_l2_below_threshold)
+    elseif base in (:bwr_ls_l2, :adhoc_q0_bwr_ls_l2)
         return sign * bwr_ls_coupling_params(resonance_name).gamma2
     elseif base in (:bwr_l1, :bwr_l2, :constant)
         return sign
@@ -244,9 +192,10 @@ x2900_bwr_lineshape(name, l) =
 function build_chain_lineshape(ctx, row)
     resonance_name = row.resonance_name
     base = lineshape_base(row.lineshape)
-    if base in (:bwr_ls_l0, :bwr_ls_l2, :bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        below_threshold = base in (:bwr_ls_l0_below_threshold, :bwr_ls_l2_below_threshold)
-        return build_bwr_ls_lineshape(ctx, resonance_name; below_threshold)
+    if base in (:bwr_ls_l0, :bwr_ls_l2)
+        return build_bwr_ls_lineshape(ctx, resonance_name)
+    elseif base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
+        return build_bwr_ls_adhoc_q0_lineshape(ctx, resonance_name)
     elseif base in (:bwr_l1, :bwr_l2)
         return bwr_lineshape(
             nominal_mass[resonance_name], param_real(resonance_name * "_width"),
@@ -283,7 +232,7 @@ function build_resonance_chains_df()
         nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
         root_remove_particle2_phase=false,
-        coupling_keys=total_x3872, lineshape="bwr_ls_l0_below_threshold_neg",
+        coupling_keys=total_x3872, lineshape="adhoc_q0_bwr_ls_l0_neg",
     ))
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
@@ -291,7 +240,7 @@ function build_resonance_chains_df()
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
         root_remove_particle2_phase=false,
         coupling_keys=(total_x3872..., "X(3872)->Dst.D_g_ls_1"),
-        lineshape="bwr_ls_l2_below_threshold_neg",
+        lineshape="adhoc_q0_bwr_ls_l2_neg",
     ))
     push!(rows, (
         resonance_name="X(3915)(0-)", topology=:DxD,
