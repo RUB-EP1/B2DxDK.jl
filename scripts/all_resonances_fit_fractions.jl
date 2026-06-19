@@ -48,6 +48,8 @@ const nominal_mass = Dict(
     "NR(1-)PPm" => 4.35,
 )
 
+const WELL_SIZE = 3.0
+
 const all_resonance_names = [
     "X(3872)",
     "X(3915)(0-)",
@@ -92,7 +94,7 @@ relative to [`MultichannelBreitWigner`](@ref), i.e. `gsq * σ * 2p/√σ * F_ℓ
 """
 struct BuggyMultichannelBreitWigner{N} <: HadronicLineshapes.AbstractFlexFunc
     m::Float64
-    channels::SVector{N, <:NamedTuple{(:gsq, :ma, :mb, :l, :d)}}
+    channels::SVector{N,<:NamedTuple{(:gsq, :ma, :mb, :l, :d)}}
 end
 
 function BuggyMultichannelBreitWigner(
@@ -131,17 +133,17 @@ end
 (ls::NRExpLineshape)(σ::Real) = ls(σ + 1im * eps())
 
 
-# =============================================================================
-# Block 2 — lineshape definitions
-# Block 2b — helper functions
-# =============================================================================
-
-
 function nr_exp_lineshape()
     alpha = param_real("NR(0-)SPp_alpha")
     beta = param_real("NR(0-)SPp_beta")
     return NRExpLineshape(alpha + 1im * beta, nominal_mass["NR(0-)SPp"])
 end
+
+# =============================================================================
+# Block 2 — lineshape definitions
+# Block 2b — helper functions
+# =============================================================================
+
 
 function ad_hoc_mass(m0, m_min, m_max)
     k = (m_max - m_min) / 2
@@ -181,11 +183,11 @@ function lineshape_spec(lineshape)
     base = Symbol(neg ? chop(name, tail=4) : name)
     return (;
         base,
-        sign = neg ? -1.0 + 0im : 1.0 + 0im,
-        bwr_l = get(BW_DECAY_L, base, nothing),
-        mc_gamma = get(MC_BW_GAMMA, base, nothing),
-        adhoc_q0 = base in ADHOC_Q0_BASES,
-        sign_only = base in SIGN_ONLY_BASES,
+        sign=neg ? -1.0 + 0im : 1.0 + 0im,
+        bwr_l=get(BW_DECAY_L, base, nothing),
+        mc_gamma=get(MC_BW_GAMMA, base, nothing),
+        adhoc_q0=base in ADHOC_Q0_BASES,
+        sign_only=base in SIGN_ONLY_BASES,
     )
 end
 
@@ -208,7 +210,7 @@ function parametrization_keys(resonance_name::String, coupling_keys, lineshape)
 end
 
 bwr_lineshape(m0, width, l) =
-    BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, 3.0)
+    BreitWigner(m0, width, nominal_mass["Dst"], nominal_mass["D"], l, WELL_SIZE)
 
 function bwr_ls_coupling_params(name::String)
     theta0 = param_real(name * "_theta0")
@@ -217,17 +219,16 @@ end
 
 function buggy_multichannel_bwr_lineshape(name::String, q0::Real)
     (; gamma0, gamma2) = bwr_ls_coupling_params(name)
-    ff0 = BlattWeisskopf{0}(3.0)
-    ff2 = BlattWeisskopf{2}(3.0)
+    ff0 = BlattWeisskopf{0}(WELL_SIZE)
+    ff2 = BlattWeisskopf{2}(WELL_SIZE)
     Γ0 = param_real(name * "_width")
     gsq_0 = Γ0 / (2q0) * gamma0^2 / ff0(q0)^2
     gsq_2 = Γ0 / (2q0) * gamma2^2 / ff2(q0)^2
     ma = nominal_mass["Dst"]
     mb = nominal_mass["D"]
-    d = 3.0
     channels = [
-        (; gsq=gsq_0, ma, mb, l=0, d),
-        (; gsq=gsq_2, ma, mb, l=2, d),
+        (; gsq=gsq_0, ma, mb, l=0, d=WELL_SIZE),
+        (; gsq=gsq_2, ma, mb, l=2, d=WELL_SIZE),
     ]
     return BuggyMultichannelBreitWigner(nominal_mass[name], channels)
 end
@@ -250,7 +251,7 @@ function chain_lineshape_static_matching_factor(resonance_name::String, lineshap
 end
 
 x2900_bwr_lineshape(name, l) =
-    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, 3.0)
+    BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, WELL_SIZE)
 
 function build_chain_lineshape(row)
     resonance_name = row.resonance_name
@@ -470,18 +471,7 @@ function _propagator_spin_norm(chain)
     return prod(sqrt(two_j + 1) for two_j in chain.propagator_two_js; init=1.0)
 end
 
-function _root_vertex(root_two_ls, root_l=nothing; remove_root_particle2_phase=false)
-    recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
-    return root_l === nothing ? Vertex(recoupling) : Vertex(recoupling, BlattWeisskopf{root_l}(3.0))
-end
-
-function _decay_vertex(decay_two_ls, decay_l=nothing)
-    return decay_l === nothing ?
-           Vertex(RecouplingLS(decay_two_ls)) :
-           Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(3.0))
-end
-
-function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_l=nothing, decay_l=nothing)
+function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls, root_l, decay_l)
     return DecayChain(
         dxd_topology;
         propagators=(
@@ -489,14 +479,23 @@ function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls; root_l=not
             ((1, 2), 3) => Propagator(two_j, lineshape),
         ),
         vertices=(
-            (((1, 2), 3), 4) => _root_vertex(root_two_ls, root_l),
-            ((1, 2), 3) => _decay_vertex(decay_two_ls, decay_l),
+            (((1, 2), 3), 4) => Vertex(RecouplingLS(root_two_ls), BlattWeisskopf{root_l}(WELL_SIZE)),
+            ((1, 2), 3) => Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(WELL_SIZE)),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
         ),
     )
 end
 
-function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l=nothing, dk_l=nothing, remove_root_particle2_phase=false)
+function build_dk_chain(
+    lineshape,
+    two_j,
+    root_two_ls,
+    dk_two_ls,
+    root_l,
+    dk_l;
+    remove_root_particle2_phase=false,
+)
+    root_recoupling = remove_root_particle2_phase ? RemoveParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
     return DecayChain(
         dk_topology;
         propagators=(
@@ -504,29 +503,25 @@ function build_dk_chain(lineshape, two_j, root_two_ls, dk_two_ls; root_l=nothing
             (3, 4) => Propagator(two_j, lineshape),
         ),
         vertices=(
-            ((1, 2), (3, 4)) => _root_vertex(root_two_ls, root_l; remove_root_particle2_phase),
-            (3, 4) => _decay_vertex(dk_two_ls, dk_l),
+            ((1, 2), (3, 4)) => Vertex(root_recoupling, BlattWeisskopf{root_l}(WELL_SIZE)),
+            (3, 4) => Vertex(RecouplingLS(dk_two_ls), BlattWeisskopf{dk_l}(WELL_SIZE)),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
         ),
     )
 end
 
-function dxd_vertex_matching_factor(resonance_name; root_l=nothing, decay_l=nothing, decay_m0=nothing)
+function dxd_vertex_matching_factor(resonance_name; root_l, decay_l, decay_m0=nothing)
     m_r = nominal_mass[resonance_name]
     decay_m0 = something(decay_m0, m_r)
-    root = root_l === nothing ? 1.0 :
-           nominal_vertex_matching_factor(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["K"])
-    decay = decay_l === nothing ? 1.0 :
-            nominal_vertex_matching_factor(decay_l, 3.0, decay_m0, nominal_mass["Dst"], nominal_mass["D"])
+    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["K"])
+    decay = nominal_vertex_matching_factor(decay_l, WELL_SIZE, decay_m0, nominal_mass["Dst"], nominal_mass["D"])
     return root * decay
 end
 
-function dk_vertex_matching_factor(resonance_name; root_l=nothing, dk_l=nothing)
+function dk_vertex_matching_factor(resonance_name; root_l, dk_l)
     m_r = nominal_mass[resonance_name]
-    root = root_l === nothing ? 1.0 :
-           nominal_vertex_matching_factor(root_l, 3.0, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
-    dk = dk_l === nothing ? 1.0 :
-         nominal_vertex_matching_factor(dk_l, 3.0, m_r, nominal_mass["D"], nominal_mass["K"])
+    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
+    dk = nominal_vertex_matching_factor(dk_l, WELL_SIZE, m_r, nominal_mass["D"], nominal_mass["K"])
     return root * dk
 end
 
@@ -563,9 +558,9 @@ function build_chain_from_row(row)
             lineshape,
             row.propagator_two_j,
             row.root_two_ls,
-            row.daughter_two_ls;
-            root_l=root_l,
-            dk_l=daughter_l,
+            row.daughter_two_ls,
+            root_l,
+            daughter_l;
             remove_root_particle2_phase=row.root_remove_particle2_phase,
         )
     end
@@ -573,9 +568,9 @@ function build_chain_from_row(row)
         lineshape,
         row.propagator_two_j,
         row.root_two_ls,
-        row.daughter_two_ls;
-        root_l=root_l,
-        decay_l=daughter_l,
+        row.daughter_two_ls,
+        root_l,
+        daughter_l,
     )
 end
 
