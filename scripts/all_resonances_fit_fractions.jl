@@ -185,24 +185,6 @@ function lineshape_spec(lineshape::Symbol)
     )
 end
 
-function lineshape_param_keys(resonance_name::String, lineshape)
-    spec = lineshape_spec(lineshape)
-    keys = String[]
-    if spec.base in (:bwr_l1, :bwr_l2) || spec.mc_gamma !== nothing
-        push!(keys, resonance_name * "_width")
-        spec.mc_gamma !== nothing && push!(keys, resonance_name * "_theta0")
-    elseif spec.base == :nr_exp
-        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
-    elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        push!(keys, resonance_name * "_width")
-    end
-    return keys
-end
-
-function parametrization_keys(resonance_name::String, coupling_keys, lineshape)
-    return unique(vcat(collect(coupling_keys), lineshape_param_keys(resonance_name, lineshape)))
-end
-
 dxd_bwr_lineshape(name::String, l) =
     BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["Dst"], nominal_mass["D"], l, WELL_SIZE)
 
@@ -269,14 +251,12 @@ function build_resonance_chains_df()
     total_x3872 = ("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0",)
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
-        nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
         root_remove_particle2_phase=false,
         coupling_keys=total_x3872, lineshape=:adhoc_q0_bwr_ls_l0,
     ))
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
-        nominal_mass=nominal_mass["X(3872)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
         root_remove_particle2_phase=false,
         coupling_keys=(total_x3872..., "X(3872)->Dst.D_g_ls_1"),
@@ -284,7 +264,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="X(3915)(0-)", topology=:DxD,
-        nominal_mass=nominal_mass["X(3915)(0-)"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",),
@@ -292,7 +271,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="chi(c2)(3930)", topology=:DxD,
-        nominal_mass=nominal_mass["chi(c2)(3930)"],
         propagator_two_j=4, root_two_ls=(4, 4), daughter_two_ls=(4, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",),
@@ -318,7 +296,6 @@ function build_resonance_chains_df()
     end
     push!(rows, (
         resonance_name="Psi(4040)", topology=:DxD,
-        nominal_mass=nominal_mass["Psi(4040)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",),
@@ -326,7 +303,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="NR(0-)SPp", topology=:DxD,
-        nominal_mass=nominal_mass["NR(0-)SPp"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0",),
@@ -334,7 +310,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="NR(1.)PSp", topology=:DxD,
-        nominal_mass=nominal_mass["NR(1.)PSp"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",),
@@ -342,7 +317,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="NR(0-)SPm", topology=:DxD,
-        nominal_mass=nominal_mass["NR(0-)SPm"],
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",),
@@ -350,7 +324,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="NR(1-)PPm", topology=:DxD,
-        nominal_mass=nominal_mass["NR(1-)PPm"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",),
@@ -358,7 +331,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="X0(2900)", topology=:dk,
-        nominal_mass=nominal_mass["X0(2900)"],
         propagator_two_j=0, root_two_ls=(2, 2), daughter_two_ls=(0, 0),
         root_remove_particle2_phase=false,
         coupling_keys=("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",),
@@ -368,14 +340,12 @@ function build_resonance_chains_df()
     daughter_x1 = (2, 0)
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
-        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(0, 0), daughter_two_ls=daughter_x1,
         root_remove_particle2_phase=true,
         coupling_keys=total_x1, lineshape=:x2900_bwr_l1,
     ))
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
-        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=daughter_x1,
         root_remove_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_1"),
@@ -383,7 +353,6 @@ function build_resonance_chains_df()
     ))
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
-        nominal_mass=nominal_mass["X1(2900)"],
         propagator_two_j=2, root_two_ls=(4, 4), daughter_two_ls=daughter_x1,
         root_remove_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_2"),
@@ -491,6 +460,42 @@ function chain_matching_factor(row)
 end
 
 # =============================================================================
+# Block 4b — informational summaries (not used in computation)
+# =============================================================================
+
+function info_lineshape_param_keys(resonance_name::String, lineshape)
+    spec = lineshape_spec(lineshape)
+    keys = String[]
+    if spec.base in (:bwr_l1, :bwr_l2) || spec.mc_gamma !== nothing
+        push!(keys, resonance_name * "_width")
+        spec.mc_gamma !== nothing && push!(keys, resonance_name * "_theta0")
+    elseif spec.base == :nr_exp
+        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
+    elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
+        push!(keys, resonance_name * "_width")
+    end
+    return keys
+end
+
+function info_parametrization_keys(resonance_name::String, coupling_keys, lineshape)
+    return unique(vcat(collect(coupling_keys), info_lineshape_param_keys(resonance_name, lineshape)))
+end
+
+function info_enrich_resonance_chains_df!(df)
+    specs = lineshape_spec.(df.lineshape)
+    df.info_nominal_mass = [nominal_mass[name] for name in df.resonance_name]
+    df.info_bare_coupling_re = real.(df.coupling_value)
+    df.info_bare_coupling_im = imag.(df.coupling_value)
+    df.info_coupling_param_keys = join.(df.coupling_keys, Ref(";"))
+    df.info_bwr_l = [spec.bwr_l for spec in specs]
+    df.info_parametrization = [
+        join(info_parametrization_keys(row.resonance_name, row.coupling_keys, row.lineshape), ";")
+        for row in eachrow(df)
+    ]
+    return df
+end
+
+# =============================================================================
 # Block 5 — CascadeDecays construction
 # =============================================================================
 
@@ -520,15 +525,7 @@ end
 function enrich_resonance_chains_df!(df)
     df.coupling_value = resolve_coupling_keys.(df.coupling_keys)
     df.matching_factor = chain_matching_factor.(eachrow(df))
-    specs = lineshape_spec.(df.lineshape)
-    df.bare_coupling_re = real.(df.coupling_value)
-    df.bare_coupling_im = imag.(df.coupling_value)
-    df.coupling_param_keys = join.(df.coupling_keys, Ref(";"))
-    df.bwr_l = [spec.bwr_l for spec in specs]
-    df.parametrization = [
-        join(parametrization_keys(row.resonance_name, row.coupling_keys, row.lineshape), ";")
-        for row in eachrow(df)
-    ]
+    info_enrich_resonance_chains_df!(df)
     return df
 end
 
