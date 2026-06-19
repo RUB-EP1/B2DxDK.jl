@@ -378,7 +378,7 @@ const resonance_chains_df_raw = build_resonance_chains_df()
 # =============================================================================
 
 # Overall ±1 amplitude sign per resonance for TF-PWA alignment (see
-# notebooks/all_resonances_sampled_comparison.jl).  Not the same as Resonances.yml `C`.
+# archive/flat4b/notebooks/all_resonances_sampled_comparison.jl).  Not the same as Resonances.yml `C`.
 const MAGIC_SIGNS = Dict{String,Float64}(
     "X(3872)" => -1.0,
     "X(3915)(0-)" => -1.0,

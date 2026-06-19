@@ -1,3 +1,6 @@
+# Archived flat 4-body phase-space comparison (Alexander Kazatsky, TF-PWA vs CascadeDecays).
+# See archive/flat4b/README.md for context. Run from project root with --project=../..
+#
 # Change only this line to test one active resonance, or use "all"
 # for the coherent sum of all implemented resonances:
 const selected_resonance = "all"
@@ -101,7 +104,10 @@ const topology = DecayTopology((((1, 2), 3), 4))
 const dk_topology = DecayTopology(((1, 2), (3, 4)))
 const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 
-params_path = normpath(joinpath(@__DIR__, "..", "Analysis", "final_params_full.json"))
+const flat4b_root = normpath(joinpath(@__DIR__, ".."))
+const repo_root = normpath(joinpath(flat4b_root, "..", ".."))
+
+params_path = normpath(joinpath(repo_root, "Analysis", "final_params_full.json"))
 params = JSON.parsefile(params_path)["value"]
 for name in ["X(3872)", "X(3915)(0-)", "chi(c2)(3930)", "X(3940)(1.)", "X(3993)", "Psi(4040)", "X(4300)", "X0(2900)", "X1(2900)"]
     haskey(params, name * "_mass") && (nominal_mass[name] = Float64(params[name * "_mass"]))
@@ -171,7 +177,7 @@ end
 function resolve_tfpwa_python()
     candidates = String[]
     haskey(ENV, "TFPWA_PYTHON") && push!(candidates, ENV["TFPWA_PYTHON"])
-    push!(candidates, normpath(joinpath(@__DIR__, "..", ".venv-tfpwa", "bin", "python")))
+    push!(candidates, normpath(joinpath(repo_root, ".venv-tfpwa", "bin", "python")))
     push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "bin", "python"))
     push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "python.exe"))
     push!(candidates, "python")
@@ -265,7 +271,6 @@ with open(output_path, "w", encoding="utf-8") as f:
 end
 
 function sample_events_and_tfpwa_reference(n::Int, chain_spec)
-    repo_root = normpath(joinpath(@__DIR__, ".."))
     analysis_dir = joinpath(repo_root, "Analysis")
     python_exe = resolve_tfpwa_python()
     output_data = mktemp() do output_path, io

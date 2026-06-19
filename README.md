@@ -37,10 +37,11 @@ B2DxDK/
 │   ├── backup_400001.json        # Precomputed integrals
 │   ├── b-decay-events.arrow      # Full weighted event sample
 │   ├── crosscheck.arrow          # 100-event subset for amplitude regression
-│   ├── crosscheck_4b.arrow       # 1000-event flat-4b phase-space regression (TF-PWA vs Julia)
 │   ├── crosscheck_amplitudes_reference.txt
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
+├── archive/
+│   └── flat4b/                   # Flat 4-body phase-space TF-PWA cross-check (see README there)
 ├── scripts/
 │   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
 │   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
@@ -114,29 +115,22 @@ The current analysis can be found in `Analysis/Amplitude.ipynb`.
 ### All-resonance model and fit fractions (Julia, TF-PWA aligned)
 
 `scripts/all_resonances_model.jl` defines the TF-PWA-aligned amplitude model using
-[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0, matching
-`notebooks/all_resonances_sampled_comparison.jl`.
+[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 for **cascade**
+phase space ( $D^*$ at nominal mass).
 
 - `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
   `data/crosscheck.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
-- `scripts/all_resonances_amplitude_crosscheck_4b.jl` — 1000-event flat-4b regression on
-  `data/crosscheck_4b.arrow` (stored TF-PWA and Julia amplitudes per resonance)
-- `scripts/generate_crosscheck_4b.jl` — regenerate `data/crosscheck_4b.arrow` (seed `4040404`)
 - `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
   `data/b-decay-events.arrow`; compares to `notebooks/all_resonances_fit_fractions.txt`
   (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
 
-Run the amplitude regression from the project root:
+Flat **4-body** phase-space cross-checks (historical; exposed TF-PWA running-mass conventions)
+are archived under [`archive/flat4b/`](archive/flat4b/README.md).
+
+Run the cascade amplitude regression from the project root:
 
 ```bash
 julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
-julia --project=. scripts/all_resonances_amplitude_crosscheck_4b.jl
-```
-
-Regenerate the flat-4b crosscheck (requires TF-PWA Python; set `TFPWA_PYTHON` if needed):
-
-```bash
-julia --project=. scripts/generate_crosscheck_4b.jl
 ```
 
 Run full-sample fit fractions:

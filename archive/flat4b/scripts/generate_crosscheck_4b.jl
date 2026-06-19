@@ -2,11 +2,46 @@ using Arrow
 using DataFrames
 using JSON
 using Printf
+using Statistics
 
-include(joinpath(@__DIR__, "..", "notebooks", "all_resonances_sampled_comparison.jl"))
+include(joinpath(@__DIR__, "all_resonances_model_4b.jl"))
 
-const repo_root = normpath(joinpath(@__DIR__, ".."))
-const output_path = joinpath(repo_root, "data", "crosscheck_4b.arrow")
+const resonance_chain_idx = Dict(
+    "X(3872)" => 0,
+    "X(3915)(0-)" => 1,
+    "chi(c2)(3930)" => 2,
+    "X(3940)(1.)" => 3,
+    "X(3993)" => 4,
+    "Psi(4040)" => 5,
+    "X(4300)" => 6,
+    "NR(0-)SPp" => 7,
+    "NR(1.)PSp" => 8,
+    "NR(0-)SPm" => 9,
+    "NR(1-)PPm" => 10,
+    "X0(2900)" => 11,
+    "X1(2900)" => 12,
+)
+
+function resolve_tfpwa_python()
+    candidates = String[]
+    haskey(ENV, "TFPWA_PYTHON") && push!(candidates, ENV["TFPWA_PYTHON"])
+    push!(candidates, normpath(joinpath(repo_root, ".venv-tfpwa", "bin", "python")))
+    push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "bin", "python"))
+    push!(candidates, joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "python.exe"))
+    push!(candidates, "python")
+    for candidate in candidates
+        if occursin('\\', candidate) || occursin('/', candidate)
+            isfile(candidate) && return candidate
+        else
+            resolved = Sys.which(candidate)
+            resolved === nothing || return resolved
+        end
+    end
+    error("Could not find a Python executable with TensorFlow and TF-PWA.")
+end
+
+const flat4b_root = normpath(joinpath(@__DIR__, ".."))
+const output_path = joinpath(flat4b_root, "data", "crosscheck_4b.arrow")
 const crosscheck_seed = 4_040_404
 const n_crosscheck_events = 1_000
 
@@ -108,9 +143,7 @@ function fetch_tfpwa_crosscheck_4b(n::Int, seed::Int)
     end
 end
 
-function chain_idx(name::String)
-    return resonance_info[name].chain_idx
-end
+chain_idx(name::String) = resonance_chain_idx[name]
 
 function fourvector_columns(prefix::String, p4::Vector{Float64})
     return (
