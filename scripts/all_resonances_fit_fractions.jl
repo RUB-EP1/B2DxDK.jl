@@ -238,18 +238,6 @@ function decay_reference_mass(resonance_name::String, lineshape)
     return nominal_mass[resonance_name]
 end
 
-function chain_lineshape_static_matching_factor(resonance_name::String, lineshape)
-    spec = lineshape_spec(lineshape)
-    if spec.mc_gamma === :gamma0
-        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma0
-    elseif spec.mc_gamma === :gamma2
-        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma2
-    elseif spec.sign_only
-        return spec.sign
-    end
-    return 1.0
-end
-
 x2900_bwr_lineshape(name, l) =
     BreitWigner(nominal_mass[name], param_real(name * "_width"), nominal_mass["D"], nominal_mass["K"], l, WELL_SIZE)
 
@@ -417,7 +405,82 @@ end
 const resonance_chains_df_raw = build_resonance_chains_df()
 
 # =============================================================================
-# Block 4 — CascadeDecays construction
+# Block 4 — matching factors (per chain)
+#
+# Matching is evaluated per chain (one row of `resonance_chains_df`).  Total
+# matching is the product of vertex and lineshape contributions:
+#
+#     M_chain = M_vertex × M_lineshape / N_propagator_spin
+#
+# Dependencies:
+#   M_vertex           — topology, resonance_name, root_two_ls, daughter_two_ls, lineshape
+#                        (lineshape sets decay reference mass for adhoc-q0 DxD chains)
+#   M_lineshape        — resonance_name, lineshape (multichannel γ₀/γ₂ split and sign)
+#   N_propagator_spin  — propagator_two_j (CascadeDecays v0.1.0 spin norm; D* line fixed at jp"1+")
+# =============================================================================
+
+const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chain
+
+vertex_l(two_ls) = div(two_ls[1], 2)
+
+nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
+
+function dxd_vertex_matching_factor(resonance_name; root_l, decay_l, decay_m0=nothing)
+    m_r = nominal_mass[resonance_name]
+    decay_m0 = something(decay_m0, m_r)
+    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["K"])
+    decay = nominal_vertex_matching_factor(decay_l, WELL_SIZE, decay_m0, nominal_mass["Dst"], nominal_mass["D"])
+    return root * decay
+end
+
+function dk_vertex_matching_factor(resonance_name; root_l, dk_l)
+    m_r = nominal_mass[resonance_name]
+    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
+    dk = nominal_vertex_matching_factor(dk_l, WELL_SIZE, m_r, nominal_mass["D"], nominal_mass["K"])
+    return root * dk
+end
+
+function chain_vertex_matching_factor(row)
+    root_l = vertex_l(row.root_two_ls)
+    daughter_l = vertex_l(row.daughter_two_ls)
+    if row.topology == :DxD
+        return dxd_vertex_matching_factor(
+            row.resonance_name;
+            root_l=root_l,
+            decay_l=daughter_l,
+            decay_m0=decay_reference_mass(row.resonance_name, row.lineshape),
+        )
+    elseif row.topology == :dk
+        return dk_vertex_matching_factor(row.resonance_name; root_l=root_l, dk_l=daughter_l)
+    end
+    error("Unknown topology $(row.topology).")
+end
+
+function chain_lineshape_matching_factor(resonance_name::String, lineshape)
+    spec = lineshape_spec(lineshape)
+    if spec.mc_gamma === :gamma0
+        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma0
+    elseif spec.mc_gamma === :gamma2
+        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma2
+    elseif spec.sign_only
+        return spec.sign
+    end
+    return 1.0
+end
+
+chain_propagator_spin_norm(row) =
+    sqrt(DSTAR_PROPAGATOR_TWO_J + 1) * sqrt(row.propagator_two_j + 1)
+
+function chain_matching_factor(row)
+    return (
+        chain_vertex_matching_factor(row) *
+        chain_lineshape_matching_factor(row.resonance_name, row.lineshape) /
+        chain_propagator_spin_norm(row)
+    )
+end
+
+# =============================================================================
+# Block 5 — CascadeDecays construction
 # =============================================================================
 
 const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
@@ -435,8 +498,6 @@ const standard_system = CascadeSystem(
     ),
 )
 
-nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
-
 function event_point(row)
     pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E=row.Dm_E)
     pD0 = FourVector(row.D0_px, row.D0_py, row.D0_pz; E=row.D0_E)
@@ -445,14 +506,9 @@ function event_point(row)
     return KinematicPoint(kinematic_task, (pD0, piplus, pDminus, pKplus))
 end
 
-function chain_static_matching_factor(row)
-    return chain_vertex_matching_factor(row) *
-           chain_lineshape_static_matching_factor(row.resonance_name, row.lineshape)
-end
-
 function enrich_resonance_chains_df!(df)
     df.coupling_value = resolve_coupling_keys.(df.coupling_keys)
-    df.static_matching_factor = chain_static_matching_factor.(eachrow(df))
+    df.matching_factor = chain_matching_factor.(eachrow(df))
     specs = lineshape_spec.(df.lineshape)
     bare = df.coupling_value .* [spec.sign for spec in specs]
     df.bare_coupling_re = real.(bare)
@@ -464,11 +520,6 @@ function enrich_resonance_chains_df!(df)
         for row in eachrow(df)
     ]
     return df
-end
-
-function _propagator_spin_norm(chain)
-    # v0.1.0 includes prod(sqrt(two_j + 1)) in amplitude; divide to keep TF-PWA-aligned yields.
-    return prod(sqrt(two_j + 1) for two_j in chain.propagator_two_js; init=1.0)
 end
 
 function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls, root_l, decay_l)
@@ -508,39 +559,6 @@ function build_dk_chain(
             (1, 2) => Vertex(RecouplingLS((2, 0))),
         ),
     )
-end
-
-function dxd_vertex_matching_factor(resonance_name; root_l, decay_l, decay_m0=nothing)
-    m_r = nominal_mass[resonance_name]
-    decay_m0 = something(decay_m0, m_r)
-    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["K"])
-    decay = nominal_vertex_matching_factor(decay_l, WELL_SIZE, decay_m0, nominal_mass["Dst"], nominal_mass["D"])
-    return root * decay
-end
-
-function dk_vertex_matching_factor(resonance_name; root_l, dk_l)
-    m_r = nominal_mass[resonance_name]
-    root = nominal_vertex_matching_factor(root_l, WELL_SIZE, nominal_mass["Bp"], m_r, nominal_mass["Dst"])
-    dk = nominal_vertex_matching_factor(dk_l, WELL_SIZE, m_r, nominal_mass["D"], nominal_mass["K"])
-    return root * dk
-end
-
-vertex_l(two_ls) = div(two_ls[1], 2)
-
-function chain_vertex_matching_factor(row)
-    root_l = vertex_l(row.root_two_ls)
-    daughter_l = vertex_l(row.daughter_two_ls)
-    if row.topology == :DxD
-        return dxd_vertex_matching_factor(
-            row.resonance_name;
-            root_l=root_l,
-            decay_l=daughter_l,
-            decay_m0=decay_reference_mass(row.resonance_name, row.lineshape),
-        )
-    elseif row.topology == :dk
-        return dk_vertex_matching_factor(row.resonance_name; root_l=root_l, dk_l=daughter_l)
-    end
-    error("Unknown topology $(row.topology).")
 end
 
 const resonance_chains_df = enrich_resonance_chains_df!(copy(resonance_chains_df_raw))
@@ -586,7 +604,7 @@ function build_resonance_cascade(resonance_name::String)
     rows = collect(eachrow(resonance_chain_rows(resonance_name)))
     chains = Tuple(build_chain_from_row(row) for row in rows)
     effective_couplings = Tuple(
-        rows[i].coupling_value * rows[i].static_matching_factor / _propagator_spin_norm(chains[i])
+        rows[i].coupling_value * rows[i].matching_factor
         for i in eachindex(rows)
     )
     names = Tuple(chain_name(resonance_name, row) for row in rows)
@@ -604,7 +622,7 @@ function build_all_resonance_cascade(names=all_resonance_names)
 end
 
 # =============================================================================
-# Block 5 — fit-fraction analysis
+# Block 6 — fit-fraction analysis
 # =============================================================================
 
 function compute_fit_fractions(component_names, component_amps_by_event, weights)
