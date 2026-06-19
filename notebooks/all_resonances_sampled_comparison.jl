@@ -17,7 +17,7 @@ using Plots
 using Printf
 using Statistics
 import ThreeBodyDecays
-using ThreeBodyDecays: Recoupling, RecouplingLS, VertexFunction
+using ThreeBodyDecays: Recoupling, RecouplingLS, VertexFunction, @jp_str
 
 struct RemoveParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
@@ -88,6 +88,7 @@ const all_resonance_names = [
 
 const topology = DecayTopology((((1, 2), 3), 4))
 const dk_topology = DecayTopology(((1, 2), (3, 4)))
+const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 
 params_path = normpath(joinpath(@__DIR__, "..", "Analysis", "final_params_full.json"))
 params = JSON.parsefile(params_path)["value"]
@@ -103,6 +104,10 @@ tfpwa_breakup(m0, m1, m2) =
 
 mismatch_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
+const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* line (1, 2) in every chain
+propagator_spin_norm(propagator_two_j::Integer) =
+    sqrt(DSTAR_PROPAGATOR_TWO_J + 1) * sqrt(propagator_two_j + 1)
+
 function event_context(sampled_p4)
     pDminus = FourVector(sampled_p4["D"][2], sampled_p4["D"][3], sampled_p4["D"][4]; E = sampled_p4["D"][1])
     pD0 = FourVector(sampled_p4["D0"][2], sampled_p4["D0"][3], sampled_p4["D0"][4]; E = sampled_p4["D0"][1])
@@ -112,8 +117,8 @@ function event_context(sampled_p4)
     P_Dst = pD0 + piplus
     P_R = P_Dst + pDminus
     P_B = P_R + pKplus
-    system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
-    x = cascade_kinematics(topology, system, objs)
+    system = CascadeSystem(external_spins, SystemMasses(mass.(objs)...; m0=mass(P_B)))
+    x = CascadeKinematics(topology, objs)
     return (
         sampled_p4 = sampled_p4,
         pDminus = pDminus,
@@ -137,8 +142,8 @@ function dk_event_context(sampled_p4)
     P_Dst = pD0 + piplus
     P_DK = pDminus + pKplus
     P_B = P_Dst + P_DK
-    system = CascadeSystem((0, 0, 0, 0, 0), (mass.(objs) .^ 2..., mass(P_B)^2))
-    x = cascade_kinematics(dk_topology, system, objs)
+    system = CascadeSystem(external_spins, SystemMasses(mass.(objs)...; m0=mass(P_B)))
+    x = CascadeKinematics(dk_topology, objs)
     return (
         pDminus = pDminus,
         pD0 = pD0,
@@ -295,8 +300,8 @@ function chain_amplitude(ctx, lineshape, two_j, root_two_ls, decay_two_ls; root_
     chain = CascadeDecays.DecayChain(
         topology;
         propagators = (
-            (1, 2) => (two_j = 2, lineshape = ConstantLineshape(1.0 + 0.0im)),
-            ((1, 2), 3) => (two_j = two_j, lineshape = lineshape),
+            (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
+            ((1, 2), 3) => Propagator(two_j, lineshape),
         ),
         vertices = (
             (((1, 2), 3), 4) => root_vertex,
@@ -304,7 +309,7 @@ function chain_amplitude(ctx, lineshape, two_j, root_two_ls, decay_two_ls; root_
             (1, 2) => VertexFunction(RecouplingLS((2, 0))),
         ),
     )
-    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, (0, 0, 0, 0, 0))
+    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, external_spins)
 end
 
 function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, remove_root_particle2_phase = false)
@@ -318,8 +323,8 @@ function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_
     chain = CascadeDecays.DecayChain(
         dk_topology;
         propagators = (
-            (1, 2) => (two_j = 2, lineshape = ConstantLineshape(1.0 + 0.0im)),
-            (3, 4) => (two_j = two_j, lineshape = lineshape),
+            (1, 2) => Propagator(jp"1+", ConstantLineshape(1.0 + 0.0im)),
+            (3, 4) => Propagator(two_j, lineshape),
         ),
         vertices = (
             ((1, 2), (3, 4)) => root_vertex,
@@ -327,7 +332,7 @@ function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_
             (1, 2) => VertexFunction(RecouplingLS((2, 0))),
         ),
     )
-    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, (0, 0, 0, 0, 0))
+    return CascadeDecays.amplitude(chain, ctx.system, ctx.x, external_spins)
 end
 
 function x2900_bwr_lineshape(ctx, name, l)
@@ -354,14 +359,16 @@ function selected_cd_amplitude(ctx, name::String)
         amp_l0 = root_mdep * chain_amplitude(ctx, l0, 2, (2, 2), (0, 2))
         amp_l2 = root_mdep * chain_amplitude(ctx, l2, 2, (2, 2), (4, 2))
         return param_complex("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0") *
-               (amp_l0 + param_complex("X(3872)->Dst.D_g_ls_1") * amp_l2)
+               (amp_l0 + param_complex("X(3872)->Dst.D_g_ls_1") * amp_l2) /
+               propagator_spin_norm(2)
     elseif name == "X(3915)(0-)"
         raw = chain_amplitude(
             ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, -1.0 + 0im),
             0, (0, 0), (2, 2); root_l = 0, decay_l = 1,
         )
         correction = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
+                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(0)
         return param_complex("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "chi(c2)(3930)"
         raw = chain_amplitude(
@@ -369,7 +376,8 @@ function selected_cd_amplitude(ctx, name::String)
             4, (4, 4), (4, 2); root_l = 2, decay_l = 2,
         )
         correction = mismatch_factor(2, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(2, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
+                     mismatch_factor(2, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(4)
         return param_complex("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "X(3940)(1.)" || name == "X(3993)" || name == "X(4300)"
         sign = name == "X(3993)" ? -1.0 + 0im : 1.0 + 0im
@@ -382,34 +390,40 @@ function selected_cd_amplitude(ctx, name::String)
         total_key = name == "X(3940)(1.)" ?
             "Bp->X(3940)(1.).KX(3940)(1.)->Dst.DDst->D0.pi_total_0" :
             "Bp->$(name).K$(name)->Dst.DDst->D0.pi_total_0"
-        return param_complex(total_key) * (amp_l0 + param_complex("$(name)->Dst.D_g_ls_1") * amp_l2)
+        return param_complex(total_key) * (amp_l0 + param_complex("$(name)->Dst.D_g_ls_1") * amp_l2) /
+               propagator_spin_norm(2)
     elseif name == "Psi(4040)"
         raw = chain_amplitude(
             ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, 1.0 + 0im),
             2, (2, 2), (2, 2); root_l = 1, decay_l = 1,
         )
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
+                     mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(2)
         return param_complex("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(0-)SPp"
         alpha = param_real("NR(0-)SPp_alpha")
         beta = param_real("NR(0-)SPp_beta")
         nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
         raw = chain_amplitude(ctx, ConstantLineshape(nr_factor), 0, (0, 0), (2, 2); decay_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPp"], nominal_mass["Dst"], nominal_mass["D"])
+        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPp"], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(0)
         return param_complex("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(1.)PSp"
         raw = chain_amplitude(ctx, ConstantLineshape(-1.0 + 0im), 2, (2, 2), (0, 2); root_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1.)PSp"], nominal_mass["K"])
+        correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1.)PSp"], nominal_mass["K"]) /
+                     propagator_spin_norm(2)
         return param_complex("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(0-)SPm"
         raw = chain_amplitude(ctx, ConstantLineshape(1.0 + 0im), 0, (0, 0), (2, 2); decay_l = 1)
-        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPm"], nominal_mass["Dst"], nominal_mass["D"])
+        correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPm"], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(0)
         return param_complex("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(1-)PPm"
         raw = chain_amplitude(ctx, ConstantLineshape(1.0 + 0im), 2, (2, 2), (2, 2); root_l = 1, decay_l = 1)
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1-)PPm"], nominal_mass["K"]) *
-                     mismatch_factor(1, 3.0, nominal_mass["NR(1-)PPm"], nominal_mass["Dst"], nominal_mass["D"])
+                     mismatch_factor(1, 3.0, nominal_mass["NR(1-)PPm"], nominal_mass["Dst"], nominal_mass["D"]) /
+                     propagator_spin_norm(2)
         return param_complex("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "X0(2900)"
         dk_ctx = dk_event_context(ctx.sampled_p4)
@@ -418,7 +432,8 @@ function selected_cd_amplitude(ctx, name::String)
             0, (2, 2), (0, 0); root_l = 1, dk_l = 0,
         )
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                     mismatch_factor(0, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
+                     mismatch_factor(0, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"]) /
+                     propagator_spin_norm(0)
         return param_complex("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0") * raw * correction
     elseif name == "X1(2900)"
         dk_ctx = dk_event_context(ctx.sampled_p4)
@@ -427,11 +442,14 @@ function selected_cd_amplitude(ctx, name::String)
         raw_l1 = dk_chain_amplitude(dk_ctx, lineshape, 2, (2, 2), (2, 0); root_l = 1, dk_l = 1, remove_root_particle2_phase = true)
         raw_l2 = dk_chain_amplitude(dk_ctx, lineshape, 2, (4, 4), (2, 0); root_l = 2, dk_l = 1, remove_root_particle2_phase = true)
         correction_l0 = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
+                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"]) /
+                        propagator_spin_norm(2)
         correction_l1 = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
+                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"]) /
+                        propagator_spin_norm(2)
         correction_l2 = mismatch_factor(2, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
-                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
+                        mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"]) /
+                        propagator_spin_norm(2)
         coherent = raw_l0 * correction_l0 +
                    param_complex("Bp->X1(2900).Dst_g_ls_1") * raw_l1 * correction_l1 +
                    param_complex("Bp->X1(2900).Dst_g_ls_2") * raw_l2 * correction_l2
