@@ -80,6 +80,7 @@ resolve_coupling_keys(keys) = prod(param_complex(key) for key in keys; init=1.0 
 
 # =============================================================================
 # Block 2 — lineshape definitions
+# Block 2a — new lineshapes
 # =============================================================================
 
 """
@@ -129,6 +130,13 @@ function (ls::NRExpLineshape)(σ::Number)
 end
 (ls::NRExpLineshape)(σ::Real) = ls(σ + 1im * eps())
 
+
+# =============================================================================
+# Block 2 — lineshape definitions
+# Block 2b — helper functions
+# =============================================================================
+
+
 function nr_exp_lineshape()
     alpha = param_real("NR(0-)SPp_alpha")
     beta = param_real("NR(0-)SPp_beta")
@@ -150,34 +158,46 @@ bwr_ls_q0(name::String) = breakup(nominal_mass[name], nominal_mass["Dst"], nomin
 bwr_ls_adhoc_q0(name::String) =
     breakup(dxd_adhoc_q0_mass(name), nominal_mass["Dst"], nominal_mass["D"])
 
-function lineshape_base(lineshape)
+const BW_DECAY_L = Dict(
+    :bwr_l1 => 1,
+    :bwr_l2 => 2,
+    :x2900_bwr_l0 => 0,
+    :x2900_bwr_l1 => 1,
+)
+
+const MC_BW_GAMMA = Dict(
+    :bwr_ls_l0 => :gamma0,
+    :adhoc_q0_bwr_ls_l0 => :gamma0,
+    :bwr_ls_l2 => :gamma2,
+    :adhoc_q0_bwr_ls_l2 => :gamma2,
+)
+
+const ADHOC_Q0_BASES = Set([:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2])
+const SIGN_ONLY_BASES = Set([:bwr_l1, :bwr_l2, :constant])
+
+function lineshape_spec(lineshape)
     name = lineshape isa Symbol ? string(lineshape) : lineshape
-    endswith(name, "_neg") && return Symbol(chop(name, tail=4))
-    return lineshape isa Symbol ? lineshape : Symbol(name)
-end
-
-lineshape_matching_sign(lineshape) =
-    endswith(string(lineshape), "_neg") ? -1.0 + 0im : 1.0 + 0im
-
-function bwr_decay_l(lineshape)
-    base = lineshape_base(lineshape)
-    base == :bwr_l1 && return 1
-    base == :bwr_l2 && return 2
-    base == :x2900_bwr_l0 && return 0
-    base == :x2900_bwr_l1 && return 1
-    return nothing
+    neg = endswith(name, "_neg")
+    base = Symbol(neg ? chop(name, tail=4) : name)
+    return (;
+        base,
+        sign = neg ? -1.0 + 0im : 1.0 + 0im,
+        bwr_l = get(BW_DECAY_L, base, nothing),
+        mc_gamma = get(MC_BW_GAMMA, base, nothing),
+        adhoc_q0 = base in ADHOC_Q0_BASES,
+        sign_only = base in SIGN_ONLY_BASES,
+    )
 end
 
 function lineshape_param_keys(resonance_name::String, lineshape)
+    spec = lineshape_spec(lineshape)
     keys = String[]
-    base = lineshape_base(lineshape)
-    if base in (:bwr_l1, :bwr_l2) ||
-       base in (:bwr_ls_l0, :bwr_ls_l2, :adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
+    if spec.base in (:bwr_l1, :bwr_l2) || spec.mc_gamma !== nothing
         push!(keys, resonance_name * "_width")
-        base != :bwr_l1 && base != :bwr_l2 && push!(keys, resonance_name * "_theta0")
-    elseif base == :nr_exp
+        spec.mc_gamma !== nothing && push!(keys, resonance_name * "_theta0")
+    elseif spec.base == :nr_exp
         append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
-    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
+    elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
         push!(keys, resonance_name * "_width")
     end
     return keys
@@ -212,26 +232,19 @@ function buggy_multichannel_bwr_lineshape(name::String, q0::Real)
     return BuggyMultichannelBreitWigner(nominal_mass[name], channels)
 end
 
-buggy_multichannel_bwr_lineshape(name::String) =
-    buggy_multichannel_bwr_lineshape(name, bwr_ls_q0(name))
-adhoc_q0_buggy_multichannel_bwr_lineshape(name::String) =
-    buggy_multichannel_bwr_lineshape(name, bwr_ls_adhoc_q0(name))
-
 function decay_reference_mass(resonance_name::String, lineshape)
-    base = lineshape_base(lineshape)
-    base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2) && return dxd_adhoc_q0_mass(resonance_name)
+    lineshape_spec(lineshape).adhoc_q0 && return dxd_adhoc_q0_mass(resonance_name)
     return nominal_mass[resonance_name]
 end
 
 function chain_lineshape_static_matching_factor(resonance_name::String, lineshape)
-    sign = lineshape_matching_sign(lineshape)
-    base = lineshape_base(lineshape)
-    if base in (:bwr_ls_l0, :adhoc_q0_bwr_ls_l0)
-        return sign * bwr_ls_coupling_params(resonance_name).gamma0
-    elseif base in (:bwr_ls_l2, :adhoc_q0_bwr_ls_l2)
-        return sign * bwr_ls_coupling_params(resonance_name).gamma2
-    elseif base in (:bwr_l1, :bwr_l2, :constant)
-        return sign
+    spec = lineshape_spec(lineshape)
+    if spec.mc_gamma === :gamma0
+        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma0
+    elseif spec.mc_gamma === :gamma2
+        return spec.sign * bwr_ls_coupling_params(resonance_name).gamma2
+    elseif spec.sign_only
+        return spec.sign
     end
     return 1.0
 end
@@ -241,22 +254,21 @@ x2900_bwr_lineshape(name, l) =
 
 function build_chain_lineshape(row)
     resonance_name = row.resonance_name
-    base = lineshape_base(row.lineshape)
-    if base in (:bwr_ls_l0, :bwr_ls_l2)
-        return buggy_multichannel_bwr_lineshape(resonance_name)
-    elseif base in (:adhoc_q0_bwr_ls_l0, :adhoc_q0_bwr_ls_l2)
-        return adhoc_q0_buggy_multichannel_bwr_lineshape(resonance_name)
-    elseif base in (:bwr_l1, :bwr_l2)
+    spec = lineshape_spec(row.lineshape)
+    if spec.base in (:bwr_ls_l0, :bwr_ls_l2)
+        return buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_q0(resonance_name))
+    elseif spec.adhoc_q0
+        return buggy_multichannel_bwr_lineshape(resonance_name, bwr_ls_adhoc_q0(resonance_name))
+    elseif spec.base in (:bwr_l1, :bwr_l2)
         return bwr_lineshape(
-            nominal_mass[resonance_name], param_real(resonance_name * "_width"),
-            bwr_decay_l(row.lineshape),
+            nominal_mass[resonance_name], param_real(resonance_name * "_width"), spec.bwr_l,
         )
-    elseif base == :constant
+    elseif spec.base == :constant
         return ConstantLineshape(1.0 + 0.0im)
-    elseif base == :nr_exp
+    elseif spec.base == :nr_exp
         return nr_exp_lineshape()
-    elseif base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        return x2900_bwr_lineshape(resonance_name, bwr_decay_l(row.lineshape))
+    elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
+        return x2900_bwr_lineshape(resonance_name, spec.bwr_l)
     end
     error("Unknown lineshape $(row.lineshape) for $(resonance_name).")
 end
@@ -440,11 +452,12 @@ end
 function enrich_resonance_chains_df!(df)
     df.coupling_value = resolve_coupling_keys.(df.coupling_keys)
     df.static_matching_factor = chain_static_matching_factor.(eachrow(df))
-    bare = df.coupling_value .* lineshape_matching_sign.(df.lineshape)
+    specs = lineshape_spec.(df.lineshape)
+    bare = df.coupling_value .* [spec.sign for spec in specs]
     df.bare_coupling_re = real.(bare)
     df.bare_coupling_im = imag.(bare)
     df.coupling_param_keys = join.(df.coupling_keys, Ref(";"))
-    df.bwr_l = bwr_decay_l.(df.lineshape)
+    df.bwr_l = [spec.bwr_l for spec in specs]
     df.parametrization = [
         join(parametrization_keys(row.resonance_name, row.coupling_keys, row.lineshape), ";")
         for row in eachrow(df)

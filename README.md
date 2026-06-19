@@ -140,7 +140,7 @@ Output is written to `scripts/all_resonances_fit_fractions.txt` and compared aga
 
 Only the three `X1(2900)` branches in `scripts/all_resonances_fit_fractions.jl`
 set `root_remove_particle2_phase=true`. This is **not** interchangeable with the
-overall sign encoded by a `_neg` lineshape suffix or `lineshape_matching_sign`.
+overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
 
 - **What it is:** a static Jacob-Wick particle-2 helicity sign,
   $(-1)^{(j_2-\lambda_2)/2}$ when $(j_2-\lambda_2)/2$ is odd, applied at the
