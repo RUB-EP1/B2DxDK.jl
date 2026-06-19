@@ -41,8 +41,9 @@ B2DxDK/
 │   ├── crosscheck_event.json     # Single event used for angular cross-checks
 │   └── ...                       # Additional data files
 ├── scripts/
-│   ├── all_resonances_fit_fractions.jl        # TF-PWA-aligned fit fractions (3-block CascadeDecays model)
-│   ├── all_resonances_amplitudes_100.jl       # Amplitude regression on data/crosscheck.arrow
+│   ├── all_resonances_model.jl                # TF-PWA-aligned CascadeDecays model definitions
+│   ├── all_resonances_amplitude_crosscheck.jl # 100-event amplitude regression
+│   ├── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
 │   ├── cal_pw_fraction.py        # Python script for partial wave analysis
 │   └── angles/                   # Julia scripts to cross-check angular conventions
 └── README.md
@@ -109,36 +110,33 @@ deactivate
 
 The current analysis can be found in `Analysis/Amplitude.ipynb`.
 
-### All-resonance fit fractions (Julia, TF-PWA aligned)
+### All-resonance model and fit fractions (Julia, TF-PWA aligned)
 
-`scripts/all_resonances_fit_fractions.jl` is a Julia-only script for computing
-resonance fit fractions from `data/b-decay-events.arrow`. It uses
-[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 with the
-same TF-PWA-aligned amplitude model as `notebooks/all_resonances_sampled_comparison.jl`.
+`scripts/all_resonances_model.jl` defines the TF-PWA-aligned amplitude model using
+[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0, matching
+`notebooks/all_resonances_sampled_comparison.jl`.
 
-The script is split into three blocks:
+- `scripts/all_resonances_amplitude_crosscheck.jl` — 100-event amplitude regression on
+  `data/b-decay-events.arrow` (compared to `data/crosscheck_amplitudes_reference.txt`)
+- `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions;
+  writes `scripts/all_resonances_fit_fractions.txt` and compares to
+  `notebooks/all_resonances_fit_fractions.txt`
 
-1. **Model inputs** (no CascadeDecays API): nominal masses, JSON fit parameters,
-   and a per-chain-branch table `resonance_inputs_df` with LS couplings, orbital
-   `l`, bare couplings, lineshape kind, and parametrization keys.
-2. **CascadeDecays construction**: `build_resonance_cascade(info, ctx)` builds a
-   `CascadeDecay` with TF-PWA matching factors folded into the couplings.
-   Lineshape evaluation still needs event context, so this runs inside the event loop.
-3. **Evaluation**: `evaluate_cascade_amplitude(cascade, point)` returns the scalar
-   helicity amplitude on a `KinematicPoint`.
+Run the amplitude regression from the project root:
 
-Run from the project root:
+```bash
+julia --project=. scripts/all_resonances_amplitude_crosscheck.jl
+```
+
+Run full-sample fit fractions:
 
 ```bash
 julia --project=. scripts/all_resonances_fit_fractions.jl
 ```
 
-Output is written to `scripts/all_resonances_fit_fractions.txt` and compared against
-`notebooks/all_resonances_fit_fractions.txt`.
-
 #### `root_remove_particle2_phase` (X1(2900) only)
 
-Only the three `X1(2900)` branches in `scripts/all_resonances_fit_fractions.jl`
+Only the three `X1(2900)` branches in `scripts/all_resonances_model.jl`
 set `root_remove_particle2_phase=true`. This is **not** interchangeable with the
 overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
 
@@ -158,18 +156,6 @@ overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
   $j_2=1$). Replacing `root_remove_particle2_phase=true` by a global `_neg` on
   the lineshape would change the relative phases of helicity contributions and
   would not reproduce the TF-PWA amplitude.
-
-**Regression test** — event-by-event amplitudes on `data/crosscheck.arrow`
-(100 events extracted from `b-decay-events.arrow`):
-
-```bash
-julia --project=. scripts/all_resonances_amplitudes_100.jl
-```
-
-Compared against `data/crosscheck_amplitudes_reference.txt`; writes
-`data/crosscheck_amplitudes.txt`. The script exits with `PASS` when all
-components match within `1e-10` absolute tolerance.
-
 
 ## Reference files for the isolated `Psi(4040)` amplitude
 
