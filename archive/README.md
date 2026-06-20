@@ -5,6 +5,9 @@ Not needed for the current production workflow.
 
 **Production** lives at the repo root: [`src/`](../src/) (B2DxDK package), [`test/`](../test/) (regression checks), [`scripts/`](../scripts/) (fit-fraction analysis), and [`data/`](../data/) (couplings and event samples). Entry point: [`test/runtests.jl`](../test/runtests.jl). See the [root README](../README.md).
 
+Extended documentation from the previous README (physics background, project layout, TF-PWA notes):
+→ [README_detailed.md](README_detailed.md)
+
 ---
 
 ## investigation/

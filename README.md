@@ -1,171 +1,86 @@
-# B2DxDK Decay Model Analysis
+# B2DxDK
 
-This repository contains a Julia implementation of the analysis for the three-body decay B+ → D- D*+ K+ using Pluto.jl notebooks.
-The project implements the amplitude model for studying this decay channel,
-including various resonance contributions and interference effects.
+Julia package implementing the amplitude model for the three-body decay
 
-## References
+$$B^+ \to D^- D^{*+} K^+$$
 
-- **Paper**: [arXiv:2406.03156](https://arxiv.org/pdf/2406.03156)
-- **InspireHEP**: [2794793](https://inspirehep.net/literature/2794793)
-- **Internal Documentation**: [TWiki](https://twiki.cern.ch/twiki/bin/viewauth/LHCbPhysics/Bm2DstmDpKm)
-- **Internal Code**: [GitLab@CERN](https://gitlab.cern.ch/lhcb-b2oc/analyses/b2oc-aman-bu2dstdk-run12/-/issues/1), [GitLab@EP1](https://gitlab.ep1.rub.de/lhcb/b2oc-aman-bu2dstdk-run12)
-- **Full TF2 code**: [fork by Alexander](https://github.com/AlexanderKazatsky/B2DxDK/tree/main)
+from the LHCb publication
+[Observation of New Charmonium or Charmoniumlike States](https://inspirehep.net/literature/2794793)
+([InspireHEP:2794793](https://inspirehep.net/literature/2794793)).
 
-## Overview
+The model is built with [CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl)
+and aligned with the [TF-PWA](https://github.com/reutera/TF-PWA) reference implementation.
 
-The B+ → D- D*+ K+ decay is a complex three-body decay that involves multiple resonance contributions and interference effects.
+## Setup
 
-## Physics Background
-
-The decay B+ → D- D*+ K+ involves several resonance contributions:
-
-### Resonances Included:
-- Charmonium states in $D^*D$ system: `EFF(1++)`, `ηc(3945)`, `χc2(3930)`, `hc(4000)`, `χc1(4010)`, `ψ(4040)`, `hc(4300)`
-- Tetraquark candidate in $D^*K$ and $DK$ system: `Tcs0(2870)`, `Tcs1(2900)`
-
-## Project Structure
-
-```
-B2DxDK/
-├── data/                         # Production inputs for scripts/
-│   ├── final_params_full.json
-│   ├── b-decay-events.arrow
-│   ├── crosscheck.arrow
-│   └── crosscheck_amplitudes_reference.txt
-├── src/                          # B2DxDK.jl package — TF-PWA-aligned CascadeDecays model
-├── test/                         # Amplitude regression and model sanity checks
-├── scripts/
-│   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
-├── docs/
-│   └── all_resonances_model.jl                # Historical monolithic model (pre-refactor)
-├── archive/                      # Historical investigation material — see archive/README.md
-│   ├── investigation/
-│   ├── threebodydecays/
-│   ├── flat4b/
-│   ├── angles/
-│   ├── data/
-│   └── notebooks/
-└── README.md
-```
-
-Key files under `data/` (used by `scripts/`):
-
-- `final_params_full.json` — fitted couplings for the production CascadeDecays model
-- `b-decay-events.arrow` — full weighted event sample
-- `crosscheck.arrow` — 100-event amplitude regression subset
-- `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
-
-Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. Angular cross-check scripts are under [`archive/angles/`](archive/angles/README.md). For a guide to all archived material, see [`archive/README.md`](archive/README.md).
-
-## Installation and Usage
-
-### Prerequisites
-- Julia 1.10. The package manager will have to resolve the dependencies for any julia version rather than 1.11.5.
-- Pluto.jl
-
-For testing the setup in terminal from the project folder, you can run:
 ```julia
-julia> using Pkg; Pkg.activate("."); Pkg.instantiate()
+using Pkg
+Pkg.activate(".")
+Pkg.instantiate()
 ```
-Any problems at this step, should be reported in the project issue tracker.
 
-### Run the analysis
+## Usage
 
-The main reproducible workflow is the TF-PWA-aligned CascadeDecays scripts under `scripts/`
-(see [All-resonance model and fit fractions](#all-resonance-model-and-fit-fractions-julia-tf-pwa-aligned)
-below). Earlier ThreeBodyDecays.jl notebooks are archived under
-[`archive/threebodydecays/`](archive/threebodydecays/README.md).
+### A. Build the model
 
-1. **Install Pluto.jl** (only if opening archived notebooks):
-   ```julia
-   julia> ] add Pluto
-   julia> using Pluto; Pluto.run()
-   ```
+```julia
+using B2DxDK
 
-2. **Run tests** (100-event amplitude regression + model checks):
-   ```bash
-   julia --project=. test/runtests.jl
-   ```
+cascade = build_all_resonance_cascade()
+# optional: build_resonance_cascade("Psi(4040)") for a single resonance
+```
 
-### TF-PWA investigation (archived)
+Couplings are loaded from `data/final_params_full.json` at package load time.
 
-Python/TF-PWA notebooks, execution-flow notes, the `tf-pwa` submodule, and environment
-setup scripts are under [`archive/investigation/`](archive/investigation/README.md).
-That material supported cross-checks while building the production CascadeDecays workflow;
-it is not required to run the Julia regression scripts below.
+### B. Execute the model on four-vectors
 
-### All-resonance model and fit fractions (Julia, TF-PWA aligned)
+Final-state four-momenta are passed in the order
 
-The `B2DxDK` package (`src/`) defines the TF-PWA-aligned amplitude model using
-[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 for **cascade**
-phase space ( $D^*$ at nominal mass).
+$$(p_{D^0},\ p_{\pi^+},\ p_{D^-},\ p_{K^+})$$
 
-- `test/runtests.jl` — 100-event amplitude regression on `data/crosscheck.arrow`
-  (compared to `data/crosscheck_amplitudes_reference.txt`) plus model sanity checks
-- `scripts/all_resonances_fit_fractions.jl` — full-sample weighted fit fractions on
-  `data/b-decay-events.arrow`; compares to `archive/notebooks/all_resonances_fit_fractions.txt`
-  (regenerates gitignored `scripts/all_resonances_fit_fractions.txt` when run)
+The $D^{*+}$ is reconstructed as $D^0\,\pi^+$ (cascade kinematics with $D^{*+}$ at nominal mass).
 
-Flat **4-body** phase-space cross-checks (historical; exposed TF-PWA running-mass conventions)
-are archived under [`archive/flat4b/`](archive/flat4b/README.md).
+```julia
+using B2DxDK
+using CascadeDecays
+using FourVectors
 
-Earlier **ThreeBodyDecays.jl** model attempts are archived under
-[`archive/threebodydecays/`](archive/threebodydecays/README.md).
+cascade = build_all_resonance_cascade()
 
-TF-PWA investigation material is archived under
-[`archive/investigation/`](archive/investigation/README.md).
+pD0     = FourVector(px_D0,  py_D0,  pz_D0;  E=E_D0)
+piplus  = FourVector(px_pip, py_pip, pz_pip; E=E_pip)
+pDminus = FourVector(px_Dm,  py_Dm,  pz_Dm;  E=E_Dm)
+pKplus  = FourVector(px_Kp,  py_Kp,  pz_Kp;  E=E_Kp)
 
-Run tests from the project root:
+point = KinematicPoint(B2DxDK.kinematic_task, (pD0, piplus, pDminus, pKplus))
+
+# amplitude for one resonance (sum over its sub-chains)
+amp_psi4040 = only(amplitude(cascade[resonance_chain_names("Psi(4040)")], point))
+
+# coherent sum over all chains (all resonances)
+amp_total = only(amplitude(cascade, point))
+```
+
+If four-momenta are stored in a table row (as in `data/crosscheck.arrow`), use `event_point(row)` instead.
+
+### Regression checks
 
 ```bash
 julia --project=. test/runtests.jl
 ```
 
-Run full-sample fit fractions:
+## Archive
 
-```bash
-julia --project=. scripts/all_resonances_fit_fractions.jl
-```
+Earlier notebooks, investigation material, project structure notes, and extended documentation
+are under [`archive/`](archive/README.md). The previous README is preserved in
+[`archive/README_detailed.md`](archive/README_detailed.md).
 
-#### `root_remove_particle2_phase` (X1(2900) only)
+## Acknowledgements
 
-Only the three `X1(2900)` branches in the model (`src/resonance_table.jl`)
-set `root_remove_particle2_phase=true`. This is **not** interchangeable with the
-overall sign encoded by a `_neg` lineshape suffix (see `lineshape_spec`).
+This model was developed in the context of the **LHCb collaboration** analysis of
 
-- **What it is:** a static Jacob-Wick particle-2 helicity sign,
-  $(-1)^{(j_2-\lambda_2)/2}$ when $(j_2-\lambda_2)/2$ is odd, applied at the
-  $B^+\to X_1(2900)+({\rm D},K)$ production vertex. It depends only on the spin
-  and helicity quantum numbers of the second daughter line (here the spin-1
-  $({\rm D},K)$ subsystem), not on event angles or momenta.
-- **What it does in code:** `CascadeDecays` always applies this factor once in
-  `_vertex_coupling_value`. With `BuggyParticleTwoPhaseLS` on the root vertex,
-  the same factor is applied a second time inside the recoupling, so they cancel
-  and the net amplitude matches TF-PWA, which does not include this factor at
-  that vertex.
-- **Why it is not an overall sign:** an overall sign is one factor $\pm1$ on the
-  whole chain, independent of helicity. The particle-2 phase flips sign between
-  internal helicity components (e.g. $\lambda_2=+1$ vs $\lambda_2=-1$ for
-  $j_2=1$). Replacing `root_remove_particle2_phase=true` by a global `_neg` on
-  the lineshape would change the relative phases of helicity contributions and
-  would not reproduce the TF-PWA amplitude.
+$$B^+ \to D^- D^{*+} K^+$$
 
-## Reference files for the isolated `Psi(4040)` amplitude
-
-Archived TF-PWA and Julia probe material for the isolated `Psi(4040)` test point lives under
-[`archive/investigation/`](archive/investigation/README.md) and
-[`archive/threebodydecays/notebooks/`](archive/threebodydecays/README.md).
-
-Key Python references (paths relative to `archive/investigation/`):
-
-- `Analysis/psi4040_independent_amplitude_flow.ipynb`
-  - Self-contained Python notebook reproducing the isolated TF-PWA `Psi(4040)` amplitude
-    step by step.
-- `Analysis/psi4040_python_function_formula_map.md`
-  - Function-to-formula map for the isolated Python notebook.
-- `ExecutionFlow/README.md`
-  - Documented TF-PWA execution flow for the same probe.
-
-Julia counterparts: `archive/investigation/notebooks/tfpwa_model_aligned.jl` (manual TF-PWA alignment) and
-`archive/threebodydecays/notebooks/cascade_decays_tfpwa_aligned.jl` (package-based probe).
+The amplitude structure follows the [TF-PWA](https://github.com/reutera/TF-PWA) framework used in that analysis.
+We especially thank **Yi Juang** for the TF-PWA reference implementation and
+for extensive cross-checks while building this Julia port.
