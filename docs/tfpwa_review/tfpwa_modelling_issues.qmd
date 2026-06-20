@@ -1,0 +1,397 @@
+---
+title: "Three modelling issues found while mapping a TF-PWA model to a scattering-theory standard"
+subtitle: "$B^+ \\to D^- D^{*+} K^+$ — notes for the TF-PWA authors"
+author: 'Mikhail Mikhasenko, Alexander Kazatsky `\\`{=latex} Ruhr University Bochum `\\`{=latex} (formatting and aggregation by Claude Opus 4.8)'
+date: today
+abstract: |
+  As part of the DEMOS effort to map widely-used amplitude-analysis frameworks
+  onto a common standard, we reproduced a TF-PWA
+  model of $B^+\to D^- D^{*+} K^+$ to numerical precision ($\sim10^{-10}$ on the
+  complex amplitude, per event) using an independent model builder
+  (CascadeDecays.jl). Achieving that agreement required three constructs that we
+  believe are unintended in TF-PWA. Two are genuine convention/implementation
+  problems that affect the physics; the third is benign for this analysis but is
+  a latent issue elsewhere. This note documents each precisely — with the
+  relevant TF-PWA source locations, the conventional formula, and an indicative
+  (frozen-parameter) impact estimate — so that they can be confirmed, fixed, and
+  re-assessed collaboratively.
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+    include-in-header:
+      text: |
+        \usepackage{booktabs}
+        \usepackage{amsmath}
+bibliography: []
+---
+
+# Context and scope
+
+This note is part of [DEMOS](https://democratizing-models.github.io/consortium/index.html)
+("Democratizing Models"), an effort to let analysts **share and exchange amplitude
+models across frameworks**. The vehicle is the
+[`amplitude-serialization`](https://github.com/RUB-EP1/amplitude-serialization)
+standard: models are expressed in a framework-agnostic form and executed by a
+reference engine.
+
+The workflow behind the present note is:
+
+1. **A general model builder, grounded in scattering theory.** We use the formalism of
+   [arXiv / InspireHEP 2827198](https://inspirehep.net/literature/2827198), which
+   fixes the helicity/LS conventions, barrier factors, and recoupling unambiguously.
+2. **An execution engine.** [`CascadeDecays.jl`](https://github.com/RUB-EP1/CascadeDecays.jl)
+   evaluates such models.
+3. **A mapping target.** We map an existing, widely-used **TF-PWA** model of
+   $B^+\to D^- D^{*+} K^+$ onto (1)+(2).
+
+The TF-PWA model was reproduced **to numerical precision**: the per-event complex
+amplitude agrees at the $\sim 10^{-10}$ level across the cross-check sample. To
+reach that agreement, three TF-PWA constructs had to be matched explicitly. We
+believe all three are unintended, and we summarise them here so they can be
+discussed and resolved at the source.
+
+We emphasise up front what this note **is** and **is not**. It **is** a precise,
+reproducible description of three discrepancies between the TF-PWA implementation
+and the conventional formulas, with code pointers. It is **not**
+a claim about the final physics impact on the published result: the numbers in
+@sec-impact are *frozen-parameter sensitivities*, and a faithful assessment needs a
+re-fit (@sec-plan).
+
+## Decay and topologies {#sec-topologies}
+
+The final state is $D^- D^{*+} K^+$ with $D^{*+}\to D^0\pi^+$, i.e. four stable
+tracks $D^0,\pi^+,D^-,K^+$ (labelled $1,2,3,4$). Two production topologies appear:
+
+- **D\*D resonances** ("DxD"): $B^+\to X\,K^+$, $X\to D^{*}D$, with
+  $D^{*}\to D^0\pi$. Chain $((((1,2),3),4))$.
+- **DK resonances** ("dk"): $B^+\to D^{*}\,X$, $X\to D K$, with $D^{*}\to D^0\pi$.
+  Chain $(((1,2),(3,4)))$. Here the **second daughter of the $B$ vertex is the
+  spinning resonance $X$**, and its helicity feeds the $X\to DK$ decay.
+
+This second topology is where @sec-bugA (the particle-2 phase) becomes
+observable.
+
+# Summary of the three issues
+
+**Issue A — missing Jacob–Wick particle-2 phase.** A static factor
+$(-1)^{j_2-\lambda_2}$ is omitted at a production vertex whose second daughter is
+a spinning, further-decaying resonance (frame-alignment / helicity recoupling).
+This is a convention error that changes a *physical* relative phase between
+intermediate helicities. It affects the $X_1(2900)$ ($DK$, $J^P=1^-$) chain and is
+the largest of the three effects.
+
+**Issue B — non-conventional mass dependence of the multichannel Breit–Wigner.**
+The running width in `BWR_LS` (`ParticleBWRLS`, `split_ls.py`) carries a factor
+$m/m_0$ where the conventional phase space gives $m_0/m$. This is an
+implementation error that contradicts the model's own docstring; TF-PWA already
+ships the fix behind a `fix_bug1` flag that defaults to off. It affects the
+$D^{*}D$ multichannel states and is minor.
+
+**Issue C — running daughter masses in the lineshape denominator.** Event-by-event
+breakup masses are used in the BW running-width denominator where fixed channel
+masses are appropriate. This does *not* affect the cascade (3-body) setup used
+here, but is a latent issue for 4-body / floating-mass setups.
+
+The remainder of the note treats each in turn.
+
+# Issue A — Missing Jacob–Wick particle-2 phase {#sec-bugA}
+
+## Statement
+
+In the Jacob–Wick helicity formalism, a two-body decay $A\to B\,C$ has the
+amplitude
+$$
+A^{J_A}_{\lambda_A;\lambda_B\lambda_C}
+= D^{J_A *}_{\lambda_A,\lambda_B-\lambda_C}(\phi,\theta,0)\,H_{\lambda_B\lambda_C},
+$$
+where the helicity coupling $H_{\lambda_B\lambda_C}$ is built from the $LS$
+couplings via Clebsch–Gordan coefficients. Constructing the **second** particle's
+helicity state requires a rotation that includes a rotation by $\pi$, which
+introduces a static factor
+$$
+\boxed{\;(-1)^{j_2-\lambda_2}\;}
+$$
+for daughter 2 (with $j_2,\lambda_2$ its spin and helicity; we use the
+integer-spin convention here, half-integer generalises in the usual way). This
+factor is part of the standard Jacob–Wick convention and is carried by the builder
+and by CascadeDecays.
+
+For a **spinless** second daughter, or one whose helicity does not propagate into
+a subsequent decay, $(-1)^{j_2-\lambda_2}$ is either trivial or an unobservable
+overall constant. It becomes **physical** when the second daughter is a
+**spinning resonance that decays further**, because the factor is
+**helicity-dependent**: it flips sign between $\lambda_2=+1$ and $\lambda_2=-1$
+for $j_2=1$, and $\lambda_2$ is summed coherently with the rest of the chain.
+
+In this model the relevant vertex is
+$$
+B^+ \to D^{*+}\, X_1(2900),\qquad X_1(2900)\to D^- K^+,
+$$
+with $X_1(2900)$ a $J^P=1^-$ state (topology "dk", @sec-topologies).
+Matching TF-PWA required **omitting** $(-1)^{j_2-\lambda_2}$ at this vertex —
+i.e. TF-PWA does not apply the particle-2 phase, whereas the conventional
+Jacob–Wick recoupling does.
+
+## How we verified it
+
+The phase is not ad hoc: it is the imprint of the **particle-2 rest-frame
+transformation**. For the topology $((1,2),(3,4))$, the rotation that takes the
+$B$ frame into the $(3,4)$ (here $X_1(2900)$) rest frame is, with $(\theta_1,\phi_1)$
+the $(1,2)$ ($D^{*}$) direction,
+$$
+p \;\triangleright\; R_z(-\phi_1) \;\triangleright\; R_y(-\theta_1) \;\triangleright\; R_y(\pi)
+$$
+read left to right (first $R_z(-\phi_1)$, then $R_y(-\theta_1)$, then the closing
+$R_y(\pi)$). That closing $R_y(\pi)$ — present because $(3,4)$ recoils *opposite* to
+$(1,2)$ — acts on a spin-$j_2$ helicity state as
+$d^{\,j_2}_{\lambda,\lambda_2}(\pi)=(-1)^{\,j_2-\lambda_2}\,\delta_{\lambda,-\lambda_2}$,
+supplying exactly the $(-1)^{j_2-\lambda_2}$ factor (together with the
+$\lambda_2\to-\lambda_2$ flip) for the second daughter.
+
+CascadeDecays includes this $R_y(\pi)$ and so applies $(-1)^{j_2-\lambda_2}$ exactly
+once. To reproduce TF-PWA we had to cancel it for the three $X_1(2900)$ chains; with
+that cancellation the full-model amplitude matches TF-PWA at the $10^{-10}$ level.
+The $X_0(2900)$ chain ($J^P=0^+$, $\lambda_2\equiv0$) needs no such treatment,
+consistent with the phase being trivial for a spinless second daughter.
+
+On the TF-PWA side, sequential helicity frames are reconciled in
+`HelicityDecay.add_algin` (`tf_pwa/amp/core.py`), which rotates each spinning inner
+particle by its aligned angle through a pure Wigner-$D$ matrix:
+
+```python
+# tf_pwa/amp/core.py  —  HelicityDecay.add_algin (abridged)
+if self.aligned:
+    for j, particle in enumerate(self.outs):
+        if particle.J != 0:
+            ang = data[particle].get("aligned_angle", None)
+            ...
+            dt = get_D_matrix_lambda(
+                ang, particle.J,
+                self.list_helicity_inner()[j], particle.spins,
+            )
+            ...
+            ret = dt * ret                     # rotation only — no (-1)^(J - lambda)
+            ret = tf.reduce_sum(ret, axis=j + 2)
+return ret
+```
+
+We see no explicit $(-1)^{j_2-\lambda_2}$ factor for the recoil / second daughter
+here or in the chain contraction, consistent with it being absent. We would value
+the authors confirming the precise location and intent.
+
+## Why it is not "just an overall sign"
+
+A common reaction is that this can be absorbed into the resonance's complex
+coupling. It cannot, in general:
+
+- An overall sign/phase is **one** factor multiplying the whole chain, independent
+  of helicity.
+- $(-1)^{j_2-\lambda_2}$ is **helicity-dependent**: it weights the $\lambda_2=+1$
+  and $\lambda_2=-1$ contributions with *opposite* signs before they are summed
+  coherently with the $D^{*}$ helicities. This changes the predicted angular
+  distribution and the interference pattern of the $X_1(2900)$ chain with every
+  other component. It cannot be reproduced by any single rephasing of the coupling.
+
+# Issue B — Non-conventional mass dependence in the multichannel Breit–Wigner {#sec-bugB}
+
+## Statement
+
+The $D^{*}D$ resonances with two $LS$ channels (e.g. $S$- and $D$-wave) use
+TF-PWA's multichannel lineshape `BWR_LS` (`ParticleBWRLS`,
+`tf_pwa/amp/split_ls.py`). Its **docstring** specifies the conventional running
+width with two-body phase space $\rho = 2q/m$:
+$$
+R_i(m)=\frac{g_i}{m_0^2-m^2-\,i\,m_0\,\Gamma_0\,\dfrac{\rho}{\rho_0}\sum_i g_i^2},
+\qquad
+\frac{\rho}{\rho_0}=\frac{2q/m}{2q_0/m_0}=\frac{q}{q_0}\,\frac{m_0}{m}.
+$$
+The conventional factor is therefore $\dfrac{m_0}{m}$. The implementation, however,
+applies $\dfrac{m}{m_0}$ unless an opt-in flag is set:
+
+```python
+# tf_pwa/amp/split_ls.py  —  ParticleBWRLS.get_ls_amp_frac
+a = m0 * m0 - m * m
+b = m0 * g0 * tf.sqrt(q2 / q02) * sum([i * i for i in total_gamma])
+if self.fix_bug1:
+    b = b * m0 / m      # conventional  (matches the docstring: rho = 2q/m)
+else:
+    b = b * m / m0      # DEFAULT       (inverted mass dependence)
+dom = tf.complex(a, -b)
+```
+
+So with the default `fix_bug1 = False` the running-width term carries
+$\dfrac{m}{m_0}$ rather than the documented $\dfrac{m_0}{m}$. The two differ by a
+factor $\big(m/m_0\big)^2$, i.e. an **extra power of $s=m^2$** in the width term.
+The name of the guard flag (`fix_bug1`) indicates this is already recognised
+internally as a bug; it simply defaults to the unfixed branch, and the model under
+study was built with the default.
+
+The two branches coincide **at the pole** $m=m_0$ (so $\Gamma_0$ at resonance is
+unchanged) and differ only in the **off-resonance tail**. The "fixed" lineshape
+used for the impact study below is exactly `fix_bug1 = True`.
+
+# Issue C — Running daughter masses in the lineshape denominator {#sec-bugC}
+
+## Statement
+
+When an intermediate two-body system has a resonant lineshape with a running
+width, the breakup momentum $q(m)$ in the **denominator** (running width) is a
+function of the *running* invariant mass $m$ of that system, but the **daughter**
+masses entering $q$ should be the appropriate fixed masses for the channel, not the
+event-by-event invariant masses of the observed final-state particles.
+
+The reason is a factorisation of the mass dependence of a resonant contribution
+into two physically distinct pieces:
+$$
+A(s) \;=\; P(s)\,\cdot\,V(s, m_1^2, m_2^2),\qquad s = m^2 .
+$$
+
+- $P(s)$ is the **propagator** — a property of the resonance *itself*. It describes
+  how the particle propagates and "bubbles" through its intermediate states, i.e.
+  the dressing by the self-energy $\Sigma$: its denominator is
+  $m_0^2 - s - \Sigma(s)$, of which the running-width term $i\,m_0\Gamma(s)$ is the
+  imaginary part. $\Sigma$ is summed over the resonance's channels, whose
+  **thresholds are fixed constants**; $P$ is therefore a function of $s$ alone.
+- $V(s, m_1^2, m_2^2)$ is the **vertex / form factor** for the *particular* decay
+  into the observed final state of masses $m_1, m_2$. This is where the
+  final-state kinematics legitimately live — the breakup momentum and barrier
+  factor of that specific channel.
+
+The BW denominator is part of $P$, **not** $V$. It must therefore depend on $s$
+only, with the channel masses entering $\Sigma$ at their fixed values; it should
+**not** carry the event-by-event daughter masses of the observed final state.
+Using running daughter masses in the denominator mixes the vertex kinematics of
+$V$ into the propagator $P$. In a **cascade** phase-space setup the relevant
+daughter (here $D^{*}$) is held at its nominal mass, so $P$'s argument is
+unaffected and this never bites. In setups where the daughter mass itself
+**floats** — e.g. flat 4-body phase space, where $m(D^0\pi)$ varies event by event
+and is not pinned to $m(D^{*})$ — TF-PWA's use of event-by-event breakup masses in
+the running-width denominator produces a different lineshape than the conventional
+fixed-mass prescription.
+
+## Why it does not affect this analysis
+
+The production B2DxDK setup uses **cascade** phase space with the $D^{*}$ fixed at
+its nominal mass. With $m(D^0\pi)\equiv m_{D^*}$, the nominal and running daughter
+masses coincide and the issue is invisible. We surfaced it only via a flat 4-body
+cross-check: after switching the BW propagators to event breakup masses
+consistently, the independent builder and TF-PWA agree to $\sim 10^{-10}$ on a
+1000-event flat-4b sample. We include it here for completeness and because it is a
+**latent** issue for any analysis in which intermediate masses float under the
+sampled phase space while multichannel/running-width lineshapes are used.
+
+# Indicative impact on B2DxDK {#sec-impact}
+
+**Method.** We rebuild the production cascade with one issue "fixed" at a time,
+**freezing all fitted parameters**, and recompute the weighted fit fractions on
+the full $10^5$-event sample (`data/b-decay-events.arrow`). Issue C is excluded by
+construction (cascade phase space). The baseline reproduces the committed TF-PWA
+fit fractions. Reported quantities are the baseline fit fraction and the *changes*
+under each fix (percentage points). The $\pm$ on the baseline is the MC statistical
+uncertainty: each per-event weighted contribution $y_{k,i}=w_i|A_{k,i}|^2$ is a
+sample mean, so the row sum $N_k=\sum_i y_{k,i}$ has uncertainty
+$\sigma(N_k)=\sqrt{n}\,\mathrm{std}(y_{k,\cdot})$; dividing by the coherent total
+$D$ (whose own uncertainty we neglect) gives $\sigma(\mathrm{FF}_k)=\sigma(N_k)/D$.
+The $\Delta$FF columns are evaluated on the *same* events for both models, so they
+are statistically far more precise than the absolute fractions (the MC fluctuations
+largely cancel in the difference) and no separate error is quoted on them.
+
+- $\Delta$FF$_A$: fix A only (restore the Jacob–Wick particle-2 phase on
+  $X_1(2900)$).
+- $\Delta$FF$_B$: fix B only (`fix_bug1 = True` mass dependence on the multichannel
+  $D^{*}D$ states).
+- $\Delta$FF$_{AB}$: both.
+
+| Component | base (%) $\pm$ stat | $\Delta$FF$_A$ (pp) | $\Delta$FF$_B$ (pp) | $\Delta$FF$_{AB}$ (pp) |
+|---|--:|--:|--:|--:|
+| X(3872)        | $10.94 \pm 0.17$ | $-0.81$ | $-0.13$ | $-0.92$ |
+| X(3915)(0$-$)  | $3.35 \pm 0.03$  | $-0.25$ | $-0.04$ | $-0.28$ |
+| chi(c2)(3930)  | $1.77 \pm 0.04$  | $-0.13$ | $-0.02$ | $-0.15$ |
+| X(3940)(1.)    | $5.04 \pm 0.04$  | $-0.38$ | $+0.15$ | $-0.23$ |
+| X(3993)        | $9.90 \pm 0.15$  | $-0.74$ | $-0.08$ | $-0.79$ |
+| Psi(4040)      | $2.80 \pm 0.03$  | $-0.21$ | $-0.03$ | $-0.23$ |
+| X(4300)        | $1.16 \pm 0.01$  | $-0.09$ | $-0.01$ | $-0.10$ |
+| NR(0$-$)SPp    | $15.81 \pm 0.07$ | $-1.18$ | $-0.19$ | $-1.33$ |
+| NR(1.)PSp      | $17.59 \pm 0.05$ | $-1.31$ | $-0.21$ | $-1.47$ |
+| NR(0$-$)SPm    | $1.16 \pm 0.004$ | $-0.09$ | $-0.01$ | $-0.10$ |
+| NR(1$-$)PPm    | $20.41 \pm 0.07$ | $-1.52$ | $-0.25$ | $-1.71$ |
+| X0(2900)       | $6.51 \pm 0.05$  | $-0.48$ | $-0.08$ | $-0.55$ |
+| X1(2900)       | $5.50 \pm 0.04$  | $-0.42$ | $-0.07$ | $-0.47$ |
+| **interference** | $-1.94 \pm 0.31$ | $+7.59$ | $+0.97$ | $+8.32$ |
+
+: Baseline fit fractions and their changes under each fix. The quoted $\pm$ on the
+baseline are **statistical uncertainties only**, propagated from the Monte-Carlo
+computation on the $10^5$ ($100{,}000$)-event phase-space sample; the $\Delta$FF
+columns, evaluated on the same events, are statistically far more precise (see
+text). {#tbl-impact}
+
+**Reading the numbers.**
+
+- **Issue A is the dominant effect.** Restoring the particle-2 phase on the single
+  $X_1(2900)$ chain swings the **total interference by $+7.6$ pp** (from $-1.9\%$
+  to $+5.7\%$): the model becomes markedly more constructive. Because interference
+  is global, *every* component fit fraction moves — up to $1.5$ pp — even though
+  only one chain changed. This confirms the expectation that A "might be
+  impactful".
+- **Issue B is minor** at frozen parameters: $\lesssim 0.25$ pp per component and
+  $\sim 1$ pp on interference, consistent with the expectation of a small effect.
+  (It is nonetheless a real shape change in the $D^{*}D$ lineshapes and should be
+  fixed.)
+- **Issue C** does not enter the cascade analysis.
+
+**Crucial caveat.** These are **frozen-parameter sensitivities**, not the physics
+impact. The fit fractions are self-normalising, so the uniform downward shift of
+all components under fix A reflects the increased coherent total; with the
+parameters held fixed, the corrected model is simply a *different* model. The
+genuine impact — on fitted parameters, fit fractions, and their uncertainties —
+can only be obtained by **re-fitting**, where the couplings will absorb part of the
+change. The numbers above should be read as *"this is how much the model moves if
+nothing else adapts"*, i.e. an upper-bound-flavoured sensitivity rather than a
+prediction of the post-fit shift.
+
+# Proposed collaborative follow-up {#sec-plan}
+
+We would like to resolve these at the source, with the TF-PWA authors, rather than
+only working around them downstream. Concretely, for each issue we suggest the
+loop **(a) confirm → (b) fix → (c) re-assess on the original data with the original
+setup**:
+
+1. **Confirm.**
+   - *A:* agree on whether TF-PWA intends to omit the Jacob–Wick particle-2 phase
+     for a spinning, further-decaying second daughter, and pin the exact code
+     location (frame alignment in `tf_pwa/amp/core.py`).
+   - *B:* confirm that `ParticleBWRLS` default (`fix_bug1=False`) contradicts its
+     own docstring ($\rho=2q/m\Rightarrow m_0/m$), and that the published model was
+     built with the default.
+   - *C:* confirm the intended daughter-mass prescription in the running-width
+     denominator when intermediate masses float.
+2. **Fix.** For B the fix already exists (`fix_bug1=True`); for A a
+   convention-consistent particle-2 phase would be added; for C a fixed-mass
+   prescription in the denominator.
+3. **Re-assess on the original data with the original setup.** Re-fit the published
+   model after each fix and compare fitted parameters, fit fractions, and their
+   uncertainties. This is the step that turns our indicative sensitivities into a
+   real impact statement, and it is best done by the authors on the original
+   inputs. We are happy to cross-check every step against the independent builder.
+
+# Reproduction
+
+All artefacts referenced here live in the B2DxDK repository:
+
+- Independent model (TF-PWA-aligned): `src/` (`lineshapes.jl`, `recoupling.jl`,
+  `model.jl`, `matching.jl`, `resonance_table.jl`).
+- Per-event $10^{-10}$ amplitude cross-check: `test/runtests.jl` against
+  `data/crosscheck_amplitudes_reference.txt`.
+- Baseline fit fractions: `scripts/all_resonances_fit_fractions.jl`.
+- The impact study in @sec-impact: `scripts/abc_impact.jl`
+  (rebuilds the cascade with each fix toggled and recomputes fit fractions, with
+  statistical uncertainties).
+- TF-PWA source referenced above is the pinned submodule under
+  `archive/investigation/tf-pwa/` (e.g. `tf_pwa/amp/split_ls.py`,
+  `tf_pwa/amp/base.py`, `tf_pwa/amp/core.py`, `tf_pwa/breit_wigner.py`).
+
+The flat-4b cross-check that exposed issue C is archived under `archive/flat4b/`.
