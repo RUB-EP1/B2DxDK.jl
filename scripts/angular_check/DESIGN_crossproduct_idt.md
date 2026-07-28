@@ -1,7 +1,7 @@
 # Cross-product helicity angles as an IDT program — design note
 
 **Status:** the instruction set is being upstreamed to
-`InstructionalDecayTrees.jl`. `scripts/CrossProductWalk.jl` is a temporary local
+`InstructionalDecayTrees.jl`. `scripts/angular_check/CrossProductWalk.jl` is a temporary local
 copy so these scripts run before that lands; delete it once IDT ships the
 instructions. Nothing has been added to `CascadeDecays.jl`.
 
@@ -178,7 +178,7 @@ Beyond the checks in the brief, one substantive physics correction.
 
 **The reported "depth ≥ 2 divergence, θ ≈ β but ϕ ≠ α" was a bug, not a
 convention mismatch.** `lorentz_boost` in `TFPWACrossProductHelicity.jl` (and in
-`scripts/compare_angles_one_event.jl`) returned the energy component
+`scripts/angular_check/compare_angles_one_event.jl`) returned the energy component
 untransformed:
 
 ```julia

@@ -163,7 +163,7 @@ function wrap_delta(a, b)
 end
 
 function main()
-    event_path = joinpath(@__DIR__, "..", "archive", "data", "crosscheck_event.json")
+    event_path = joinpath(@__DIR__, "..", "..", "archive", "data", "crosscheck_event.json")
     event, p4, objs = load_event(event_path)
     point = KinematicPoint(B2DxDK.kinematic_task, objs)
     x_dxd = kinematics_at(point, B2DxDK.dxd_topology)
@@ -259,7 +259,7 @@ the signature of one spurious azimuthal rotation. |p⃗_B| ≈ 2e-10 GeV exceeds
 CascadeDecays' at-rest tolerance (rtol 1e-12), so KinematicPoint prepends
 ToHelicityFrame(B) using the ϕ, θ of numerical noise. Re-run with
 CascadeKinematics(topology, objs; initial_frame=CurrentFrame()) and every row
-agrees to ~1e-15 — see archive/angles/run_crossproduct_walk.jl §4.""")
+agrees to ~1e-15 — see scripts/angular_check/run_crossproduct_walk.jl §4.""")
 
     if haskey(event, "dpd_kinematics")
         dpd = event["dpd_kinematics"]

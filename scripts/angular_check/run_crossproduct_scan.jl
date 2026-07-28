@@ -18,8 +18,8 @@
 # and where a genuine difference could still live.  It says nothing about
 # amplitudes.  See the design note for why angle agreement is expected.
 #
-# Run from the repo root (see scripts/README.md for the JULIA_LOAD_PATH stanza):
-#   JULIA_LOAD_PATH="@:$TENV:@stdlib" julia --project=. scripts/run_crossproduct_scan.jl [N]
+# Run from the repo root (see the README in this folder for the JULIA_LOAD_PATH stanza):
+#   JULIA_LOAD_PATH="@:$TENV:@stdlib" julia --project=. scripts/angular_check/run_crossproduct_scan.jl [N]
 
 using B2DxDK
 using CascadeDecays

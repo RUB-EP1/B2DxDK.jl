@@ -3,11 +3,11 @@
 # Validation for `CrossProductWalk.jl` — TF-PWA cross-product helicity angles
 # expressed as an InstructionalDecayTrees program.
 #
-# Run from the repo root (see scripts/README.md for the JULIA_LOAD_PATH stanza):
+# Run from the repo root (see the README in this folder for the JULIA_LOAD_PATH stanza):
 #
 #   TENV=$(mktemp -d); cp Manifest.toml "$TENV/"
 #   printf '[deps]\nInstructionalDecayTrees = "1d606af4-d0f8-4ff7-bc8d-eb3f657b7647"\n' > "$TENV/Project.toml"
-#   JULIA_LOAD_PATH="@:$TENV:@stdlib" julia --project=. scripts/run_crossproduct_walk.jl
+#   JULIA_LOAD_PATH="@:$TENV:@stdlib" julia --project=. scripts/angular_check/run_crossproduct_walk.jl
 #
 # Checks, in order:
 #   1. frame trace          — what frame `objs` are in after every program line
@@ -42,7 +42,7 @@ mom(objs, idx) = sum(objs[i] for i in idx)
 # ---------------------------------------------------------------------------
 
 function load_event()
-    event = JSON.parsefile(joinpath(@__DIR__, "..", "archive", "data", "crosscheck_event.json"))
+    event = JSON.parsefile(joinpath(@__DIR__, "..", "..", "archive", "data", "crosscheck_event.json"))
     fv = event["four_vectors"]
     objs = (
         FourVector(fv["D0"]["px"], fv["D0"]["py"], fv["D0"]["pz"]; E = fv["D0"]["E"]),
@@ -293,7 +293,7 @@ function main()
     that one boost stays right, but the next `rest_vector` divides by the stale
     energy to get its β, so everything below depth 2 was boosted with the wrong
     velocity — and the four-vectors stopped conserving mass.  Fixed here and in
-    scripts/compare_angles_one_event.jl.
+    scripts/angular_check/compare_angles_one_event.jl.
   HelicityRootFrame / KinematicPoint: ϕ off by a constant ≈ 1.92 rad at depth
     ≥ 2 while θ matches — the signature of one spurious azimuthal rotation, not
     a convention mismatch.  CascadeDecays prepends ToHelicityFrame(B) with the
