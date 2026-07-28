@@ -9,6 +9,21 @@
 #   M_lineshape        — resonance_name, lineshape (multichannel γ₀/γ₂ split)
 #   M_sign             — `MAGIC_SIGNS[resonance_name]` (TF-PWA overall sign)
 #   N_propagator_spin  — propagator_two_j (CascadeDecays v0.1.0 spin norm; D* line fixed at jp"1+")
+#
+# Particle-2 phase (Issue A, not part of M_chain)
+# ----------------------------------------------
+# CascadeDecays applies the Jacob–Wick factor (-1)^{(j₂-λ₂)/2} at every two-body
+# vertex.  RecouplingLS builds H_{λ₁,λ₂} with the standard ⟨j₁,λ₁; j₂,-λ₂|…⟩
+# CG convention.  TF-PWA omits the particle-2 phase; see
+# `docs/tfpwa_review/tfpwa_modelling_issues.qmd`.
+#
+# For integer-spin mesons, (-1)^{j₂-λ₂} = (-1)^{j₂+λ₂} because (-1)^{2λ₂}=1, so
+# the phase is *invariant* under λ₂ → -λ₂.  It distinguishes λ₂=0 from λ₂=±1,
+# not +1 from -1.  When only λ₂=±1 contribute at the dk root, the phase is a
+# common +1 and no recoupling workaround is needed (X₁(2900) L=1).  When the
+# root LS coupling is nonzero at λ₂=0, λ₂=0 and λ₂=±1 enter with opposite signs
+# and the mismatch is helicity dependent — it cannot be absorbed into the scalar
+# M_chain above.  Set `root_recoupling` on each row in `resonance_table.jl`.
 
 const MAGIC_SIGNS = Dict{String,Float64}(
     "X(3872)" => -1.0,
@@ -32,6 +47,9 @@ magic_sign(resonance_name::String) = MAGIC_SIGNS[resonance_name]
 const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chain
 
 vertex_l(two_ls) = div(two_ls[1], 2)
+
+vertex_blatt_l(r::RecouplingLS) = vertex_l(r.two_ls)
+vertex_blatt_l(r::MissingParticleTwoPhaseLS) = vertex_l(r.two_ls)
 
 nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
@@ -86,36 +104,4 @@ function chain_matching_factor(row)
         chain_lineshape_matching_factor(row.resonance_name, row.lineshape) /
         chain_propagator_spin_norm(row)
     )
-end
-
-function info_lineshape_param_keys(resonance_name::String, lineshape)
-    spec = lineshape_spec(lineshape)
-    keys = String[]
-    if spec.base in (:bwr_l1, :bwr_l2) || spec.mc_gamma !== nothing
-        push!(keys, resonance_name * "_width")
-        spec.mc_gamma !== nothing && push!(keys, resonance_name * "_theta0")
-    elseif spec.base == :nr_exp
-        append!(keys, ["NR(0-)SPp_alpha", "NR(0-)SPp_beta"])
-    elseif spec.base in (:x2900_bwr_l0, :x2900_bwr_l1)
-        push!(keys, resonance_name * "_width")
-    end
-    return keys
-end
-
-function info_parametrization_keys(resonance_name::String, coupling_keys, lineshape)
-    return unique(vcat(collect(coupling_keys), info_lineshape_param_keys(resonance_name, lineshape)))
-end
-
-function info_enrich_resonance_chains_df!(df)
-    specs = lineshape_spec.(df.lineshape)
-    df.info_nominal_mass = [nominal_mass[name] for name in df.resonance_name]
-    df.info_bare_coupling_re = real.(df.coupling_value)
-    df.info_bare_coupling_im = imag.(df.coupling_value)
-    df.info_coupling_param_keys = join.(df.coupling_keys, Ref(";"))
-    df.info_bwr_l = [spec.bwr_l for spec in specs]
-    df.info_parametrization = [
-        join(info_parametrization_keys(row.resonance_name, row.coupling_keys, row.lineshape), ";")
-        for row in eachrow(df)
-    ]
-    return df
 end

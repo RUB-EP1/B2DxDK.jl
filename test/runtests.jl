@@ -28,6 +28,15 @@ const amplitude_tolerance = 1e-10
         @test merge([build_resonance_cascade(name) for name in all_resonance_names]...) !== nothing
     end
 
+    @testset "particle-2 convention" begin
+        x1_rows = collect(eachrow(B2DxDK.resonance_chain_rows("X1(2900)")))
+        @test length(x1_rows) == 3
+        @test [row.root_recoupling for row in x1_rows] == [:missing_particle2, :standard, :missing_particle2]
+        @test first(eachrow(B2DxDK.resonance_chain_rows("X0(2900)"))).root_recoupling == :standard
+        dk_rows = resonance_chains_df[resonance_chains_df.topology.==:dk, :]
+        @test all(row -> row.root_recoupling in (:standard, :missing_particle2), eachrow(dk_rows))
+    end
+
     @testset "amplitude crosscheck" begin
         @test isfile(crosscheck_data_path)
         @test isfile(amplitude_reference_path)

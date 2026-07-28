@@ -4,9 +4,9 @@ Earlier Julia attempts to reproduce the $B^+ \to D^- D^{*+} K^+$ amplitude using
 [ThreeBodyDecays.jl](https://github.com/RUB-EP1/ThreeBodyDecays.jl) as the main framework.
 These did not reach agreement with TF-PWA at the level needed for production analysis.
 
-Production code now lives at the repo root in `scripts/all_resonances_model.jl`, built on
+Production code now lives at the repo root in `src/` (B2DxDK package), built on
 [CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) with a small
-ThreeBodyDecays recoupling workaround (`BuggyParticleTwoPhaseLS`).
+ThreeBodyDecays recoupling workaround (`MissingParticleTwoPhaseLS`).
 
 ## Layout
 

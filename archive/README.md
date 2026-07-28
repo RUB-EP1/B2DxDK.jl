@@ -38,6 +38,13 @@ Small standalone Julia scripts that cross-check helicity and decay-angle convent
 
 Historical datasets not used by `scripts/`: interference matrices, older parameter files, fit-fraction CSVs, helper scripts, and the single-event JSON for angular checks.
 
+## Historical monolithic scripts
+
+Pre-refactor standalone Julia models (not used by the `B2DxDK` package):
+
+- [`all_resonances_model.jl`](all_resonances_model.jl) — single-file model before `src/` split
+- [`all_resonances_sampled_comparison.jl`](all_resonances_sampled_comparison.jl) — flat 4b phsp comparison (see also [`flat4b/notebooks/`](flat4b/notebooks/))
+
 ## notebooks/
 
 Saved outputs from earlier work: reference fit-fraction table and comparison plots (`Plots/`).

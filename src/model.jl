@@ -1,11 +1,10 @@
 function enrich_resonance_chains_df!(df)
     df.coupling_value = resolve_coupling_keys.(df.coupling_keys)
     df.matching_factor = chain_matching_factor.(eachrow(df))
-    info_enrich_resonance_chains_df!(df)
     return df
 end
 
-function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls, root_l, decay_l)
+function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoupling)
     return DecayChain(
         dxd_topology;
         propagators=(
@@ -13,23 +12,14 @@ function build_dxd_chain(lineshape, two_j, root_two_ls, decay_two_ls, root_l, de
             ((1, 2), 3) => Propagator(two_j, lineshape),
         ),
         vertices=(
-            (((1, 2), 3), 4) => Vertex(RecouplingLS(root_two_ls), BlattWeisskopf{root_l}(WELL_SIZE)),
-            ((1, 2), 3) => Vertex(RecouplingLS(decay_two_ls), BlattWeisskopf{decay_l}(WELL_SIZE)),
+            (((1, 2), 3), 4) => Vertex(production, BlattWeisskopf{vertex_blatt_l(production)}(WELL_SIZE)),
+            ((1, 2), 3) => Vertex(decay, BlattWeisskopf{vertex_blatt_l(decay)}(WELL_SIZE)),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
         ),
     )
 end
 
-function build_dk_chain(
-    lineshape,
-    two_j,
-    root_two_ls,
-    dk_two_ls,
-    root_l,
-    dk_l;
-    remove_root_particle2_phase=false,
-)
-    root_recoupling = remove_root_particle2_phase ? BuggyParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
+function build_dk_chain(lineshape, two_j, root::Recoupling, daughter::Recoupling)
     return DecayChain(
         dk_topology;
         propagators=(
@@ -37,8 +27,8 @@ function build_dk_chain(
             (3, 4) => Propagator(two_j, lineshape),
         ),
         vertices=(
-            ((1, 2), (3, 4)) => Vertex(root_recoupling, BlattWeisskopf{root_l}(WELL_SIZE)),
-            (3, 4) => Vertex(RecouplingLS(dk_two_ls), BlattWeisskopf{dk_l}(WELL_SIZE)),
+            ((1, 2), (3, 4)) => Vertex(root, BlattWeisskopf{vertex_blatt_l(root)}(WELL_SIZE)),
+            (3, 4) => Vertex(daughter, BlattWeisskopf{vertex_blatt_l(daughter)}(WELL_SIZE)),
             (1, 2) => Vertex(RecouplingLS((2, 0))),
         ),
     )
@@ -52,27 +42,12 @@ end
 
 function build_chain_from_row(row)
     lineshape = build_chain_lineshape(row)
-    root_l = vertex_l(row.root_two_ls)
-    daughter_l = vertex_l(row.daughter_two_ls)
+    root = root_recoupling(row.root_two_ls, row.root_recoupling)
+    daughter = RecouplingLS(row.daughter_two_ls)
     if row.topology == :dk
-        return build_dk_chain(
-            lineshape,
-            row.propagator_two_j,
-            row.root_two_ls,
-            row.daughter_two_ls,
-            root_l,
-            daughter_l;
-            remove_root_particle2_phase=row.root_remove_particle2_phase,
-        )
+        return build_dk_chain(lineshape, row.propagator_two_j, root, daughter)
     end
-    return build_dxd_chain(
-        lineshape,
-        row.propagator_two_j,
-        row.root_two_ls,
-        row.daughter_two_ls,
-        root_l,
-        daughter_l,
-    )
+    return build_dxd_chain(lineshape, row.propagator_two_j, root, daughter)
 end
 
 function chain_name(resonance_name::String, row)

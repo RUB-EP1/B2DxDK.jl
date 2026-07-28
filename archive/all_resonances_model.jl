@@ -9,17 +9,17 @@ import ThreeBodyDecays
 using ThreeBodyDecays: Recoupling, RecouplingLS, @jp_str
 
 """
-    BuggyParticleTwoPhaseLS
+    MissingParticleTwoPhaseLS(two_ls)
 
-Workaround recoupling that applies the Jacob–Wick particle-2 phase a second time so it
-cancels the factor already built into CascadeDecays, matching TF-PWA (which omits it).
-Not a physically correct recoupling on its own.
+Workaround recoupling that applies the Jacob–Wick particle-2 phase a second time so
+it cancels CascadeDecays' built-in factor in `_vertex_coupling_value`. TF-PWA **omits**
+this phase (it is missing from that implementation, not a harmless convention difference).
 """
-struct BuggyParticleTwoPhaseLS <: Recoupling
+struct MissingParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
 end
 
-function ThreeBodyDecays.amplitude(cs::BuggyParticleTwoPhaseLS, helicities, spins)
+function ThreeBodyDecays.amplitude(cs::MissingParticleTwoPhaseLS, helicities, spins)
     _, _, two_j2 = spins
     _, two_lambda2 = helicities
     exponent_num = two_j2 - two_lambda2
@@ -253,27 +253,27 @@ function build_resonance_chains_df()
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=total_x3872, lineshape=:adhoc_q0_bwr_ls_l0,
     ))
     push!(rows, (
         resonance_name="X(3872)", topology=:DxD,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=(total_x3872..., "X(3872)->Dst.D_g_ls_1"),
         lineshape=:adhoc_q0_bwr_ls_l2,
     ))
     push!(rows, (
         resonance_name="X(3915)(0-)", topology=:DxD,
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0",),
         lineshape=:bwr_l1,
     ))
     push!(rows, (
         resonance_name="chi(c2)(3930)", topology=:DxD,
         propagator_two_j=4, root_two_ls=(4, 4), daughter_two_ls=(4, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0",),
         lineshape=:bwr_l2,
     ))
@@ -282,13 +282,13 @@ function build_resonance_chains_df()
         push!(rows, (
             resonance_name=name, topology=:DxD,
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
-            root_remove_particle2_phase=false,
+            root_missing_particle2_phase=false,
             coupling_keys=total, lineshape=:bwr_ls_l0,
         ))
         push!(rows, (
             resonance_name=name, topology=:DxD,
             propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(4, 2),
-            root_remove_particle2_phase=false,
+            root_missing_particle2_phase=false,
             coupling_keys=(total..., "$(name)->Dst.D_g_ls_1"),
             lineshape=:bwr_ls_l2,
         ))
@@ -296,42 +296,42 @@ function build_resonance_chains_df()
     push!(rows, (
         resonance_name="Psi(4040)", topology=:DxD,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0",),
         lineshape=:bwr_l1,
     ))
     push!(rows, (
         resonance_name="NR(0-)SPp", topology=:DxD,
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0",),
         lineshape=:nr_exp,
     ))
     push!(rows, (
         resonance_name="NR(1.)PSp", topology=:DxD,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(0, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0",),
         lineshape=:constant,
     ))
     push!(rows, (
         resonance_name="NR(0-)SPm", topology=:DxD,
         propagator_two_j=0, root_two_ls=(0, 0), daughter_two_ls=(2, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->NR(0-)SPm.KNR(0-)SPm->Dst.DDst->D0.pi_total_0",),
         lineshape=:constant,
     ))
     push!(rows, (
         resonance_name="NR(1-)PPm", topology=:DxD,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=(2, 2),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0",),
         lineshape=:constant,
     ))
     push!(rows, (
         resonance_name="X0(2900)", topology=:dk,
         propagator_two_j=0, root_two_ls=(2, 2), daughter_two_ls=(0, 0),
-        root_remove_particle2_phase=false,
+        root_missing_particle2_phase=false,
         coupling_keys=("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0",),
         lineshape=:x2900_bwr_l0,
     ))
@@ -340,20 +340,20 @@ function build_resonance_chains_df()
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
         propagator_two_j=2, root_two_ls=(0, 0), daughter_two_ls=daughter_x1,
-        root_remove_particle2_phase=true,
+        root_missing_particle2_phase=true,
         coupling_keys=total_x1, lineshape=:x2900_bwr_l1,
     ))
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
         propagator_two_j=2, root_two_ls=(2, 2), daughter_two_ls=daughter_x1,
-        root_remove_particle2_phase=true,
+        root_missing_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_1"),
         lineshape=:x2900_bwr_l1,
     ))
     push!(rows, (
         resonance_name="X1(2900)", topology=:dk,
         propagator_two_j=2, root_two_ls=(4, 4), daughter_two_ls=daughter_x1,
-        root_remove_particle2_phase=true,
+        root_missing_particle2_phase=true,
         coupling_keys=(total_x1..., "Bp->X1(2900).Dst_g_ls_2"),
         lineshape=:x2900_bwr_l1,
     ))
@@ -550,9 +550,9 @@ function build_dk_chain(
     dk_two_ls,
     root_l,
     dk_l;
-    remove_root_particle2_phase=false,
+    missing_particle2_phase=false,
 )
-    root_recoupling = remove_root_particle2_phase ? BuggyParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
+    root_recoupling = missing_particle2_phase ? MissingParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
     return DecayChain(
         dk_topology;
         propagators=(
@@ -585,7 +585,7 @@ function build_chain_from_row(row)
             row.daughter_two_ls,
             root_l,
             daughter_l;
-            remove_root_particle2_phase=row.root_remove_particle2_phase,
+            missing_particle2_phase=row.root_missing_particle2_phase,
         )
     end
     return build_dxd_chain(

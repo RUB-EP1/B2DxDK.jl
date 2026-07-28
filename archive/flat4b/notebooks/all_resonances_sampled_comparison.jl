@@ -27,17 +27,17 @@ import ThreeBodyDecays
 using ThreeBodyDecays: Recoupling, RecouplingLS, VertexFunction, @jp_str
 
 """
-    BuggyParticleTwoPhaseLS
+    MissingParticleTwoPhaseLS(two_ls)
 
-Workaround recoupling that applies the Jacob–Wick particle-2 phase a second time so it
-cancels the factor already built into CascadeDecays, matching TF-PWA (which omits it).
-Not a physically correct recoupling on its own.
+Workaround recoupling that applies the Jacob–Wick particle-2 phase a second time so
+it cancels CascadeDecays' built-in factor in `_vertex_coupling_value`. TF-PWA **omits**
+this phase (it is missing from that implementation, not a harmless convention difference).
 """
-struct BuggyParticleTwoPhaseLS <: Recoupling
+struct MissingParticleTwoPhaseLS <: Recoupling
     two_ls::Tuple{Int,Int}
 end
 
-function ThreeBodyDecays.amplitude(cs::BuggyParticleTwoPhaseLS, helicities, spins)
+function ThreeBodyDecays.amplitude(cs::MissingParticleTwoPhaseLS, helicities, spins)
     _, _, two_j2 = spins
     _, two_lambda2 = helicities
     exponent_num = two_j2 - two_lambda2
@@ -350,8 +350,8 @@ function chain_amplitude(ctx, lineshape, two_j, root_two_ls, decay_two_ls; root_
     return CascadeDecays.amplitude(chain, ctx.system, ctx.x, external_spins)
 end
 
-function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, remove_root_particle2_phase = false)
-    root_recoupling = remove_root_particle2_phase ? BuggyParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
+function dk_chain_amplitude(ctx, lineshape, two_j, root_two_ls, dk_two_ls; root_l = nothing, dk_l = nothing, missing_particle2_phase = false)
+    root_recoupling = missing_particle2_phase ? MissingParticleTwoPhaseLS(root_two_ls) : RecouplingLS(root_two_ls)
     root_vertex = root_l === nothing ?
         VertexFunction(root_recoupling) :
         VertexFunction(root_recoupling, BlattWeisskopf{root_l}(3.0))
@@ -470,9 +470,9 @@ function selected_cd_amplitude(ctx, name::String)
     elseif name == "X1(2900)"
         dk_ctx = dk_event_context(ctx.sampled_p4)
         lineshape = x2900_bwr_lineshape(dk_ctx, name, 1)
-        raw_l0 = dk_chain_amplitude(dk_ctx, lineshape, 2, (0, 0), (2, 0); root_l = 0, dk_l = 1, remove_root_particle2_phase = true)
-        raw_l1 = dk_chain_amplitude(dk_ctx, lineshape, 2, (2, 2), (2, 0); root_l = 1, dk_l = 1, remove_root_particle2_phase = true)
-        raw_l2 = dk_chain_amplitude(dk_ctx, lineshape, 2, (4, 4), (2, 0); root_l = 2, dk_l = 1, remove_root_particle2_phase = true)
+        raw_l0 = dk_chain_amplitude(dk_ctx, lineshape, 2, (0, 0), (2, 0); root_l = 0, dk_l = 1, missing_particle2_phase = true)
+        raw_l1 = dk_chain_amplitude(dk_ctx, lineshape, 2, (2, 2), (2, 0); root_l = 1, dk_l = 1, missing_particle2_phase = true)
+        raw_l2 = dk_chain_amplitude(dk_ctx, lineshape, 2, (4, 4), (2, 0); root_l = 2, dk_l = 1, missing_particle2_phase = true)
         correction_l0 = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) *
                         mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"]) /
                         propagator_spin_norm(2)

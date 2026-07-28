@@ -386,10 +386,7 @@ All artefacts referenced here live in the B2DxDK repository:
   `model.jl`, `matching.jl`, `resonance_table.jl`).
 - Per-event $10^{-10}$ amplitude cross-check: `test/runtests.jl` against
   `data/crosscheck_amplitudes_reference.txt`.
-- Baseline fit fractions: `scripts/all_resonances_fit_fractions.jl`.
-- The impact study in @sec-impact: `scripts/abc_impact.jl`
-  (rebuilds the cascade with each fix toggled and recomputes fit fractions, with
-  statistical uncertainties).
+- Fit fractions: `scripts/all_resonances_fit_fractions.jl` (production B2DxDK model in `src/`).
 - TF-PWA source referenced above is the pinned submodule under
   `archive/investigation/tf-pwa/` (e.g. `tf_pwa/amp/split_ls.py`,
   `tf_pwa/amp/base.py`, `tf_pwa/amp/core.py`, `tf_pwa/breit_wigner.py`).
