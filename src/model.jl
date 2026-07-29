@@ -6,7 +6,8 @@ end
 
 function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoupling)
     return DecayChain(
-        dxd_topology;
+        dxd_topology,
+        external_spins;
         propagators=(
             (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), ConstantLineshape(1.0 + 0.0im)),
             ((1, 2), 3) => Propagator(two_j, lineshape),
@@ -21,7 +22,8 @@ end
 
 function build_dk_chain(lineshape, two_j, root::Recoupling, daughter::Recoupling)
     return DecayChain(
-        dk_topology;
+        dk_topology,
+        external_spins;
         propagators=(
             (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), ConstantLineshape(1.0 + 0.0im)),
             (3, 4) => Propagator(two_j, lineshape),
@@ -42,7 +44,7 @@ end
 
 function build_chain_from_row(row)
     lineshape = build_chain_lineshape(row)
-    root = root_recoupling(row.root_two_ls, row.root_recoupling)
+    root = RecouplingLS(row.root_two_ls)
     daughter = RecouplingLS(row.daughter_two_ls)
     if row.topology == :dk
         return build_dk_chain(lineshape, row.propagator_two_j, root, daughter)
@@ -68,7 +70,6 @@ function build_resonance_cascade(resonance_name::String)
     names = Tuple(chain_name(resonance_name, row) for row in rows)
     return CascadeDecay(
         chains,
-        standard_system,
         dxd_topology;
         couplings=effective_couplings,
         names=names,

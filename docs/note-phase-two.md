@@ -1,5 +1,14 @@
 # Particle-2 phase and partial-wave mixing (X1(2900) dk root)
 
+> **Superseded in part.** This note analyses the model as built on
+> `CascadeDecays v0.1.0`, where the particle-2 phase was applied in the vertex
+> coupling but *not* in the helicity-frame descent. `CascadeDecays v0.4.0`
+> applies both halves, which turns the TF-PWA discrepancy into a per-chain
+> constant $(-1)^{j_2}$ and removes the need for `MissingParticleTwoPhaseLS`
+> (deleted). The partial-wave algebra below is unchanged and still holds; the
+> conclusion about needing a helicity-dependent recoupling no longer applies.
+> See [`note-cascadedecays-v040.md`](note-cascadedecays-v040.md).
+
 Notes on Issue A in the B2DxDK ↔ TF-PWA mapping: why the Jacob–Wick
 particle-2 phase cannot be dropped or absorbed into a scalar matching factor,
 even for integer-spin mesons.

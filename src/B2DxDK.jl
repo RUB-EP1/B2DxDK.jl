@@ -9,8 +9,6 @@ using HadronicLineshapes
 using JSON
 using StaticArrays
 
-include("recoupling.jl")
-
 export data_dir,
     repo_root,
     all_resonance_names

@@ -20,7 +20,23 @@ function H_cascade(two_ls, two_l)
     return CascadeDecays.routed_vertex_amplitude(v, (1.0, 1.0, 1.0), (0, two_l, two_l), (0, 2, 2), (cosθ = 1.0, ϕ = 0.0))
 end
 
-H_tfpwa_rec(two_ls, two_l) = ThreeBodyDecays.amplitude(B2DxDK.MissingParticleTwoPhaseLS(two_ls), (two_l, two_l), (0, 2, 2))
+# Cancels the Jacob–Wick particle-2 phase that `RecouplingLS` applies, i.e. the
+# coupling half of the convention on its own.  Kept local to this script: the
+# model no longer needs such a recoupling, because from CascadeDecays v0.4.0 the
+# convention is applied consistently and the residual against TF-PWA is the
+# constant (-1)^{j₂} in `chain_particle2_convention_factor`.
+struct EtaCancelLS <: ThreeBodyDecays.Recoupling
+    two_ls::Tuple{Int,Int}
+end
+
+function ThreeBodyDecays.amplitude(cs::EtaCancelLS, helicities, spins)
+    _, _, two_j2 = spins
+    _, two_λ2 = helicities
+    phase = isodd(div(two_j2 - two_λ2, 2)) ? -1 : 1
+    return phase * ThreeBodyDecays.amplitude(RecouplingLS(cs.two_ls), helicities, spins)
+end
+
+H_tfpwa_rec(two_ls, two_l) = ThreeBodyDecays.amplitude(EtaCancelLS(two_ls), (two_l, two_l), (0, 2, 2))
 
 analytic_cg(L, lam) = if L == 0
     (-1)^(1 - lam) / sqrt(3)
@@ -61,11 +77,11 @@ function run_validation()
     @printf "TEST 4  analytic CG coefficients     max err = %.3e  %s\n" max4 (max4 < 1e-10 ? "PASS" : "FAIL")
 
     g = [1.2, -0.7, 0.5]
-    println("TEST 5  summed vertex (wrong = h, correct = P·C·g):")
+    println("TEST 5  summed vertex (h = TF-PWA convention, H = P·C·g = particle-2 convention):")
     for two_l in λs
         h_tot = sum(g[j] * h_code(two_ls, two_l) for (j, two_ls) in enumerate(ROOT_LS))
         H_tot = sum(g[j] * H_cascade(two_ls, two_l) for (j, two_ls) in enumerate(ROOT_LS))
-        @printf "         λ=%+d  wrong=% .6f  correct=% .6f  Δ=% .6f\n" (two_l ÷ 2) h_tot H_tot (H_tot - h_tot)
+        @printf "         λ=%+d  h=% .6f  H=% .6f  Δ=% .6f\n" (two_l ÷ 2) h_tot H_tot (H_tot - h_tot)
     end
 
     g_test = [1.2, -0.7, 0.5]
@@ -75,9 +91,28 @@ function run_validation()
     maxL1 = maximum(abs(H_cascade((2, 2), two_l) - h_code((2, 2), two_l)) for two_l in λs)
     @printf "TEST 9  L=1 only: H = h             max err = %.3e  %s\n" maxL1 (maxL1 < 1e-12 ? "PASS" : "FAIL")
 
-    row_l0 = first([r for r in eachrow(B2DxDK.resonance_chain_rows("X1(2900)")) if B2DxDK.vertex_l(r.root_two_ls) == 0])
-    row_l1 = first([r for r in eachrow(B2DxDK.resonance_chain_rows("X1(2900)")) if B2DxDK.vertex_l(r.root_two_ls) == 1])
-    @printf "TEST 10 table recoupling: L0=%s L1=%s (expected :missing_particle2, :standard)\n" row_l0.root_recoupling row_l1.root_recoupling
+    # The convention factor is a per-chain constant (-1)^{j₂}; it is right only if
+    # CascadeDecays really does enter the particle-2 frame at the dk (3,4) vertex.
+    f_x0 = only(unique(B2DxDK.chain_particle2_convention_factor.(eachrow(B2DxDK.resonance_chain_rows("X0(2900)")))))
+    f_x1 = only(unique(B2DxDK.chain_particle2_convention_factor.(eachrow(B2DxDK.resonance_chain_rows("X1(2900)")))))
+    @printf "TEST 10 convention factor: X0=%+.0f X1=%+.0f  (expected +1, -1)  %s\n" f_x0 f_x1 (
+        (f_x0 == 1.0 && f_x1 == -1.0) ? "PASS" : "FAIL"
+    )
+
+    dk_p2 = any(
+        instr -> instr isa CascadeDecays.InstructionalDecayTrees.ToHelicityFrameParticle2,
+        CascadeDecays.helicity_angle_program(B2DxDK.dk_topology, 3),
+    )
+    dxd_p2 = any(
+        v -> any(
+            instr -> instr isa CascadeDecays.InstructionalDecayTrees.ToHelicityFrameParticle2,
+            CascadeDecays.helicity_angle_program(B2DxDK.dxd_topology, v),
+        ),
+        1:nvertices(B2DxDK.dxd_topology),
+    )
+    @printf "TEST 10b frame: dk (3,4) uses particle-2 = %s, any DxD vertex does = %s  %s\n" dk_p2 dxd_p2 (
+        (dk_p2 && !dxd_p2) ? "PASS" : "FAIL"
+    )
 
     df = DataFrame(Arrow.Table(joinpath(B2DxDK.data_dir, "crosscheck.arrow")))
     max_cross = 0.0

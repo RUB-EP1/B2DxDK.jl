@@ -29,12 +29,26 @@ const amplitude_tolerance = 1e-10
     end
 
     @testset "particle-2 convention" begin
+        # The convention factor relating CascadeDecays to TF-PWA is the constant
+        # (-1)^{j₂} over the child-2 lines descended into: +1 for every DxD chain
+        # (all child-2 lines spinless), (-1)^{j_X} for dk chains.
         x1_rows = collect(eachrow(B2DxDK.resonance_chain_rows("X1(2900)")))
         @test length(x1_rows) == 3
-        @test [row.root_recoupling for row in x1_rows] == [:missing_particle2, :standard, :missing_particle2]
-        @test first(eachrow(B2DxDK.resonance_chain_rows("X0(2900)"))).root_recoupling == :standard
+        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == -1.0, x1_rows)
+
+        x0_rows = collect(eachrow(B2DxDK.resonance_chain_rows("X0(2900)")))
+        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == 1.0, x0_rows)
+
+        dxd_rows = resonance_chains_df[resonance_chains_df.topology.==:DxD, :]
+        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == 1.0, eachrow(dxd_rows))
+
+        # the factor is (-1)^j of the dk propagator spin, not a free per-row choice
         dk_rows = resonance_chains_df[resonance_chains_df.topology.==:dk, :]
-        @test all(row -> row.root_recoupling in (:standard, :missing_particle2), eachrow(dk_rows))
+        @test all(
+            row -> B2DxDK.chain_particle2_convention_factor(row) ==
+                (-1.0)^div(row.propagator_two_j, 2),
+            eachrow(dk_rows),
+        )
     end
 
     @testset "amplitude crosscheck" begin

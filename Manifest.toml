@@ -2,7 +2,7 @@
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "b39fea21718d0b69019ff70f152dc50c2cd4f026"
+project_hash = "5b23c62e456fb6b5034468a167c7cf59333cab42"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -14,11 +14,11 @@ version = "1.11.0"
 
 [[deps.CascadeDecays]]
 deps = ["FourVectors", "HadronicLineshapes", "InstructionalDecayTrees", "Literate", "PartialWaveFunctions", "StaticArrays", "ThreeBodyDecays", "Tullio"]
-git-tree-sha1 = "eeec564d550008b7f2a9f2632a44ef00ea647b5a"
-repo-rev = "v0.1.0"
+git-tree-sha1 = "6b979ea90f62ce52fe94d34b002e6035f9a19c97"
+repo-rev = "v0.4.0"
 repo-url = "https://github.com/RUB-EP1/CascadeDecays.jl"
 uuid = "fffe189e-c188-4e56-b22b-870ae3b23d6b"
-version = "0.1.0"
+version = "0.4.0"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
@@ -132,12 +132,12 @@ version = "1.4.5"
     Parsers = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 
 [[deps.InstructionalDecayTrees]]
-deps = ["FourVectors", "LinearAlgebra", "Test"]
-git-tree-sha1 = "e00ddf3b9b8de12a87fe81cb8e7c9978538b8513"
+deps = ["FourVectors", "LinearAlgebra"]
+git-tree-sha1 = "e07e27cfe3d8d43e2d1f5fdbeb13c0822a1eadac"
 repo-rev = "main"
 repo-url = "https://github.com/mmikhasenko/InstructionalDecayTrees.jl"
 uuid = "1d606af4-d0f8-4ff7-bc8d-eb3f657b7647"
-version = "0.2.1"
+version = "0.3.0"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -504,11 +504,6 @@ deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "Ordere
 git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 version = "1.12.1"
-
-[[deps.Test]]
-deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
-uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-version = "1.11.0"
 
 [[deps.ThreeBodyDecays]]
 deps = ["LinearAlgebra", "Parameters", "PartialWaveFunctions", "PolynomialRoots", "Polynomials", "Random", "RecipesBase", "StaticArrays", "Statistics", "Tullio"]
