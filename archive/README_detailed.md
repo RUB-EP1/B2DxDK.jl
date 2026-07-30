@@ -41,12 +41,13 @@ B2DxDK/
 ├── scripts/
 │   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
 ├── docs/
-│   └── all_resonances_model.jl                # Historical monolithic model (pre-refactor)
+│   └── tfpwa_review/                          # TF-PWA modelling-issues note
 ├── archive/                      # Historical investigation material — see archive/README.md
 │   ├── investigation/
 │   ├── threebodydecays/
 │   ├── flat4b/
 │   ├── angles/
+│   ├── notes/
 │   ├── data/
 │   └── notebooks/
 └── README.md

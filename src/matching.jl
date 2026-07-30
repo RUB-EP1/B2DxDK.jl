@@ -39,7 +39,7 @@ const MAGIC_SIGNS = Dict{String,Float64}(
     # X1(2900) chain by exactly -1 and leaves the other 16 chains untouched (a
     # pure per-chain sign, no event dependence); (-1)^{j_X} is the expected size
     # for a spin-1 DK resonance entered as child 2.  Like every other sign here it
-    # is fixed by matching, not derived.  See docs/note-cascadedecays-v040.md.
+    # is fixed by matching, not derived.  See archive/notes/note-cascadedecays-v040.md.
     "X1(2900)" => -1.0,
 )
 @assert Set(keys(MAGIC_SIGNS)) == Set(all_resonance_names)

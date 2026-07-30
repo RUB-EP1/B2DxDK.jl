@@ -34,6 +34,13 @@ Small standalone Julia scripts that cross-check helicity and decay-angle convent
 
 → [angles/README.md](angles/README.md)
 
+## notes/
+
+Working notes on helicity/LS conventions — the reasoning behind the particle-2 signs
+that survive in `src/matching.jl`, and the CascadeDecays v0.4.0 upgrade.
+
+→ [notes/README.md](notes/README.md)
+
 ## data/
 
 Historical datasets not used by `scripts/`: interference matrices, older parameter files, fit-fraction CSVs, helper scripts, and the single-event JSON for angular checks.

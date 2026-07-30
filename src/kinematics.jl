@@ -2,8 +2,6 @@ const external_spins = SystemSpins(0, 0, 0, 0; two_h0=0)
 const dxd_topology = DecayTopology((((1, 2), 3), 4))
 const dk_topology = DecayTopology(((1, 2), (3, 4)))
 const kinematic_task = KinematicTask((dxd_topology, dk_topology))
-# CascadeDecays v0.4.0 has no system object: line masses come from the event
-# four-vectors, and `external_spins` is consumed by each `DecayChain`.
 
 function event_point(row)
     pDminus = FourVector(row.Dm_px, row.Dm_py, row.Dm_pz; E=row.Dm_E)
