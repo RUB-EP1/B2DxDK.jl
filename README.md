@@ -69,11 +69,16 @@ If four-momenta are stored in a table row (as in `data/crosscheck.arrow`), use `
 julia --project=. test/runtests.jl
 ```
 
+## Analysis references
+
+- **Internal documentation**: [TWiki](https://twiki.cern.ch/twiki/bin/viewauth/LHCbPhysics/Bm2DstmDpKm)
+- **Internal code**: [GitLab@CERN](https://gitlab.cern.ch/lhcb-b2oc/analyses/b2oc-aman-bu2dstdk-run12/-/issues/1), [GitLab@EP1](https://gitlab.ep1.rub.de/lhcb/b2oc-aman-bu2dstdk-run12)
+- **Full TF2 code**: [fork by Alexander Kazatsky](https://github.com/AlexanderKazatsky/B2DxDK/tree/main)
+
 ## Archive
 
-Earlier notebooks, investigation material, project structure notes, and extended documentation
-are under [`archive/`](archive/README.md). The previous README is preserved in
-[`archive/README_detailed.md`](archive/README_detailed.md).
+Earlier notebooks, investigation material, and convention notes are under
+[`archive/`](archive/README.md).
 
 ## Acknowledgements
 
