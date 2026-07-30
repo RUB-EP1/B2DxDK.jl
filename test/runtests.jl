@@ -28,26 +28,21 @@ const amplitude_tolerance = 1e-10
         @test merge([build_resonance_cascade(name) for name in all_resonance_names]...) !== nothing
     end
 
-    @testset "particle-2 convention" begin
-        # The convention factor relating CascadeDecays to TF-PWA is the constant
-        # (-1)^{j₂} over the child-2 lines descended into: +1 for every DxD chain
-        # (all child-2 lines spinless), (-1)^{j_X} for dk chains.
-        x1_rows = collect(eachrow(B2DxDK.resonance_chain_rows("X1(2900)")))
-        @test length(x1_rows) == 3
-        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == -1.0, x1_rows)
+    @testset "particle-2 frame convention" begin
+        # MAGIC_SIGNS["X1(2900)"] is tied to CascadeDecays entering the particle-2
+        # frame at the dk (3,4) vertex and at no DxD vertex. If that upstream
+        # behaviour changes, the sign has to be re-derived — fail loudly here
+        # rather than silently in the amplitude.
+        is_p2(instr) = instr isa CascadeDecays.InstructionalDecayTrees.ToHelicityFrameParticle2
 
-        x0_rows = collect(eachrow(B2DxDK.resonance_chain_rows("X0(2900)")))
-        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == 1.0, x0_rows)
-
-        dxd_rows = resonance_chains_df[resonance_chains_df.topology.==:DxD, :]
-        @test all(row -> B2DxDK.chain_particle2_convention_factor(row) == 1.0, eachrow(dxd_rows))
-
-        # the factor is (-1)^j of the dk propagator spin, not a free per-row choice
-        dk_rows = resonance_chains_df[resonance_chains_df.topology.==:dk, :]
-        @test all(
-            row -> B2DxDK.chain_particle2_convention_factor(row) ==
-                (-1.0)^div(row.propagator_two_j, 2),
-            eachrow(dk_rows),
+        @test any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dk_topology, 3))
+        @test !any(
+            v -> any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dk_topology, v)),
+            (1, 2),
+        )
+        @test !any(
+            v -> any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dxd_topology, v)),
+            1:nvertices(B2DxDK.dxd_topology),
         )
     end
 

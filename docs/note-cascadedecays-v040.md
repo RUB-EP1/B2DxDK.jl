@@ -8,8 +8,8 @@ means for the TF-PWA agreement.
 $\varphi$, by exactly $\pi$. The model amplitude is *not* invariant: the naive
 upgrade breaks $X_1(2900)$ by up to 40% event-by-event. Once the model is made
 self-consistent again, the whole particle-2 discrepancy against TF-PWA collapses
-from a helicity-dependent recoupling workaround to a **single constant
-$(-1)^{j_2}$ per chain**. With that one sign absorbed, the upgraded model
+from a helicity-dependent recoupling workaround to a **single per-chain sign**.
+With that one sign absorbed into `MAGIC_SIGNS`, the upgraded model
 reproduces the current amplitudes to machine precision and TF-PWA agreement is
 restored at $5\times10^{-15}$.
 
@@ -117,6 +117,26 @@ against the $\eta$-free convention:
 
 Imaginary part of the ratio is `0.0e+00` throughout.
 
+How firmly can the sign be attributed to the particle-2 convention? Three
+independent pieces, and one caveat:
+
+- the *size* is not in doubt. The entire v0.1.0 → v0.4.0 delta on the production
+  model is a pure per-chain $\pm1$ with no event dependence — $+1$ on 16 chains,
+  $-1$ on the three $X_1(2900)$ chains, each constant to $<4\times10^{-14}$ over
+  100 events;
+- the *mechanism* is measured in both halves separately: the coupling half is
+  $\eta(\lambda_2)$ exactly (`RecouplingLS` vs the $\eta$-free coupling, error
+  `0.0e+00`), the frame half is $\varphi\to\varphi+\pi$ exactly (`8.9e-16`), and
+  $\eta(\lambda_2)\,(-1)^{\lambda_2}=(-1)^{j_2}$;
+- the *spin dependence* follows $(-1)^{j}$ across $j=0,1,2,3$ (table above).
+
+**Caveat.** None of this isolates the sign from the other signs already in
+`MAGIC_SIGNS` — five of the thirteen entries are $-1$ and none of them is
+attributed to a named convention. What is established is that the upgrade delta is
+this sign and nothing else; the total $X_1(2900)$ sign remains, like the others, a
+matching result rather than a derivation. That is why it is stored as a magic sign
+and not as a separate derived factor.
+
 ### Against real TF-PWA numbers
 
 `archive/flat4b/data/crosscheck_4b.arrow` holds genuine TF-PWA amplitudes for
@@ -137,12 +157,9 @@ Two edits, both in the model description:
 1. **`src/resonance_table.jl`** — `root_recoupling` dropped entirely; every row is
    plain `RecouplingLS`. `src/recoupling.jl` (`MissingParticleTwoPhaseLS`,
    `root_recoupling`) deleted.
-2. **`src/matching.jl`** — absorb the residual $(-1)^{j_2}$ as
-   `chain_particle2_convention_factor`, a new explicit term in
-   `chain_matching_factor`: $(-1)^{j_X}$ on dk chains, $+1$ on DxD chains, i.e.
-   $-1$ for $X_1(2900)$ and $+1$ for $X_0(2900)$. Kept separate from
-   `MAGIC_SIGNS` so the convention is documented rather than folded silently into
-   an overall sign.
+2. **`src/matching.jl`** — `MAGIC_SIGNS["X1(2900)"]` flipped $+1 \to -1$, with the
+   derivation recorded in a comment next to it. $X_0(2900)$ and every DxD chain
+   are unaffected.
 
 Result: **every chain reproduces the current `v0.1.0` amplitudes to machine
 precision.** Over the 100 cross-check events, 16 of the 19 chains are
@@ -154,14 +171,16 @@ and because $\varphi+\pi$ is computed rather than exact. Agreement against TF-PW
 on the 1000 flat-4b events is unchanged line for line. `test/runtests.jl` passes
 271/271. The physics model does not move, so fit fractions are unaffected.
 
-`test/particle2_algebra.jl` survives almost intact — TESTs 1–9 are vertex-coupling
-algebra, and `RecouplingLS` is untouched by `v0.4.0`, so they all still pass with
-identical numbers; TEST 11 stays at `1.67e-14`. Only TEST 10 (which asserted the
-`root_recoupling` column) went stale, and is replaced by two frame-level checks:
-the $(-1)^{j_2}$ factor on the table, and the assertion that CascadeDecays really
-does enter the particle-2 frame at the dk $(3,4)$ vertex and at no DxD vertex —
-which is the upstream behaviour the factor depends on. `EtaCancelLS`, the local
-stand-in for the deleted workaround, keeps TEST 2's algebra self-contained.
+`test/particle2_algebra.jl` is **deleted**. It existed to validate
+`MissingParticleTwoPhaseLS` and the claim that the mismatch is helicity dependent
+and cannot be absorbed into a scalar — both gone. Its remaining content was either
+pure `RecouplingLS` algebra (unchanged by `v0.4.0`, and upstream's concern) or a
+duplicate of the cross-check in `test/runtests.jl`.
+
+One check from it moved into `test/runtests.jl`: that CascadeDecays really does
+enter the particle-2 frame at the dk $(3,4)$ vertex and at no other vertex. The
+magic sign is only right as long as that holds, so it should fail loudly rather
+than silently in the amplitude.
 
 ### API port required by the upgrade
 

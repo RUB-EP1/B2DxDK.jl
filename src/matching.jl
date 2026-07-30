@@ -1,34 +1,26 @@
 # Matching is evaluated per chain (one row of `resonance_chains_df`).  Total
 # matching is the product of vertex and lineshape contributions:
 #
-#     M_chain = M_sign × M_particle2 × M_vertex × M_lineshape / N_propagator_spin
+#     M_chain = M_sign × M_vertex × M_lineshape / N_propagator_spin
 #
 # Dependencies:
 #   M_vertex           — topology, resonance_name, root_two_ls, daughter_two_ls, lineshape
 #                        (lineshape sets decay reference mass for adhoc-q0 DxD chains)
 #   M_lineshape        — resonance_name, lineshape (multichannel γ₀/γ₂ split)
 #   M_sign             — `MAGIC_SIGNS[resonance_name]` (TF-PWA overall sign)
-#   M_particle2        — particle-2 convention constant (see below)
 #   N_propagator_spin  — propagator_two_j (CascadeDecays spin norm; D* line fixed at jp"1+")
 #
 # Particle-2 convention
 # ---------------------
 # The Jacob–Wick particle-2 convention has two halves: the phase (-1)^{(j₂-λ₂)/2}
 # in the two-body coupling, and the π-rotated helicity frame when descending into
-# a child-2 line.  CascadeDecays applies both from v0.4.0 on (before, `RecouplingLS`
-# carried the phase while the frame descent ignored it — see
-# `docs/note-cascadedecays-v040.md`).  TF-PWA omits the convention entirely; see
-# `docs/tfpwa_review/tfpwa_modelling_issues.qmd`.
+# a child-2 line.  CascadeDecays applies both from v0.4.0 on; before, `RecouplingLS`
+# carried the phase while the frame descent ignored it, and `MissingParticleTwoPhaseLS`
+# cancelled the phase to restore consistency.  TF-PWA omits the convention entirely;
+# see `docs/tfpwa_review/tfpwa_modelling_issues.qmd`.
 #
-# Applied consistently the two halves combine into a per-chain *constant*
-#
-#     A_CascadeDecays = (-1)^{j₂} A_TFPWA,
-#
-# with j₂ the spin of the child-2 line that is entered.  In the DxD topology the
-# D* is child 1 at every vertex and every child 2 (K⁺, D⁻, π⁺) is spinless, so the
-# factor is +1.  In the dk topology the DK resonance is child 2 of the root and it
-# decays, so the factor is (-1)^{j_X}: +1 for X₀(2900), −1 for X₁(2900).  Being a
-# constant it belongs in M_chain; no recoupling workaround is needed.
+# Applied consistently the two halves combine into a per-chain *constant*, so no
+# recoupling workaround is needed — the whole effect lives in MAGIC_SIGNS below.
 
 const MAGIC_SIGNS = Dict{String,Float64}(
     "X(3872)" => -1.0,
@@ -43,7 +35,12 @@ const MAGIC_SIGNS = Dict{String,Float64}(
     "NR(0-)SPm" => 1.0,
     "NR(1-)PPm" => 1.0,
     "X0(2900)" => 1.0,
-    "X1(2900)" => 1.0,
+    # Flipped when moving to CascadeDecays v0.4.0.  The upgrade multiplies every
+    # X1(2900) chain by exactly -1 and leaves the other 16 chains untouched (a
+    # pure per-chain sign, no event dependence); (-1)^{j_X} is the expected size
+    # for a spin-1 DK resonance entered as child 2.  Like every other sign here it
+    # is fixed by matching, not derived.  See docs/note-cascadedecays-v040.md.
+    "X1(2900)" => -1.0,
 )
 @assert Set(keys(MAGIC_SIGNS)) == Set(all_resonance_names)
 
@@ -54,20 +51,6 @@ const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chai
 vertex_l(two_ls) = div(two_ls[1], 2)
 
 vertex_blatt_l(r::RecouplingLS) = vertex_l(r.two_ls)
-
-"""
-    chain_particle2_convention_factor(row)
-
-`(-1)^{j₂}` over the child-2 lines that the chain descends into — the constant
-relating the CascadeDecays particle-2 convention to the TF-PWA one (see the note
-at the top of this file).  DxD chains only ever descend into spinless child-2
-lines, so they carry `+1`; dk chains descend into the DK resonance and carry
-`(-1)^{j_X}`.
-"""
-function chain_particle2_convention_factor(row)
-    row.topology === :dk || return 1.0
-    return isodd(div(row.propagator_two_j, 2)) ? -1.0 : 1.0
-end
 
 nominal_vertex_matching_factor(l, d, m0, m1, m2) = 1 / BlattWeisskopf{l}(d)(m0^2, m1^2, m2^2)
 
@@ -118,7 +101,6 @@ chain_propagator_spin_norm(row) =
 function chain_matching_factor(row)
     return (
         magic_sign(row.resonance_name) *
-        chain_particle2_convention_factor(row) *
         chain_vertex_matching_factor(row) *
         chain_lineshape_matching_factor(row.resonance_name, row.lineshape) /
         chain_propagator_spin_norm(row)
