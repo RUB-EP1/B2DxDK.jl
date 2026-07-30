@@ -27,31 +27,11 @@ The decay B+ → D- D*+ K+ involves several resonance contributions:
 - Charmonium states in $D^*D$ system: `EFF(1++)`, `ηc(3945)`, `χc2(3930)`, `hc(4000)`, `χc1(4010)`, `ψ(4040)`, `hc(4300)`
 - Tetraquark candidate in $D^*K$ and $DK$ system: `Tcs0(2870)`, `Tcs1(2900)`
 
-## Project Structure
+## Production inputs
 
-```
-B2DxDK/
-├── data/                         # Production inputs for scripts/
-│   ├── final_params_full.json
-│   ├── b-decay-events.arrow
-│   ├── crosscheck.arrow
-│   └── crosscheck_amplitudes_reference.txt
-├── src/                          # B2DxDK.jl package — TF-PWA-aligned CascadeDecays model
-├── test/                         # Amplitude regression and model sanity checks
-├── scripts/
-│   └── all_resonances_fit_fractions.jl        # Full-sample weighted fit fractions
-├── docs/
-│   └── tfpwa_review/                          # TF-PWA modelling-issues note
-├── archive/                      # Historical investigation material — see archive/README.md
-│   ├── investigation/
-│   ├── threebodydecays/
-│   ├── flat4b/
-│   ├── angles/
-│   ├── notes/
-│   ├── data/
-│   └── notebooks/
-└── README.md
-```
+For the current layout see the [root README](../README.md) and
+[`archive/README.md`](README.md); the tree that used to be reproduced here went stale
+and was removed rather than kept in sync.
 
 Key files under `data/` (used by `scripts/`):
 
@@ -60,12 +40,12 @@ Key files under `data/` (used by `scripts/`):
 - `crosscheck.arrow` — 100-event amplitude regression subset
 - `crosscheck_amplitudes_reference.txt` — reference amplitudes for regression
 
-Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. Angular cross-check scripts are under [`archive/angles/`](angles/README.md). For a guide to all archived material, see [`archive/README.md`](README.md).
+Additional historical datasets (including `crosscheck_event.json` for angular checks) are under `archive/data/`. The current angular cross-checks live at [`scripts/angular_check/`](../scripts/angular_check/README.md); earlier standalone ones are under [`archive/angles/`](angles/README.md). For a guide to all archived material, see [`archive/README.md`](README.md).
 
 ## Installation and Usage
 
 ### Prerequisites
-- Julia 1.10. The package manager will have to resolve the dependencies for any julia version rather than 1.11.5.
+- Julia 1.11 (the `julia` compat bound in `Project.toml`). Other versions will make the package manager re-resolve the dependencies.
 - Pluto.jl
 
 For testing the setup in terminal from the project folder, you can run:
@@ -102,7 +82,7 @@ it is not required to run the Julia regression scripts below.
 ### All-resonance model and fit fractions (Julia, TF-PWA aligned)
 
 The `B2DxDK` package (`src/`) defines the TF-PWA-aligned amplitude model using
-[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) v0.1.0 for **cascade**
+[CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl) for **cascade**
 phase space ( $D^*$ at nominal mass).
 
 - `test/runtests.jl` — 100-event amplitude regression on `data/crosscheck.arrow`
@@ -132,30 +112,19 @@ Run full-sample fit fractions:
 julia --project=. scripts/all_resonances_fit_fractions.jl
 ```
 
-#### `root_missing_particle2_phase` (X1(2900) dk root, L=0 and L=2 only)
+#### Particle-2 phase (historical)
 
-Set on each row in `src/resonance_table.jl`. When `true`, the dk root vertex uses
-`MissingParticleTwoPhaseLS` so the net amplitude matches TF-PWA, which omits
-the Jacob–Wick particle-2 phase at that vertex.
+This section used to document a `root_missing_particle2_phase` / `root_recoupling`
+field on the rows of `src/resonance_table.jl`, which selected a
+`MissingParticleTwoPhaseLS` recoupling at the $X_1(2900)$ dk root so the net
+amplitude matched TF-PWA.
 
-This is **not** interchangeable with the overall sign encoded by a `_neg` lineshape suffix
-(see `lineshape_spec`).
-
-- **What it is:** a static Jacob-Wick particle-2 helicity sign,
-  $(-1)^{(j_2-\lambda_2)/2}$ when $(j_2-\lambda_2)/2$ is odd, applied at the
-  $B^+\to X_1(2900)+({\rm D},K)$ production vertex. It depends only on the spin
-  and helicity quantum numbers of the second daughter line (here the spin-1
-  $({\rm D},K)$ subsystem), not on event angles or momenta.
-- **What it does in code:** `CascadeDecays` always applies this factor once in
-  `_vertex_coupling_value`. With `MissingParticleTwoPhaseLS` on the root vertex,
-  the same factor is applied a second time inside the recoupling, so they cancel
-  and the net amplitude matches TF-PWA, which omits this factor at that vertex.
-- **Why it is not an overall sign:** an overall sign is one factor $\pm1$ on the
-  whole chain, independent of helicity. The particle-2 phase flips sign between
-  internal helicity components (e.g. $\lambda_2=+1$ vs $\lambda_2=-1$ for
-  $j_2=1$). Replacing `root_missing_particle2_phase=true` by a global `_neg` on
-  the lineshape would change the relative phases of helicity contributions and
-  would not reproduce the TF-PWA amplitude.
+Both the field and `MissingParticleTwoPhaseLS` were removed when the model moved to
+`CascadeDecays v0.4.0`, which applies the Jacob–Wick particle-2 convention in the
+helicity-frame descent as well as in the coupling. The discrepancy against TF-PWA
+then reduces to a per-chain sign, carried by `MAGIC_SIGNS["X1(2900)"]` in
+`src/matching.jl`. See [`notes/note-cascadedecays-v040.md`](notes/note-cascadedecays-v040.md),
+and [`notes/note-phase-two.md`](notes/note-phase-two.md) for the partial-wave algebra.
 
 ## Reference files for the isolated `Psi(4040)` amplitude
 
