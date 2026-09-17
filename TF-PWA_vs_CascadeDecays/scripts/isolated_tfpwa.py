@@ -462,14 +462,21 @@ def main():
         analysis_dir = Path(args.analysis_dir)
     else:
         analysis_candidates = [
+            suite_dir.parent / "data",
             suite_dir.parent / "Analysis",
+            suite_dir.parent / "archive" / "investigation" / "Analysis",
+            suite_dir.parent / "B2DxDK.jl" / "data",
             suite_dir.parent / "B2DxDK.jl" / "Analysis",
-            Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/B2DxDK.jl/Analysis"),
-            Path("c:/Users/gamma/Documents/Playground/B2DxDK.jl_fresh/Analysis"),
+            suite_dir.parent / "B2DxDK.jl" / "archive" / "investigation" / "Analysis",
+            suite_dir.parent.parent / "data",
+            suite_dir.parent.parent / "B2DxDK.jl" / "archive" / "investigation" / "Analysis",
         ]
-        analysis_dir = next((p for p in analysis_candidates if p.exists()), None)
+        analysis_dir = next(
+            (p for p in analysis_candidates if (p / "final_params_full.json").exists() and (p / "config_a.yml").exists()),
+            None,
+        )
         if not analysis_dir:
-            raise FileNotFoundError("Could not find Analysis directory. Please specify --analysis-dir.")
+            raise FileNotFoundError("Could not find directory with final_params_full.json and config_a.yml. Please specify --analysis-dir.")
 
     with open(analysis_dir / "final_params_full.json", "r", encoding="utf-8") as f:
         params = json.load(f)["value"]
@@ -482,8 +489,8 @@ def main():
         candidates = [
             suite_dir.parent / "data" / "sampled_events_tfpwa.json",
             suite_dir.parent / "B2DxDK.jl" / "data" / "sampled_events_tfpwa.json",
-            Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/data/sampled_events_tfpwa.json"),
-            Path("c:/Users/gamma/Documents/Playground/B2DxDK.jl_fresh/data/sampled_events_tfpwa.json"),
+            suite_dir.parent.parent / "data" / "sampled_events_tfpwa.json",
+            suite_dir.parent.parent / "B2DxDK.jl" / "data" / "sampled_events_tfpwa.json",
         ]
         events_path = next((p for p in candidates if p.exists()), None)
         if not events_path:

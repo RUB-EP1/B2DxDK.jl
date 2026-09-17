@@ -231,8 +231,8 @@ function main()
     root_candidates = [
         normpath(joinpath(suite_dir, "..")),
         normpath(joinpath(suite_dir, "..", "B2DxDK.jl")),
-        "c:/Users/gamma/Documents/Playground/Antigravity_Test",
-        "c:/Users/gamma/Documents/Playground/Antigravity_Test/B2DxDK.jl",
+        normpath(joinpath(suite_dir, "..", "..")),
+        normpath(joinpath(suite_dir, "..", "..", "B2DxDK.jl")),
     ]
 
     events_path = if length(ARGS) >= 1

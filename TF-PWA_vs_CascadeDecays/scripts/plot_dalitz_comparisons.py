@@ -72,8 +72,8 @@ def main():
     root_candidates = [
         suite_dir.parent,
         suite_dir.parent / "B2DxDK.jl",
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test"),
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/B2DxDK.jl"),
+        suite_dir.parent.parent,
+        suite_dir.parent.parent / "B2DxDK.jl",
     ]
 
     events_path = None

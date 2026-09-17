@@ -43,8 +43,8 @@ def main():
     candidates = [
         work_dir.parent / "data" / "sampled_events_tfpwa.json",
         work_dir.parent / "B2DxDK.jl" / "data" / "sampled_events_tfpwa.json",
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/data/sampled_events_tfpwa.json"),
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/B2DxDK.jl/data/sampled_events_tfpwa.json"),
+        work_dir.parent.parent / "data" / "sampled_events_tfpwa.json",
+        work_dir.parent.parent / "B2DxDK.jl" / "data" / "sampled_events_tfpwa.json",
     ]
 
     events_path = Path(args.events).resolve() if args.events else next((p for p in candidates if p.exists()), None)
@@ -53,11 +53,12 @@ def main():
 
     julia_project = None
     for cand in [
-        Path("c:/Users/gamma/Documents/Playground/B2DxDK.jl_fresh"),
+        work_dir.parent.parent / "B2DxDK.jl_fresh",
+        work_dir.parent.parent.parent / "B2DxDK.jl_fresh",
         work_dir.parent / "B2DxDK.jl",
         work_dir.parent,
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test/B2DxDK.jl"),
-        Path("c:/Users/gamma/Documents/Playground/Antigravity_Test"),
+        work_dir.parent.parent / "B2DxDK.jl",
+        work_dir.parent.parent,
     ]:
         if (cand / "Project.toml").is_file():
             julia_project = cand
