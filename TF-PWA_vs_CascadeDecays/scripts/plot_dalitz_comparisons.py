@@ -55,6 +55,7 @@ def print_statistics(name, rel_diff):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Dalitz comparison plots for all 4 cases.")
+    parser.add_argument("--charge", type=str, default="Cminus", choices=["Cminus", "Cplus", "+1", "-1", "1"], help="Charge configuration (default: Cminus)")
     parser.add_argument("--events", type=str, default=None, help="Path to sampled events JSON")
     parser.add_argument("--tfpwa", type=str, default=None, help="Path to TF-PWA amplitude file")
     parser.add_argument("--case-a", "--combo1", dest="case_a", type=str, default=None, help="Path to Case (a) amplitude file")
@@ -64,10 +65,12 @@ def main():
     parser.add_argument("--output-dir", type=str, default=None, help="Directory to save plots")
     args = parser.parse_args()
 
+    charge_tag = "Cplus" if args.charge in ["Cplus", "+1", "1"] else "Cminus"
+
     work_dir = Path(__file__).resolve().parent
     suite_dir = work_dir.parent
-    amp_dir = suite_dir / "amp_data"
-    plots_dir = suite_dir / "plots"
+    amp_dir = suite_dir / "amp_data" / charge_tag
+    plots_dir = suite_dir / "plots" / charge_tag
 
     root_candidates = [
         suite_dir.parent,
@@ -97,7 +100,7 @@ def main():
     cc_path = Path(args.case_c) if args.case_c else amp_dir / "case_c_cd_amp.txt"
     cd_path = Path(args.case_d) if args.case_d else amp_dir / "case_d_cd_amp.txt"
 
-    print(f"Loading kinematic coordinates from: {events_path}")
+    print(f"[{charge_tag}] Loading kinematic coordinates from: {events_path}")
     with open(events_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     p4 = data["p4"]
@@ -213,7 +216,7 @@ def main():
     ax.set_xscale("log")
     ax.set_xlabel(r"Pointwise Relative Difference $|A_{\mathrm{CD}} - A_{\mathrm{TF}}| / |A_{\mathrm{TF}}|$")
     ax.set_ylabel("Number of Events / Bin")
-    ax.set_title("Relative Difference Distributions Across 50,000 Events (All 4 Cases)", fontweight="bold", pad=12)
+    ax.set_title(f"Relative Difference Distributions Across {n_events:,} Events (All 4 Cases, {charge_tag})", fontweight="bold", pad=12)
     ax.grid(True, which="both", linestyle="--", alpha=0.4)
     ax.legend(frameon=True, loc="upper right", framealpha=0.9)
     fig.tight_layout()

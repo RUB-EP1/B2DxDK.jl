@@ -308,7 +308,7 @@ def helicity_decay_amp_from_mdep(core_j, out_js, core_spins, out_spins, ls_list,
     d_conj = get_d_matrix_lambda(angle, core_j, core_spins, out_spins[0], out_spins[1])
     return h[:, None, :, :] * d_conj.reshape(-1, len(core_spins), len(out_spins[0]), len(out_spins[1]))
 
-def create_model(params, config_yml):
+def create_model(params, config_yml, charge="Cminus"):
     nominal_mass = {
         "Bp": float(config_yml["particle"]["$top"]["Bp"]["mass"]),
         "D": float(config_yml["particle"]["$finals"]["D"]["mass"]),
@@ -324,20 +324,24 @@ def create_model(params, config_yml):
     def fitted_ls(prefix, count):
         return [param_complex(f"{prefix}_g_ls_{index}") for index in range(count)]
 
+    charge_val = 1 if str(charge).lower() in ["cplus", "+1", "1"] else -1
+    c_sign = 1.0 if charge_val > 0 else -1.0
+    c_scale_c2 = 0.0 if charge_val > 0 else 1.0
+
     component_specs = [
-        dict(name="X(3872)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=-1.0, below=True),
-        dict(name="X(3915)(0-)", topology="dstd", j=0, root_ls=((0, 0),), decay_ls=((1, 1),), model="BWR", sign=-1.0),
-        dict(name="chi(c2)(3930)", topology="dstd", j=2, root_ls=((2, 2),), decay_ls=((2, 1),), model="BWR", sign=-1.0),
+        dict(name="X(3872)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=c_sign, below=True),
+        dict(name="X(3915)(0-)", topology="dstd", j=0, root_ls=((0, 0),), decay_ls=((1, 1),), model="BWR", sign=c_sign),
+        dict(name="chi(c2)(3930)", topology="dstd", j=2, root_ls=((2, 2),), decay_ls=((2, 1),), model="BWR", sign=c_sign),
         dict(name="X(3940)(1.)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=1.0),
-        dict(name="X(3993)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=-1.0),
+        dict(name="X(3993)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=c_sign),
         dict(name="Psi(4040)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((1, 1),), model="BWR", sign=1.0),
         dict(name="X(4300)", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1), (2, 1)), model="BWR_LS", sign=1.0),
-        dict(name="NR(0-)SPp", topology="dstd", j=0, root_ls=((0, 0),), decay_ls=((1, 1),), model="New", sign=-1.0),
-        dict(name="NR(1.)PSp", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1),), model="one", sign=-1.0),
+        dict(name="NR(0-)SPp", topology="dstd", j=0, root_ls=((0, 0),), decay_ls=((1, 1),), model="New", sign=c_sign),
+        dict(name="NR(1.)PSp", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((0, 1),), model="one", sign=c_sign),
         dict(name="NR(0-)SPm", topology="dstd", j=0, root_ls=((0, 0),), decay_ls=((1, 1),), model="one", sign=1.0),
         dict(name="NR(1-)PPm", topology="dstd", j=1, root_ls=((1, 1),), decay_ls=((1, 1),), model="one", sign=1.0),
-        dict(name="X0(2900)", topology="dk", j=0, root_ls=((1, 1),), decay_ls=((0, 0),), model="BWR", sign=1.0),
-        dict(name="X1(2900)", topology="dk", j=1, root_ls=((0, 0), (1, 1), (2, 2)), decay_ls=((1, 0),), model="BWR", sign=1.0),
+        dict(name="X0(2900)", topology="dk", j=0, root_ls=((1, 1),), decay_ls=((0, 0),), model="BWR", sign=c_scale_c2),
+        dict(name="X1(2900)", topology="dk", j=1, root_ls=((0, 0), (1, 1), (2, 2)), decay_ls=((1, 0),), model="BWR", sign=c_scale_c2),
     ]
 
     for spec in component_specs:
@@ -401,6 +405,8 @@ def create_model(params, config_yml):
         return tensor.reshape(len(masses["Bp"]), -1)[:, 0]
 
     def dk_component_amplitude(final_p4, spec):
+        if spec.get("sign", 1.0) == 0.0:
+            return np.zeros(len(final_p4["D"]), dtype=complex)
         name = spec["name"]
         p4 = {key: np.asarray(value) for key, value in final_p4.items()}
         p4["Dst"] = p4["D0"] + p4["pi"]
@@ -453,10 +459,12 @@ def main():
     parser.add_argument("--events", type=str, default=None, help="Path to sampled events JSON")
     parser.add_argument("--output", type=str, default=None, help="Output path for text complex amplitudes")
     parser.add_argument("--analysis-dir", type=str, default=None, help="Path to Analysis directory containing params and config")
+    parser.add_argument("--charge", type=str, default="Cminus", choices=["Cminus", "Cplus", "-1", "+1", "1"], help="Charge configuration (Cminus or Cplus)")
     args = parser.parse_args()
 
     work_dir = Path(__file__).resolve().parent
     suite_dir = work_dir.parent
+    charge_tag = "Cplus" if str(args.charge).lower() in ["cplus", "+1", "1"] else "Cminus"
 
     if args.analysis_dir:
         analysis_dir = Path(args.analysis_dir)
@@ -503,12 +511,12 @@ def main():
     p4_data = data["p4"]
     final_p4 = {name: np.asarray(p4_data[name], dtype=float) for name in ["D", "K", "D0", "pi"]}
     n_events = len(final_p4["D"])
-    print(f"Loaded {n_events} events. Evaluating isolated TF-PWA model...")
+    print(f"Loaded {n_events} events. Evaluating isolated TF-PWA model (charge={charge_tag})...")
 
-    model_fn, specs = create_model(params, config_yml)
+    model_fn, specs = create_model(params, config_yml, charge=charge_tag)
     total_amp, comp_amps = model_fn(final_p4)
 
-    output_path = Path(args.output) if args.output else suite_dir / "amp_data" / "isolated_tfpwa_amp.txt"
+    output_path = Path(args.output) if args.output else suite_dir / "amp_data" / charge_tag / "isolated_tfpwa_amp.txt"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     np.savetxt(output_path, np.column_stack([np.real(total_amp), np.imag(total_amp)]), fmt="%.17e", header="real imag")
     print(f"Saved {n_events} complex amplitudes (ASCII text) to: {output_path}")

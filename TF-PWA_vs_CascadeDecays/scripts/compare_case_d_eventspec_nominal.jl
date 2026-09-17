@@ -157,9 +157,9 @@ function eval_dk_chain(ctx, lineshape, two_j, root_two_ls, decay_two_ls; root_l 
 end
 
 # Selected resonance amplitudes
-function selected_cd_amplitude(ctx, name, param_real, param_complex)
+function selected_cd_amplitude(ctx, name, param_real, param_complex, c_sign = -1.0 + 0im)
     if name == "X(3872)"
-        l0, l2 = bwr_ls_lineshapes(ctx, name, -1.0 + 0im, param_real; below_threshold = true)
+        l0, l2 = bwr_ls_lineshapes(ctx, name, c_sign, param_real; below_threshold = true)
         root_ff = BlattWeisskopf{1}(3.0)
         root_mdep = root_ff(tfpwa_breakup(ctx.m_B_root, mass(ctx.P_R), mass(ctx.pKplus))) /
                     root_ff(tfpwa_breakup(nominal_mass["Bp"], nominal_mass["X(3872)"], nominal_mass["K"]))
@@ -167,15 +167,15 @@ function selected_cd_amplitude(ctx, name, param_real, param_complex)
         amp_l2 = root_mdep * eval_chain(ctx, l2, 2, (2, 2), (4, 2))
         return param_complex("Bp->X(3872).KX(3872)->Dst.DDst->D0.pi_total_0") * (amp_l0 + param_complex("X(3872)->Dst.D_g_ls_1") * amp_l2)
     elseif name == "X(3915)(0-)"
-        raw = eval_chain(ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, -1.0 + 0im), 0, (0, 0), (2, 2); root_l = 0, decay_l = 1)
+        raw = eval_chain(ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 1, c_sign), 0, (0, 0), (2, 2); root_l = 0, decay_l = 1)
         correction = mismatch_factor(0, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) * mismatch_factor(1, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
         return param_complex("Bp->X(3915)(0-).KX(3915)(0-)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "chi(c2)(3930)"
-        raw = eval_chain(ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 2, -1.0 + 0im), 4, (4, 4), (4, 2); root_l = 2, decay_l = 2)
+        raw = eval_chain(ctx, bwr_lineshape(ctx, nominal_mass[name], param_real(name * "_width"), 2, c_sign), 4, (4, 4), (4, 2); root_l = 2, decay_l = 2)
         correction = mismatch_factor(2, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["K"]) * mismatch_factor(2, 3.0, nominal_mass[name], nominal_mass["Dst"], nominal_mass["D"])
         return param_complex("Bp->chi(c2)(3930).Kchi(c2)(3930)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "X(3940)(1.)" || name == "X(3993)" || name == "X(4300)"
-        sign = name == "X(3993)" ? -1.0 + 0im : 1.0 + 0im
+        sign = name == "X(3993)" ? c_sign : 1.0 + 0im
         l0, l2 = bwr_ls_lineshapes(ctx, name, sign, param_real)
         root_ff = BlattWeisskopf{1}(3.0)
         root_mdep = root_ff(tfpwa_breakup(ctx.m_B_root, mass(ctx.P_R), mass(ctx.pKplus))) /
@@ -190,12 +190,12 @@ function selected_cd_amplitude(ctx, name, param_real, param_complex)
         return param_complex("Bp->Psi(4040).KPsi(4040)->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(0-)SPp"
         alpha = param_real("NR(0-)SPp_alpha"); beta = param_real("NR(0-)SPp_beta")
-        nr_factor = -exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
+        nr_factor = c_sign * exp(-(alpha + 1im * beta) * (mass(ctx.P_R)^2 - nominal_mass["NR(0-)SPp"]^2))
         raw = eval_chain(ctx, ConstantLineshape(nr_factor), 0, (0, 0), (2, 2); decay_l = 1)
         correction = mismatch_factor(1, 3.0, nominal_mass["NR(0-)SPp"], nominal_mass["Dst"], nominal_mass["D"])
         return param_complex("Bp->NR(0-)SPp.KNR(0-)SPp->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(1.)PSp"
-        raw = eval_chain(ctx, ConstantLineshape(-1.0 + 0im), 2, (2, 2), (0, 2); root_l = 1)
+        raw = eval_chain(ctx, ConstantLineshape(c_sign), 2, (2, 2), (0, 2); root_l = 1)
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1.)PSp"], nominal_mass["K"])
         return param_complex("Bp->NR(1.)PSp.KNR(1.)PSp->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "NR(0-)SPm"
@@ -207,10 +207,12 @@ function selected_cd_amplitude(ctx, name, param_real, param_complex)
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass["NR(1-)PPm"], nominal_mass["K"]) * mismatch_factor(1, 3.0, nominal_mass["NR(1-)PPm"], nominal_mass["Dst"], nominal_mass["D"])
         return param_complex("Bp->NR(1-)PPm.KNR(1-)PPm->Dst.DDst->D0.pi_total_0") * raw * correction
     elseif name == "X0(2900)"
+        real(c_sign) > 0 && return 0.0 + 0.0im
         raw = eval_dk_chain(ctx, x2900_bwr_lineshape(ctx, name, 0, param_real), 0, (2, 2), (0, 0); root_l = 1, dk_l = 0)
         correction = mismatch_factor(1, 3.0, nominal_mass["Bp"], nominal_mass[name], nominal_mass["Dst"]) * mismatch_factor(0, 3.0, nominal_mass[name], nominal_mass["D"], nominal_mass["K"])
         return param_complex("Bp->X0(2900).DstX0(2900)->D.KDst->D0.pi_total_0") * raw * correction
     elseif name == "X1(2900)"
+        real(c_sign) > 0 && return 0.0 + 0.0im
         lineshape = x2900_bwr_lineshape(ctx, name, 1, param_real)
         raw_l0 = eval_dk_chain(ctx, lineshape, 2, (0, 0), (2, 0); root_l = 0, dk_l = 1, remove_root_particle2_phase = true)
         raw_l1 = eval_dk_chain(ctx, lineshape, 2, (2, 2), (2, 0); root_l = 1, dk_l = 1, remove_root_particle2_phase = true)
@@ -235,20 +237,26 @@ function main()
         normpath(joinpath(suite_dir, "..", "..", "B2DxDK.jl")),
     ]
 
-    events_path = if length(ARGS) >= 1
-        ARGS[1]
-    else
-        found = nothing
+    events_path, output_path, charge_tag = nothing, nothing, "Cminus"
+    for arg in ARGS
+        if startswith(arg, "--charge=") || arg in ["Cplus", "Cminus", "+1", "-1", "1"]
+            charge_tag = startswith(arg, "--charge=") ? split(arg, "=", limit=2)[2] : arg
+        elseif startswith(arg, "--output=") || (output_path === nothing && events_path !== nothing)
+            output_path = startswith(arg, "--output=") ? split(arg, "=", limit=2)[2] : arg
+        elseif isfile(arg) || startswith(arg, "--events=")
+            events_path = startswith(arg, "--events=") ? split(arg, "=", limit=2)[2] : arg
+        end
+    end
+    charge_tag = (charge_tag in ["Cplus", "+1", "1"]) ? "Cplus" : "Cminus"
+    c_sign = charge_tag == "Cplus" ? (1.0 + 0im) : (-1.0 + 0im)
+    if events_path === nothing
         for r in root_candidates
             cand = joinpath(r, "data", "sampled_events_tfpwa.json")
-            if isfile(cand)
-                found = cand; break
-            end
+            isfile(cand) && (events_path = cand; break)
         end
-        found !== nothing ? found : joinpath(suite_dir, "..", "data", "sampled_events_tfpwa.json")
     end
-
-    output_path = length(ARGS) >= 2 ? ARGS[2] : joinpath(suite_dir, "amp_data", "case_d_cd_amp.txt")
+    events_path === nothing && (events_path = joinpath(suite_dir, "..", "data", "sampled_events_tfpwa.json"))
+    output_path === nothing && (output_path = joinpath(suite_dir, "amp_data", charge_tag, "case_d_cd_amp.txt"))
 
     params_path = nothing
     for r in root_candidates
@@ -287,7 +295,7 @@ function main()
     Threads.@threads for idx in 1:n_events
         evt = Dict("D" => p4_D[idx], "K" => p4_K[idx], "D0" => p4_D0[idx], "pi" => p4_pi[idx])
         ctx = build_event_context(evt)
-        amps[idx] = sum(selected_cd_amplitude(ctx, name, param_real, param_complex) for name in all_resonance_names)
+        amps[idx] = sum(selected_cd_amplitude(ctx, name, param_real, param_complex, c_sign) for name in all_resonance_names)
     end
     elapsed = time() - t0
     @printf("Evaluation completed in %.2f seconds (%.1f events/s across %d threads).\n", elapsed, n_events / elapsed, Threads.nthreads())
