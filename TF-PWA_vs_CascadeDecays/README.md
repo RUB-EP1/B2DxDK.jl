@@ -9,7 +9,7 @@ This directory contains a clean, reproducible evaluation suite comparing **float
 Two variation places are systematically examined, each with two options:
 
 1. **Place 1: Lineshapes / Breakup Momenta**:
-   - **Only Nominal Masses**: Lineshape propagators, daughter masses, and running breakup momenta use fixed nominal PDG values ($m_{D^*}^{\text{PDG}} = 2.01026\ \text{GeV}, m_D^{\text{PDG}} = 1.86965\ \text{GeV}, m_K^{\text{PDG}} = 0.493677\ \text{GeV}$).
+   - **Only Nominal Masses**: Lineshape propagators (shortened to LS in plots), daughter masses, and running breakup momenta use fixed nominal PDG values ($m_{D^*}^{\text{PDG}} = 2.01026\ \text{GeV}, m_D^{\text{PDG}} = 1.86965\ \text{GeV}, m_K^{\text{PDG}} = 0.493677\ \text{GeV}$).
    - **Mix of Nominal & Event-Specific Masses**: Resonance pole masses remain nominal ($m_0$), but decay daughter masses and running breakup momenta use the event-specific reconstructed masses from 4-momenta ($m(P_{D^*}), m(p_D), m(p_K)$).
 
 2. **Place 2: Parent Particle Masses**:
