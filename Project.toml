@@ -4,12 +4,17 @@ authors = ["Alexander Kazatsky <alexander.kazatsky@rub.de>", "Mikhail Mikhasenko
 version = "0.1.0"
 
 [deps]
+Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
 CascadeDecays = "fffe189e-c188-4e56-b22b-870ae3b23d6b"
+CascadeDecaysIO = "9d2b3f4d-3b61-4f8e-9b8d-4a0e6f3c8c21"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FourVectors = "b122eb78-8380-428a-b8c8-584a022ae8b6"
 HadronicLineshapes = "49c9d978-1f9d-4e96-a984-0a9783c0b9bf"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[sources]
+CascadeDecaysIO = {path = "../CascadeDecaysIO.jl"}
 
 [compat]
 Arrow = "2.8"

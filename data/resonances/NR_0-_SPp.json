@@ -1,0 +1,172 @@
+{
+    "distributions": [
+        {
+            "type": "HadronicUnpolarizedIntensity",
+            "name": "resonance_NR_0-_SPp",
+            "decay_description": {
+                "kinematics": {
+                    "initial_state": {
+                        "name": "B+",
+                        "mass": 5.27934,
+                        "index": 0,
+                        "spin": 0
+                    },
+                    "final_state": [
+                        {
+                            "name": "D0",
+                            "mass": 1.86483,
+                            "index": 1,
+                            "spin": 0
+                        },
+                        {
+                            "name": "pi+",
+                            "mass": 0.13957039,
+                            "index": 2,
+                            "spin": 0
+                        },
+                        {
+                            "name": "D-",
+                            "mass": 1.86965,
+                            "index": 3,
+                            "spin": 0
+                        },
+                        {
+                            "name": "K+",
+                            "mass": 0.493677,
+                            "index": 4,
+                            "spin": 0
+                        }
+                    ]
+                },
+                "reference_topology": [
+                    [
+                        [
+                            1,
+                            2
+                        ],
+                        3
+                    ],
+                    4
+                ],
+                "chains": [
+                    {
+                        "vertices": [
+                            {
+                                "type": "ls",
+                                "formfactor": "formfactor_15051183979062714516",
+                                "l": 0,
+                                "s": 0,
+                                "node": [
+                                    [
+                                        [
+                                            1,
+                                            2
+                                        ],
+                                        3
+                                    ],
+                                    4
+                                ]
+                            },
+                            {
+                                "type": "ls",
+                                "formfactor": "formfactor_10903733933261174792",
+                                "l": 1,
+                                "s": 1,
+                                "node": [
+                                    [
+                                        1,
+                                        2
+                                    ],
+                                    3
+                                ]
+                            },
+                            {
+                                "type": "ls",
+                                "formfactor": "",
+                                "l": 1,
+                                "s": 0,
+                                "node": [
+                                    1,
+                                    2
+                                ]
+                            }
+                        ],
+                        "propagators": [
+                            {
+                                "node": [
+                                    1,
+                                    2
+                                ],
+                                "spin": 1,
+                                "parametrization": "propagator_1_2_353500863373414198"
+                            },
+                            {
+                                "node": [
+                                    [
+                                        1,
+                                        2
+                                    ],
+                                    3
+                                ],
+                                "spin": 0,
+                                "parametrization": "propagator_1_2_3_690735587003466079"
+                            }
+                        ],
+                        "topology": [
+                            [
+                                [
+                                    1,
+                                    2
+                                ],
+                                3
+                            ],
+                            4
+                        ],
+                        "name": "NR(0-)SPp_L0_d1",
+                        "weight": "-0.20348743585639592 + 0.06780037305088235i"
+                    }
+                ]
+            },
+            "variables": [
+                "m1_2sq",
+                "m1_2_3sq",
+                "m3_4sq"
+            ]
+        }
+    ],
+    "functions": [
+        {
+            "type": "BlattWeisskopf",
+            "l": 1,
+            "radius": 3.0,
+            "name": "formfactor_10903733933261174792"
+        },
+        {
+            "type": "BlattWeisskopf",
+            "l": 0,
+            "radius": 3.0,
+            "name": "formfactor_15051183979062714516"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "propagator_1_2_353500863373414198"
+        },
+        {
+            "type": "NRExpLineshape",
+            "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
+            "alpha": -0.11261265753519498,
+            "beta": 0.3362692520521029,
+            "m0": 4.35,
+            "x": "m1_2_3sq",
+            "name": "propagator_1_2_3_690735587003466079"
+        }
+    ],
+    "misc": {
+        "resonance": "NR(0-)SPp",
+        "analysis": "B2DxDK",
+        "chains": [
+            "NR(0-)SPp_L0_d1"
+        ]
+    }
+}
