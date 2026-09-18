@@ -7,32 +7,27 @@
                 "kinematics": {
                     "initial_state": {
                         "name": "B+",
-                        "mass": 5.27934,
                         "index": 0,
                         "spin": 0
                     },
                     "final_state": [
                         {
                             "name": "D0",
-                            "mass": 1.86483,
                             "index": 1,
                             "spin": 0
                         },
                         {
                             "name": "pi+",
-                            "mass": 0.13957039,
                             "index": 2,
                             "spin": 0
                         },
                         {
                             "name": "D-",
-                            "mass": 1.86965,
                             "index": 3,
                             "spin": 0
                         },
                         {
                             "name": "K+",
-                            "mass": 0.493677,
                             "index": 4,
                             "spin": 0
                         }

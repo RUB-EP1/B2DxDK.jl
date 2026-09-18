@@ -7,32 +7,27 @@
                 "kinematics": {
                     "initial_state": {
                         "name": "B+",
-                        "mass": 5.27934,
                         "index": 0,
                         "spin": 0
                     },
                     "final_state": [
                         {
                             "name": "D0",
-                            "mass": 1.86483,
                             "index": 1,
                             "spin": 0
                         },
                         {
                             "name": "pi+",
-                            "mass": 0.13957039,
                             "index": 2,
                             "spin": 0
                         },
                         {
                             "name": "D-",
-                            "mass": 1.86965,
                             "index": 3,
                             "spin": 0
                         },
                         {
                             "name": "K+",
-                            "mass": 0.493677,
                             "index": 4,
                             "spin": 0
                         }
@@ -153,7 +148,8 @@
             "name": "propagator_1_2_353500863373414198"
         },
         {
-            "type": "NRExpLineshape",
+            "type": "custom",
+            "subtype": "NRExpLineshape",
             "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
             "alpha": -0.11261265753519498,
             "beta": 0.3362692520521029,
