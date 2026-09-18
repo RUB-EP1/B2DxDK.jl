@@ -44,7 +44,25 @@ const MAGIC_SIGNS = Dict{String,Float64}(
 )
 @assert Set(keys(MAGIC_SIGNS)) == Set(all_resonance_names)
 
-magic_sign(resonance_name::String) = MAGIC_SIGNS[resonance_name]
+const C_DEPENDENT_RESONANCES = Set([
+    "X(3872)", "X(3915)(0-)", "chi(c2)(3930)", "X(3993)", "NR(0-)SPp", "NR(1.)PSp"
+])
+
+const CPLUS_EXCLUDED_RESONANCES = Set([
+    "X0(2900)", "X1(2900)"
+])
+
+function magic_sign(resonance_name::String, charge::Symbol = :Cminus)
+    base = MAGIC_SIGNS[resonance_name]
+    if charge in (:Cplus, :cplus, :+)
+        if resonance_name in CPLUS_EXCLUDED_RESONANCES
+            return 0.0
+        elseif resonance_name in C_DEPENDENT_RESONANCES
+            return -base
+        end
+    end
+    return base
+end
 
 const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chain
 

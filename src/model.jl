@@ -60,11 +60,15 @@ function resonance_chain_names(resonance_name::String)
     [chain_name(resonance_name, row) for row in eachrow(resonance_chain_rows(resonance_name))]
 end
 
-function build_resonance_cascade(resonance_name::String)
+function build_resonance_cascade(resonance_name::String; charge::Symbol = :Cminus)
+    if (charge in (:Cplus, :cplus, :+)) && (resonance_name in CPLUS_EXCLUDED_RESONANCES)
+        return nothing
+    end
     rows = collect(eachrow(resonance_chain_rows(resonance_name)))
     chains = Tuple(build_chain_from_row(row) for row in rows)
+    sign_factor = ((charge in (:Cplus, :cplus, :+)) && (resonance_name in C_DEPENDENT_RESONANCES)) ? -1.0 : 1.0
     effective_couplings = Tuple(
-        rows[i].coupling_value * rows[i].matching_factor
+        rows[i].coupling_value * rows[i].matching_factor * sign_factor
         for i in eachindex(rows)
     )
     names = Tuple(chain_name(resonance_name, row) for row in rows)
@@ -76,6 +80,8 @@ function build_resonance_cascade(resonance_name::String)
     )
 end
 
-function build_all_resonance_cascade(names=all_resonance_names)
-    merge([build_resonance_cascade(name) for name in names]...)
+function build_all_resonance_cascade(names=all_resonance_names; charge::Symbol = :Cminus)
+    filtered = (charge in (:Cplus, :cplus, :+)) ? filter(n -> !(n in CPLUS_EXCLUDED_RESONANCES), names) : names
+    cascades = [build_resonance_cascade(name; charge) for name in filtered]
+    merge(cascades...)
 end

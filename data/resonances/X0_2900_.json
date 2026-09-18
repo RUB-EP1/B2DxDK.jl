@@ -48,7 +48,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -74,7 +74,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -90,7 +90,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -98,7 +98,7 @@
                                     4
                                 ],
                                 "spin": 0,
-                                "parametrization": "propagator_3_4_18377555540736769896"
+                                "parametrization": "BW_3_4_m2p866_w0p057"
                             }
                         ],
                         "topology": [
@@ -125,23 +125,6 @@
     ],
     "functions": [
         {
-            "type": "BlattWeisskopf",
-            "l": 1,
-            "radius": 3.0,
-            "name": "formfactor_10903733933261174792"
-        },
-        {
-            "type": "BlattWeisskopf",
-            "l": 0,
-            "radius": 3.0,
-            "name": "formfactor_15051183979062714516"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "propagator_1_2_353500863373414198"
-        },
-        {
             "type": "BreitWigner",
             "mass": 2.866,
             "width": 0.057,
@@ -150,7 +133,24 @@
             "l": 0,
             "d": 3.0,
             "x": "m3_4sq",
-            "name": "propagator_3_4_18377555540736769896"
+            "name": "BW_3_4_m2p866_w0p057"
+        },
+        {
+            "type": "BlattWeisskopf",
+            "l": 0,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L0_d3.0"
+        },
+        {
+            "type": "BlattWeisskopf",
+            "l": 1,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L1_d3.0"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_one"
         }
     ],
     "misc": {

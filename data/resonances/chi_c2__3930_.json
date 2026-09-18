@@ -48,7 +48,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 2,
                                 "node": [
@@ -64,7 +64,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 2,
-                                "parametrization": "propagator_1_2_3_18046773478762776398"
+                                "parametrization": "BW_1_2_3_m3p9272_w0p024"
                             }
                         ],
                         "topology": [
@@ -131,17 +131,6 @@
     ],
     "functions": [
         {
-            "type": "BlattWeisskopf",
-            "l": 2,
-            "radius": 3.0,
-            "name": "formfactor_5403573205276584921"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "propagator_1_2_353500863373414198"
-        },
-        {
             "type": "BreitWigner",
             "mass": 3.9272,
             "width": 0.024,
@@ -150,7 +139,18 @@
             "l": 2,
             "d": 3.0,
             "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_18046773478762776398"
+            "name": "BW_1_2_3_m3p9272_w0p024"
+        },
+        {
+            "type": "BlattWeisskopf",
+            "l": 2,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L2_d3.0"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_one"
         }
     ],
     "misc": {

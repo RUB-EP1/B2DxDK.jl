@@ -11,7 +11,9 @@ using StaticArrays
 
 export data_dir,
     repo_root,
-    all_resonance_names
+    all_resonance_names,
+    C_DEPENDENT_RESONANCES,
+    CPLUS_EXCLUDED_RESONANCES
 include("parameters.jl")
 
 include("lineshapes.jl")

@@ -2,7 +2,7 @@
     "distributions": [
         {
             "type": "HadronicUnpolarizedIntensity",
-            "name": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
+            "name": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cminus",
             "decay_description": {
                 "kinematics": {
                     "initial_state": {
@@ -48,7 +48,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -64,7 +64,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 1,
                                 "node": [
@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_7626893353139903426"
+                                "parametrization": "MultiChannelBW_1_2_3_m3p8716"
                             }
                         ],
                         "topology": [
@@ -124,7 +124,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -140,7 +140,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -169,7 +169,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -180,7 +180,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_7626893353139903426"
+                                "parametrization": "MultiChannelBW_1_2_3_m3p8716"
                             }
                         ],
                         "topology": [
@@ -200,7 +200,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -216,7 +216,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -245,7 +245,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -256,7 +256,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "propagator_1_2_3_10878301900562838657"
+                                "parametrization": "BW_1_2_3_m3p9445_w0p1297"
                             }
                         ],
                         "topology": [
@@ -276,7 +276,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 2,
                                 "node": [
@@ -292,7 +292,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -321,7 +321,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -332,7 +332,7 @@
                                     3
                                 ],
                                 "spin": 2,
-                                "parametrization": "propagator_1_2_3_18046773478762776398"
+                                "parametrization": "BW_1_2_3_m3p9272_w0p024"
                             }
                         ],
                         "topology": [
@@ -352,7 +352,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -368,7 +368,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 1,
                                 "node": [
@@ -397,7 +397,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -408,7 +408,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_11706388594003635447"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p0004"
                             }
                         ],
                         "topology": [
@@ -428,7 +428,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -444,7 +444,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -473,7 +473,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -484,7 +484,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_11706388594003635447"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p0004"
                             }
                         ],
                         "topology": [
@@ -504,7 +504,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -520,7 +520,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 1,
                                 "node": [
@@ -549,7 +549,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -560,7 +560,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_506220143601522299"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
                             }
                         ],
                         "topology": [
@@ -580,7 +580,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -596,7 +596,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -625,7 +625,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -636,7 +636,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_506220143601522299"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
                             }
                         ],
                         "topology": [
@@ -656,7 +656,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -672,7 +672,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -701,7 +701,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -712,7 +712,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_16231168722955987791"
+                                "parametrization": "BW_1_2_3_m4p039_w0p08"
                             }
                         ],
                         "topology": [
@@ -732,7 +732,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -748,7 +748,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 1,
                                 "node": [
@@ -777,7 +777,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -788,7 +788,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_4358528683323024911"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p3073"
                             }
                         ],
                         "topology": [
@@ -808,7 +808,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -824,7 +824,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 1,
                                 "node": [
@@ -853,7 +853,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -864,7 +864,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_4358528683323024911"
+                                "parametrization": "MultiChannelBW_1_2_3_m4p3073"
                             }
                         ],
                         "topology": [
@@ -884,7 +884,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -900,7 +900,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -929,7 +929,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -940,7 +940,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "propagator_1_2_3_690735587003466079"
+                                "parametrization": "NRExp_1_2_3_m04p35"
                             }
                         ],
                         "topology": [
@@ -960,7 +960,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -976,7 +976,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 1,
                                 "node": [
@@ -1005,7 +1005,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1016,7 +1016,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_353500863373414198"
+                                "parametrization": "constant_one"
                             }
                         ],
                         "topology": [
@@ -1036,7 +1036,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -1052,7 +1052,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -1081,7 +1081,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1092,7 +1092,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "propagator_1_2_3_353500863373414198"
+                                "parametrization": "constant_one"
                             }
                         ],
                         "topology": [
@@ -1112,7 +1112,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -1128,7 +1128,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -1157,7 +1157,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1168,7 +1168,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_3_353500863373414198"
+                                "parametrization": "constant_one"
                             }
                         ],
                         "topology": [
@@ -1188,7 +1188,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -1214,7 +1214,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -1230,7 +1230,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1238,7 +1238,7 @@
                                     4
                                 ],
                                 "spin": 0,
-                                "parametrization": "propagator_3_4_18377555540736769896"
+                                "parametrization": "BW_3_4_m2p866_w0p057"
                             }
                         ],
                         "topology": [
@@ -1258,7 +1258,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_15051183979062714516",
+                                "formfactor": "BlattWeisskopf_L0_d3.0",
                                 "l": 0,
                                 "s": 0,
                                 "node": [
@@ -1284,7 +1284,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 0,
                                 "node": [
@@ -1300,7 +1300,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1308,7 +1308,7 @@
                                     4
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_3_4_13264919522831313486"
+                                "parametrization": "BW_3_4_m2p904_w0p11"
                             }
                         ],
                         "topology": [
@@ -1328,7 +1328,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 1,
                                 "node": [
@@ -1354,7 +1354,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 0,
                                 "node": [
@@ -1370,7 +1370,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1378,7 +1378,7 @@
                                     4
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_3_4_13264919522831313486"
+                                "parametrization": "BW_3_4_m2p904_w0p11"
                             }
                         ],
                         "topology": [
@@ -1398,7 +1398,7 @@
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_5403573205276584921",
+                                "formfactor": "BlattWeisskopf_L2_d3.0",
                                 "l": 2,
                                 "s": 2,
                                 "node": [
@@ -1424,7 +1424,7 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "formfactor_10903733933261174792",
+                                "formfactor": "BlattWeisskopf_L1_d3.0",
                                 "l": 1,
                                 "s": 0,
                                 "node": [
@@ -1440,7 +1440,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_1_2_353500863373414198"
+                                "parametrization": "constant_one"
                             },
                             {
                                 "node": [
@@ -1448,7 +1448,7 @@
                                     4
                                 ],
                                 "spin": 1,
-                                "parametrization": "propagator_3_4_13264919522831313486"
+                                "parametrization": "BW_3_4_m2p904_w0p11"
                             }
                         ],
                         "topology": [
@@ -1475,27 +1475,15 @@
     ],
     "functions": [
         {
-            "type": "BlattWeisskopf",
-            "l": 1,
-            "radius": 3.0,
-            "name": "formfactor_10903733933261174792"
-        },
-        {
-            "type": "BlattWeisskopf",
-            "l": 0,
-            "radius": 3.0,
-            "name": "formfactor_15051183979062714516"
-        },
-        {
-            "type": "BlattWeisskopf",
+            "type": "BreitWigner",
+            "mass": 3.9272,
+            "width": 0.024,
+            "ma": 2.01026,
+            "mb": 1.86965,
             "l": 2,
-            "radius": 3.0,
-            "name": "formfactor_5403573205276584921"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "propagator_1_2_353500863373414198"
+            "d": 3.0,
+            "x": "m1_2_3sq",
+            "name": "BW_1_2_3_m3p9272_w0p024"
         },
         {
             "type": "BreitWigner",
@@ -1506,31 +1494,7 @@
             "l": 1,
             "d": 3.0,
             "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_10878301900562838657"
-        },
-        {
-            "type": "custom",
-            "subtype": "TFPWAMultichannelBreitWigner",
-            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
-            "mass": 4.000356038444546,
-            "channels": [
-                {
-                    "gsq": 0.09197174317593033,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 0,
-                    "d": 3.0
-                },
-                {
-                    "gsq": 0.42581168301131467,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 2,
-                    "d": 3.0
-                }
-            ],
-            "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_11706388594003635447"
+            "name": "BW_1_2_3_m3p9445_w0p1297"
         },
         {
             "type": "BreitWigner",
@@ -1541,81 +1505,47 @@
             "l": 1,
             "d": 3.0,
             "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_16231168722955987791"
+            "name": "BW_1_2_3_m4p039_w0p08"
         },
         {
             "type": "BreitWigner",
-            "mass": 3.9272,
-            "width": 0.024,
-            "ma": 2.01026,
-            "mb": 1.86965,
-            "l": 2,
+            "mass": 2.866,
+            "width": 0.057,
+            "ma": 1.86965,
+            "mb": 0.493677,
+            "l": 0,
             "d": 3.0,
-            "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_18046773478762776398"
+            "x": "m3_4sq",
+            "name": "BW_3_4_m2p866_w0p057"
         },
         {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "propagator_1_2_3_353500863373414198"
+            "type": "BreitWigner",
+            "mass": 2.904,
+            "width": 0.11,
+            "ma": 1.86965,
+            "mb": 0.493677,
+            "l": 1,
+            "d": 3.0,
+            "x": "m3_4sq",
+            "name": "BW_3_4_m2p904_w0p11"
         },
         {
-            "type": "custom",
-            "subtype": "TFPWAMultichannelBreitWigner",
-            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
-            "mass": 4.307256285732596,
-            "channels": [
-                {
-                    "gsq": 0.008519656138455888,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 0,
-                    "d": 3.0
-                },
-                {
-                    "gsq": 0.0347237677616316,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 2,
-                    "d": 3.0
-                }
-            ],
-            "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_4358528683323024911"
+            "type": "BlattWeisskopf",
+            "l": 0,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L0_d3.0"
         },
         {
-            "type": "custom",
-            "subtype": "TFPWAMultichannelBreitWigner",
-            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
-            "mass": 4.012482696497617,
-            "channels": [
-                {
-                    "gsq": 0.04879117475081541,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 0,
-                    "d": 3.0
-                },
-                {
-                    "gsq": 0.04911172900765339,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 2,
-                    "d": 3.0
-                }
-            ],
-            "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_506220143601522299"
+            "type": "BlattWeisskopf",
+            "l": 1,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L1_d3.0"
         },
         {
-            "type": "custom",
-            "subtype": "NRExpLineshape",
-            "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
-            "alpha": -0.11261265753519498,
-            "beta": 0.3362692520521029,
-            "m0": 4.35,
-            "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_690735587003466079"
+            "type": "BlattWeisskopf",
+            "l": 2,
+            "radius": 3.0,
+            "name": "BlattWeisskopf_L2_d3.0"
         },
         {
             "type": "custom",
@@ -1639,29 +1569,94 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "propagator_1_2_3_7626893353139903426"
+            "name": "MultiChannelBW_1_2_3_m3p8716"
         },
         {
-            "type": "BreitWigner",
-            "mass": 2.904,
-            "width": 0.11,
-            "ma": 1.86965,
-            "mb": 0.493677,
-            "l": 1,
-            "d": 3.0,
-            "x": "m3_4sq",
-            "name": "propagator_3_4_13264919522831313486"
+            "type": "custom",
+            "subtype": "TFPWAMultichannelBreitWigner",
+            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
+            "mass": 4.000356038444546,
+            "channels": [
+                {
+                    "gsq": 0.09197174317593033,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 0,
+                    "d": 3.0
+                },
+                {
+                    "gsq": 0.42581168301131467,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 2,
+                    "d": 3.0
+                }
+            ],
+            "x": "m1_2_3sq",
+            "name": "MultiChannelBW_1_2_3_m4p0004"
         },
         {
-            "type": "BreitWigner",
-            "mass": 2.866,
-            "width": 0.057,
-            "ma": 1.86965,
-            "mb": 0.493677,
-            "l": 0,
-            "d": 3.0,
-            "x": "m3_4sq",
-            "name": "propagator_3_4_18377555540736769896"
+            "type": "custom",
+            "subtype": "TFPWAMultichannelBreitWigner",
+            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
+            "mass": 4.012482696497617,
+            "channels": [
+                {
+                    "gsq": 0.04879117475081541,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 0,
+                    "d": 3.0
+                },
+                {
+                    "gsq": 0.04911172900765339,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 2,
+                    "d": 3.0
+                }
+            ],
+            "x": "m1_2_3sq",
+            "name": "MultiChannelBW_1_2_3_m4p0125"
+        },
+        {
+            "type": "custom",
+            "subtype": "TFPWAMultichannelBreitWigner",
+            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
+            "mass": 4.307256285732596,
+            "channels": [
+                {
+                    "gsq": 0.008519656138455888,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 0,
+                    "d": 3.0
+                },
+                {
+                    "gsq": 0.0347237677616316,
+                    "ma": 2.01026,
+                    "mb": 1.86965,
+                    "l": 2,
+                    "d": 3.0
+                }
+            ],
+            "x": "m1_2_3sq",
+            "name": "MultiChannelBW_1_2_3_m4p3073"
+        },
+        {
+            "type": "custom",
+            "subtype": "NRExpLineshape",
+            "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
+            "alpha": -0.11261265753519498,
+            "beta": 0.3362692520521029,
+            "m0": 4.35,
+            "x": "m1_2_3sq",
+            "name": "NRExp_1_2_3_m04p35"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_one"
         }
     ],
     "domains": [
@@ -1693,27 +1688,28 @@
         "amplitude_model_checksums": [
             {
                 "point": "verification_point_1",
-                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
-                "value": 0.02508284130910844,
-                "amplitude_real": -0.15833761901885765,
-                "amplitude_imag": -0.0034698288931196003
+                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cminus",
+                "value": 0.13002832842296477,
+                "amplitude_real": -0.00016443464035977018,
+                "amplitude_imag": 0.3605943723690288
             },
             {
                 "point": "verification_point_2",
-                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
-                "value": 0.5113424633443289,
-                "amplitude_real": 0.6057374386450747,
-                "amplitude_imag": -0.3800323917352746
+                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cminus",
+                "value": 0.12242836828610701,
+                "amplitude_real": -0.2837493423223092,
+                "amplitude_imag": 0.20473074761198912
             },
             {
                 "point": "verification_point_3",
-                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity",
-                "value": 0.12070326050761596,
-                "amplitude_real": 0.1776852786728256,
-                "amplitude_imag": -0.29854849229325586
+                "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cminus",
+                "value": 0.014279242809762832,
+                "amplitude_real": -0.08928106858867663,
+                "amplitude_imag": 0.07942375967824018
             }
         ],
         "generator": "CascadeDecaysIO.jl",
+        "charge_configuration": "Cminus",
         "reference_inspire": "2794793"
     },
     "parameter_points": [
@@ -1722,93 +1718,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.0790025099967315
+                    "value": 2.31847541761884
                 },
                 {
                     "name": "D0_px",
-                    "value": 0.13018243789821551
+                    "value": -0.7800936257286514
                 },
                 {
                     "name": "D0_py",
-                    "value": -0.9055397344368086
+                    "value": 0.15599402105341922
                 },
                 {
                     "name": "D0_pz",
-                    "value": -0.08781133122611152
+                    "value": 1.1246586743078837
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.1460542940236141
+                    "value": 0.15474941892935412
                 },
                 {
                     "name": "pip_px",
-                    "value": 0.03021667935597036
+                    "value": -0.04697937782474787
                 },
                 {
                     "name": "pip_py",
-                    "value": -0.02992403543939711
+                    "value": 0.02360491512319555
                 },
                 {
                     "name": "pip_pz",
-                    "value": -0.00659298336903704
+                    "value": 0.041270266966024864
                 },
                 {
                     "name": "Dm_E",
-                    "value": 1.9701375210669152
+                    "value": 2.1233845141733165
                 },
                 {
                     "name": "Dm_px",
-                    "value": 0.061819844484742814
+                    "value": 0.4522779441679212
                 },
                 {
                     "name": "Dm_py",
-                    "value": 0.2616292529013234
+                    "value": -0.18609545220044543
                 },
                 {
                     "name": "Dm_pz",
-                    "value": -0.5599814017178315
+                    "value": -0.8797635002775465
                 },
                 {
                     "name": "Kp_E",
-                    "value": 1.084145686587503
+                    "value": 0.682730680161188
                 },
                 {
                     "name": "Kp_px",
-                    "value": -0.22221896179179523
+                    "value": 0.3747950596580758
                 },
                 {
                     "name": "Kp_py",
-                    "value": 0.6738345172832053
+                    "value": 0.006496515964636025
                 },
                 {
                     "name": "Kp_pz",
-                    "value": 0.6543857163440951
+                    "value": -0.28616544138064437
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": -0.00659298336903704,
-                    "px": 0.03021667935597036,
-                    "py": -0.02992403543939711,
-                    "E": 0.1460542940236141
+                    "pz": 0.041270266966024864,
+                    "px": -0.04697937782474787,
+                    "py": 0.02360491512319555,
+                    "E": 0.15474941892935412
                 },
                 "K+": {
-                    "pz": 0.6543857163440951,
-                    "px": -0.22221896179179523,
-                    "py": 0.6738345172832053,
-                    "E": 1.084145686587503
+                    "pz": -0.28616544138064437,
+                    "px": 0.3747950596580758,
+                    "py": 0.006496515964636025,
+                    "E": 0.682730680161188
                 },
                 "D0": {
-                    "pz": -0.08781133122611152,
-                    "px": 0.13018243789821551,
-                    "py": -0.9055397344368086,
-                    "E": 2.0790025099967315
+                    "pz": 1.1246586743078837,
+                    "px": -0.7800936257286514,
+                    "py": 0.15599402105341922,
+                    "E": 2.31847541761884
                 },
                 "D-": {
-                    "pz": -0.5599814017178315,
-                    "px": 0.061819844484742814,
-                    "py": 0.2616292529013234,
-                    "E": 1.9701375210669152
+                    "pz": -0.8797635002775465,
+                    "px": 0.4522779441679212,
+                    "py": -0.18609545220044543,
+                    "E": 2.1233845141733165
                 }
             }
         },
@@ -1817,93 +1813,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.093744279134442
+                    "value": 2.1200764885994174
                 },
                 {
                     "name": "D0_px",
-                    "value": 0.759507542314869
+                    "value": -0.6883411021239655
                 },
                 {
                     "name": "D0_py",
-                    "value": 0.09497553364903843
+                    "value": 0.7196822833301474
                 },
                 {
                     "name": "D0_pz",
-                    "value": 0.5659523996619426
+                    "value": -0.15930262646769683
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.17369870487024539
+                    "value": 0.16143198997947342
                 },
                 {
                     "name": "pip_px",
-                    "value": 0.09255241983976145
+                    "value": -0.017456418876371692
                 },
                 {
                     "name": "pip_py",
-                    "value": 0.03300982620133746
+                    "value": 0.0784925062257896
                 },
                 {
                     "name": "pip_pz",
-                    "value": 0.03218302758925172
+                    "value": -0.010704836775389883
                 },
                 {
                     "name": "Dm_E",
-                    "value": 1.898362770526603
+                    "value": 1.8999054074665624
                 },
                 {
                     "name": "Dm_px",
-                    "value": -0.14962709843437474
+                    "value": 0.3114509975792878
                 },
                 {
                     "name": "Dm_py",
-                    "value": -0.2770430664203694
+                    "value": 0.051620666157156554
                 },
                 {
                     "name": "Dm_pz",
-                    "value": 0.09512600477234828
+                    "value": -0.11992921976333601
                 },
                 {
                     "name": "Kp_E",
-                    "value": 1.1135342482554267
+                    "value": 1.0979261169266987
                 },
                 {
                     "name": "Kp_px",
-                    "value": -0.7024328640010894
+                    "value": 0.3943465236536756
                 },
                 {
                     "name": "Kp_py",
-                    "value": 0.14905770652781036
+                    "value": -0.8497954559761667
                 },
                 {
                     "name": "Kp_pz",
-                    "value": -0.6932614322206843
+                    "value": 0.28993668306245607
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": 0.03218302758925172,
-                    "px": 0.09255241983976145,
-                    "py": 0.03300982620133746,
-                    "E": 0.17369870487024539
+                    "pz": -0.010704836775389883,
+                    "px": -0.017456418876371692,
+                    "py": 0.0784925062257896,
+                    "E": 0.16143198997947342
                 },
                 "K+": {
-                    "pz": -0.6932614322206843,
-                    "px": -0.7024328640010894,
-                    "py": 0.14905770652781036,
-                    "E": 1.1135342482554267
+                    "pz": 0.28993668306245607,
+                    "px": 0.3943465236536756,
+                    "py": -0.8497954559761667,
+                    "E": 1.0979261169266987
                 },
                 "D0": {
-                    "pz": 0.5659523996619426,
-                    "px": 0.759507542314869,
-                    "py": 0.09497553364903843,
-                    "E": 2.093744279134442
+                    "pz": -0.15930262646769683,
+                    "px": -0.6883411021239655,
+                    "py": 0.7196822833301474,
+                    "E": 2.1200764885994174
                 },
                 "D-": {
-                    "pz": 0.09512600477234828,
-                    "px": -0.14962709843437474,
-                    "py": -0.2770430664203694,
-                    "E": 1.898362770526603
+                    "pz": -0.11992921976333601,
+                    "px": 0.3114509975792878,
+                    "py": 0.051620666157156554,
+                    "E": 1.8999054074665624
                 }
             }
         },
@@ -1912,93 +1908,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.157559001190068
+                    "value": 2.1718196398333665
                 },
                 {
                     "name": "D0_px",
-                    "value": 0.5625495147714906
+                    "value": -0.86067017664396
                 },
                 {
                     "name": "D0_py",
-                    "value": 0.8932144917965406
+                    "value": -0.7053954938362708
                 },
                 {
                     "name": "D0_pz",
-                    "value": 0.2513480252384962
+                    "value": -0.029557797229714394
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.1618884393659312
+                    "value": 0.18533103482024535
                 },
                 {
                     "name": "pip_px",
-                    "value": 0.02860813953915836
+                    "value": -0.10003619970135985
                 },
                 {
                     "name": "pip_py",
-                    "value": 0.0741604323266903
+                    "value": -0.06405440982764568
                 },
                 {
                     "name": "pip_pz",
-                    "value": -0.020242965810649216
+                    "value": 0.02752253683315833
                 },
                 {
                     "name": "Dm_E",
-                    "value": 1.9361855644251036
+                    "value": 2.3333735654736616
                 },
                 {
                     "name": "Dm_px",
-                    "value": -0.18595231655055644
+                    "value": 1.0842938446442407
                 },
                 {
                     "name": "Dm_py",
-                    "value": -0.3636874878296906
+                    "value": 0.8294907848272955
                 },
                 {
                     "name": "Dm_pz",
-                    "value": 0.293898901926781
+                    "value": 0.29204960178791084
                 },
                 {
                     "name": "Kp_E",
-                    "value": 1.0237070024561867
+                    "value": 0.5888158185408783
                 },
                 {
                     "name": "Kp_px",
-                    "value": -0.4052053379549342
+                    "value": -0.12358746798227824
                 },
                 {
                     "name": "Kp_py",
-                    "value": -0.6036874366123807
+                    "value": -0.060040880909773664
                 },
                 {
                     "name": "Kp_pz",
-                    "value": -0.5250039614307986
+                    "value": -0.29001434139068394
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": -0.020242965810649216,
-                    "px": 0.02860813953915836,
-                    "py": 0.0741604323266903,
-                    "E": 0.1618884393659312
+                    "pz": 0.02752253683315833,
+                    "px": -0.10003619970135985,
+                    "py": -0.06405440982764568,
+                    "E": 0.18533103482024535
                 },
                 "K+": {
-                    "pz": -0.5250039614307986,
-                    "px": -0.4052053379549342,
-                    "py": -0.6036874366123807,
-                    "E": 1.0237070024561867
+                    "pz": -0.29001434139068394,
+                    "px": -0.12358746798227824,
+                    "py": -0.060040880909773664,
+                    "E": 0.5888158185408783
                 },
                 "D0": {
-                    "pz": 0.2513480252384962,
-                    "px": 0.5625495147714906,
-                    "py": 0.8932144917965406,
-                    "E": 2.157559001190068
+                    "pz": -0.029557797229714394,
+                    "px": -0.86067017664396,
+                    "py": -0.7053954938362708,
+                    "E": 2.1718196398333665
                 },
                 "D-": {
-                    "pz": 0.293898901926781,
-                    "px": -0.18595231655055644,
-                    "py": -0.3636874878296906,
-                    "E": 1.9361855644251036
+                    "pz": 0.29204960178791084,
+                    "px": 1.0842938446442407,
+                    "py": 0.8294907848272955,
+                    "E": 2.3333735654736616
                 }
             }
         }
