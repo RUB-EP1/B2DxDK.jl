@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 2,
-                                "parametrization": "BW_1_2_3_m3p9272_w0p024"
+                                "parametrization": "lineshape_chi(c2)(3930)"
                             }
                         ],
                         "topology": [
@@ -131,17 +131,6 @@
     ],
     "functions": [
         {
-            "type": "BreitWigner",
-            "mass": 3.9272,
-            "width": 0.024,
-            "ma": 2.01026,
-            "mb": 1.86965,
-            "l": 2,
-            "d": 3.0,
-            "x": "m1_2_3sq",
-            "name": "BW_1_2_3_m3p9272_w0p024"
-        },
-        {
             "type": "BlattWeisskopf",
             "l": 2,
             "radius": 3.0,
@@ -150,7 +139,18 @@
         {
             "type": "ConstantLineshape",
             "value": "1.0 + 0.0i",
-            "name": "constant_one"
+            "name": "constant_Dst"
+        },
+        {
+            "type": "BreitWigner",
+            "mass": 3.9272,
+            "width": 0.024,
+            "ma": 2.01026,
+            "mb": 1.86965,
+            "l": 2,
+            "d": 3.0,
+            "x": "m1_2_3sq",
+            "name": "lineshape_chi(c2)(3930)"
         }
     ],
     "misc": {

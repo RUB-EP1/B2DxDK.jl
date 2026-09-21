@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m3p8716"
+                                "parametrization": "lineshape_X(3872)"
                             }
                         ],
                         "topology": [
@@ -169,7 +169,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -180,7 +180,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m3p8716"
+                                "parametrization": "lineshape_X(3872)"
                             }
                         ],
                         "topology": [
@@ -245,7 +245,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -256,7 +256,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "BW_1_2_3_m3p9445_w0p1297"
+                                "parametrization": "lineshape_X(3915)(0-)"
                             }
                         ],
                         "topology": [
@@ -321,7 +321,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -332,7 +332,7 @@
                                     3
                                 ],
                                 "spin": 2,
-                                "parametrization": "BW_1_2_3_m3p9272_w0p024"
+                                "parametrization": "lineshape_chi(c2)(3930)"
                             }
                         ],
                         "topology": [
@@ -397,7 +397,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -408,7 +408,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0004"
+                                "parametrization": "lineshape_X(3940)(1.)"
                             }
                         ],
                         "topology": [
@@ -473,7 +473,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -484,7 +484,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0004"
+                                "parametrization": "lineshape_X(3940)(1.)"
                             }
                         ],
                         "topology": [
@@ -549,7 +549,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -560,7 +560,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
+                                "parametrization": "lineshape_X(3993)"
                             }
                         ],
                         "topology": [
@@ -625,7 +625,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -636,7 +636,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
+                                "parametrization": "lineshape_X(3993)"
                             }
                         ],
                         "topology": [
@@ -701,7 +701,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -712,7 +712,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "BW_1_2_3_m4p039_w0p08"
+                                "parametrization": "lineshape_Psi(4040)"
                             }
                         ],
                         "topology": [
@@ -777,7 +777,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -788,7 +788,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p3073"
+                                "parametrization": "lineshape_X(4300)"
                             }
                         ],
                         "topology": [
@@ -853,7 +853,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -864,7 +864,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p3073"
+                                "parametrization": "lineshape_X(4300)"
                             }
                         ],
                         "topology": [
@@ -929,7 +929,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -940,7 +940,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "NRExp_1_2_3_m04p35"
+                                "parametrization": "lineshape_NR(0-)SPp"
                             }
                         ],
                         "topology": [
@@ -1005,7 +1005,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -1016,7 +1016,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "lineshape_NR(1.)PSp"
                             }
                         ],
                         "topology": [
@@ -1081,7 +1081,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -1092,7 +1092,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "constant_one"
+                                "parametrization": "lineshape_NR(0-)SPm"
                             }
                         ],
                         "topology": [
@@ -1157,7 +1157,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -1168,7 +1168,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "lineshape_NR(1-)PPm"
                             }
                         ],
                         "topology": [
@@ -1195,39 +1195,6 @@
     ],
     "functions": [
         {
-            "type": "BreitWigner",
-            "mass": 3.9272,
-            "width": 0.024,
-            "ma": 2.01026,
-            "mb": 1.86965,
-            "l": 2,
-            "d": 3.0,
-            "x": "m1_2_3sq",
-            "name": "BW_1_2_3_m3p9272_w0p024"
-        },
-        {
-            "type": "BreitWigner",
-            "mass": 3.944541826791121,
-            "width": 0.12967347104307578,
-            "ma": 2.01026,
-            "mb": 1.86965,
-            "l": 1,
-            "d": 3.0,
-            "x": "m1_2_3sq",
-            "name": "BW_1_2_3_m3p9445_w0p1297"
-        },
-        {
-            "type": "BreitWigner",
-            "mass": 4.039,
-            "width": 0.08,
-            "ma": 2.01026,
-            "mb": 1.86965,
-            "l": 1,
-            "d": 3.0,
-            "x": "m1_2_3sq",
-            "name": "BW_1_2_3_m4p039_w0p08"
-        },
-        {
             "type": "BlattWeisskopf",
             "l": 0,
             "radius": 3.0,
@@ -1244,6 +1211,47 @@
             "l": 2,
             "radius": 3.0,
             "name": "BlattWeisskopf_L2_d3.0"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_Dst"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "lineshape_NR(0-)SPm"
+        },
+        {
+            "type": "custom",
+            "subtype": "NRExpLineshape",
+            "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
+            "alpha": -0.11261265753519498,
+            "beta": 0.3362692520521029,
+            "m0": 4.35,
+            "x": "m1_2_3sq",
+            "name": "lineshape_NR(0-)SPp"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "lineshape_NR(1-)PPm"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "lineshape_NR(1.)PSp"
+        },
+        {
+            "type": "BreitWigner",
+            "mass": 4.039,
+            "width": 0.08,
+            "ma": 2.01026,
+            "mb": 1.86965,
+            "l": 1,
+            "d": 3.0,
+            "x": "m1_2_3sq",
+            "name": "lineshape_Psi(4040)"
         },
         {
             "type": "custom",
@@ -1267,7 +1275,18 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "MultiChannelBW_1_2_3_m3p8716"
+            "name": "lineshape_X(3872)"
+        },
+        {
+            "type": "BreitWigner",
+            "mass": 3.944541826791121,
+            "width": 0.12967347104307578,
+            "ma": 2.01026,
+            "mb": 1.86965,
+            "l": 1,
+            "d": 3.0,
+            "x": "m1_2_3sq",
+            "name": "lineshape_X(3915)(0-)"
         },
         {
             "type": "custom",
@@ -1291,7 +1310,7 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "MultiChannelBW_1_2_3_m4p0004"
+            "name": "lineshape_X(3940)(1.)"
         },
         {
             "type": "custom",
@@ -1315,7 +1334,7 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "MultiChannelBW_1_2_3_m4p0125"
+            "name": "lineshape_X(3993)"
         },
         {
             "type": "custom",
@@ -1339,22 +1358,18 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "MultiChannelBW_1_2_3_m4p3073"
+            "name": "lineshape_X(4300)"
         },
         {
-            "type": "custom",
-            "subtype": "NRExpLineshape",
-            "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
-            "alpha": -0.11261265753519498,
-            "beta": 0.3362692520521029,
-            "m0": 4.35,
+            "type": "BreitWigner",
+            "mass": 3.9272,
+            "width": 0.024,
+            "ma": 2.01026,
+            "mb": 1.86965,
+            "l": 2,
+            "d": 3.0,
             "x": "m1_2_3sq",
-            "name": "NRExp_1_2_3_m04p35"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "constant_one"
+            "name": "lineshape_chi(c2)(3930)"
         }
     ],
     "domains": [
@@ -1387,23 +1402,23 @@
             {
                 "point": "verification_point_1",
                 "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cplus",
-                "value": 0.19609253353846265,
-                "amplitude_real": 0.06820061441772948,
-                "amplitude_imag": -0.43753995215466535
+                "value": 0.12638771986201475,
+                "amplitude_real": -0.33345485453029683,
+                "amplitude_imag": 0.1232703526894984
             },
             {
                 "point": "verification_point_2",
                 "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cplus",
-                "value": 0.338164894695403,
-                "amplitude_real": 0.5294895728719349,
-                "amplitude_imag": -0.24042813253714504
+                "value": 0.3072535788993923,
+                "amplitude_real": -0.03320599697005225,
+                "amplitude_imag": -0.5533090823984522
             },
             {
                 "point": "verification_point_3",
                 "distribution": "Bplus_to_D0_pi_D_K_unpolarized_intensity_Cplus",
-                "value": 0.1307241452508485,
-                "amplitude_real": 0.04378092491025799,
-                "amplitude_imag": 0.3588974447733654
+                "value": 0.5555336349244886,
+                "amplitude_real": -0.46177705898592974,
+                "amplitude_imag": 0.5850603239998365
             }
         ],
         "generator": "CascadeDecaysIO.jl",
@@ -1416,93 +1431,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.31847541761884
+                    "value": 2.177823185369754
                 },
                 {
                     "name": "D0_px",
-                    "value": -0.7800936257286514
+                    "value": 0.5469836013745001
                 },
                 {
                     "name": "D0_py",
-                    "value": 0.15599402105341922
+                    "value": 0.7552626859215021
                 },
                 {
                     "name": "D0_pz",
-                    "value": 1.1246586743078837
+                    "value": 0.6290549363259804
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.15474941892935412
+                    "value": 0.1924651907879725
                 },
                 {
                     "name": "pip_px",
-                    "value": -0.04697937782474787
+                    "value": 0.07977384306329191
                 },
                 {
                     "name": "pip_py",
-                    "value": 0.02360491512319555
+                    "value": 0.07403443612883873
                 },
                 {
                     "name": "pip_pz",
-                    "value": 0.041270266966024864
+                    "value": 0.075617406265335
                 },
                 {
                     "name": "Dm_E",
-                    "value": 2.1233845141733165
+                    "value": 1.9375911057796846
                 },
                 {
                     "name": "Dm_px",
-                    "value": 0.4522779441679212
+                    "value": -0.39681343998531227
                 },
                 {
                     "name": "Dm_py",
-                    "value": -0.18609545220044543
+                    "value": -0.30329703206064784
                 },
                 {
                     "name": "Dm_pz",
-                    "value": -0.8797635002775465
+                    "value": -0.09601132686702041
                 },
                 {
                     "name": "Kp_E",
-                    "value": 0.682730680161188
+                    "value": 0.9714605256569169
                 },
                 {
                     "name": "Kp_px",
-                    "value": 0.3747950596580758
+                    "value": -0.22994400465905493
                 },
                 {
                     "name": "Kp_py",
-                    "value": 0.006496515964636025
+                    "value": -0.5260000902630241
                 },
                 {
                     "name": "Kp_pz",
-                    "value": -0.28616544138064437
+                    "value": -0.6086610159565505
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": 0.041270266966024864,
-                    "px": -0.04697937782474787,
-                    "py": 0.02360491512319555,
-                    "E": 0.15474941892935412
+                    "pz": 0.075617406265335,
+                    "px": 0.07977384306329191,
+                    "py": 0.07403443612883873,
+                    "E": 0.1924651907879725
                 },
                 "K+": {
-                    "pz": -0.28616544138064437,
-                    "px": 0.3747950596580758,
-                    "py": 0.006496515964636025,
-                    "E": 0.682730680161188
+                    "pz": -0.6086610159565505,
+                    "px": -0.22994400465905493,
+                    "py": -0.5260000902630241,
+                    "E": 0.9714605256569169
                 },
                 "D0": {
-                    "pz": 1.1246586743078837,
-                    "px": -0.7800936257286514,
-                    "py": 0.15599402105341922,
-                    "E": 2.31847541761884
+                    "pz": 0.6290549363259804,
+                    "px": 0.5469836013745001,
+                    "py": 0.7552626859215021,
+                    "E": 2.177823185369754
                 },
                 "D-": {
-                    "pz": -0.8797635002775465,
-                    "px": 0.4522779441679212,
-                    "py": -0.18609545220044543,
-                    "E": 2.1233845141733165
+                    "pz": -0.09601132686702041,
+                    "px": -0.39681343998531227,
+                    "py": -0.30329703206064784,
+                    "E": 1.9375911057796846
                 }
             }
         },
@@ -1511,93 +1526,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.1200764885994174
+                    "value": 2.2375368356569036
                 },
                 {
                     "name": "D0_px",
-                    "value": -0.6883411021239655
+                    "value": -0.21329530368648622
                 },
                 {
                     "name": "D0_py",
-                    "value": 0.7196822833301474
+                    "value": -1.1034396207289814
                 },
                 {
                     "name": "D0_pz",
-                    "value": -0.15930262646769683
+                    "value": 0.5156610115689202
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.16143198997947342
+                    "value": 0.15996092747696813
                 },
                 {
                     "name": "pip_px",
-                    "value": -0.017456418876371692
+                    "value": 0.02150258666634488
                 },
                 {
                     "name": "pip_py",
-                    "value": 0.0784925062257896
+                    "value": -0.062496878322121224
                 },
                 {
                     "name": "pip_pz",
-                    "value": -0.010704836775389883
+                    "value": 0.04170591710040742
                 },
                 {
                     "name": "Dm_E",
-                    "value": 1.8999054074665624
+                    "value": 2.206906588065254
                 },
                 {
                     "name": "Dm_px",
-                    "value": 0.3114509975792878
+                    "value": 0.0053409801502137646
                 },
                 {
                     "name": "Dm_py",
-                    "value": 0.051620666157156554
+                    "value": 1.1645431692376413
                 },
                 {
                     "name": "Dm_pz",
-                    "value": -0.11992921976333601
+                    "value": -0.13658787229767672
                 },
                 {
                     "name": "Kp_E",
-                    "value": 1.0979261169266987
+                    "value": 0.6749356905209859
                 },
                 {
                     "name": "Kp_px",
-                    "value": 0.3943465236536756
+                    "value": 0.1864517369331412
                 },
                 {
                     "name": "Kp_py",
-                    "value": -0.8497954559761667
+                    "value": 0.0013933301977462342
                 },
                 {
                     "name": "Kp_pz",
-                    "value": 0.28993668306245607
+                    "value": -0.4207790565553554
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": -0.010704836775389883,
-                    "px": -0.017456418876371692,
-                    "py": 0.0784925062257896,
-                    "E": 0.16143198997947342
+                    "pz": 0.04170591710040742,
+                    "px": 0.02150258666634488,
+                    "py": -0.062496878322121224,
+                    "E": 0.15996092747696813
                 },
                 "K+": {
-                    "pz": 0.28993668306245607,
-                    "px": 0.3943465236536756,
-                    "py": -0.8497954559761667,
-                    "E": 1.0979261169266987
+                    "pz": -0.4207790565553554,
+                    "px": 0.1864517369331412,
+                    "py": 0.0013933301977462342,
+                    "E": 0.6749356905209859
                 },
                 "D0": {
-                    "pz": -0.15930262646769683,
-                    "px": -0.6883411021239655,
-                    "py": 0.7196822833301474,
-                    "E": 2.1200764885994174
+                    "pz": 0.5156610115689202,
+                    "px": -0.21329530368648622,
+                    "py": -1.1034396207289814,
+                    "E": 2.2375368356569036
                 },
                 "D-": {
-                    "pz": -0.11992921976333601,
-                    "px": 0.3114509975792878,
-                    "py": 0.051620666157156554,
-                    "E": 1.8999054074665624
+                    "pz": -0.13658787229767672,
+                    "px": 0.0053409801502137646,
+                    "py": 1.1645431692376413,
+                    "E": 2.206906588065254
                 }
             }
         },
@@ -1606,93 +1621,93 @@
             "parameters": [
                 {
                     "name": "D0_E",
-                    "value": 2.1718196398333665
+                    "value": 2.05104597938228
                 },
                 {
                     "name": "D0_px",
-                    "value": -0.86067017664396
+                    "value": -0.23112135233862027
                 },
                 {
                     "name": "D0_py",
-                    "value": -0.7053954938362708
+                    "value": 0.8213617504196769
                 },
                 {
                     "name": "D0_pz",
-                    "value": -0.029557797229714394
+                    "value": 0.03385965269917323
                 },
                 {
                     "name": "pip_E",
-                    "value": 0.18533103482024535
+                    "value": 0.15774388202001688
                 },
                 {
                     "name": "pip_px",
-                    "value": -0.10003619970135985
+                    "value": -0.055034270025126064
                 },
                 {
                     "name": "pip_py",
-                    "value": -0.06405440982764568
+                    "value": 0.047640260404345
                 },
                 {
                     "name": "pip_pz",
-                    "value": 0.02752253683315833
+                    "value": -0.010240764688274989
                 },
                 {
                     "name": "Dm_E",
-                    "value": 2.3333735654736616
+                    "value": 1.9697080732581895
                 },
                 {
                     "name": "Dm_px",
-                    "value": 1.0842938446442407
+                    "value": 0.49049788844503733
                 },
                 {
                     "name": "Dm_py",
-                    "value": 0.8294907848272955
+                    "value": 0.025859889317364156
                 },
                 {
                     "name": "Dm_pz",
-                    "value": 0.29204960178791084
+                    "value": -0.3780236221639364
                 },
                 {
                     "name": "Kp_E",
-                    "value": 0.5888158185408783
+                    "value": 1.100842076966319
                 },
                 {
                     "name": "Kp_px",
-                    "value": -0.12358746798227824
+                    "value": -0.20434226598697597
                 },
                 {
                     "name": "Kp_py",
-                    "value": -0.060040880909773664
+                    "value": -0.8948619004278031
                 },
                 {
                     "name": "Kp_pz",
-                    "value": -0.29001434139068394
+                    "value": 0.35440473414525353
                 }
             ],
             "four_vectors": {
                 "pi+": {
-                    "pz": 0.02752253683315833,
-                    "px": -0.10003619970135985,
-                    "py": -0.06405440982764568,
-                    "E": 0.18533103482024535
+                    "pz": -0.010240764688274989,
+                    "px": -0.055034270025126064,
+                    "py": 0.047640260404345,
+                    "E": 0.15774388202001688
                 },
                 "K+": {
-                    "pz": -0.29001434139068394,
-                    "px": -0.12358746798227824,
-                    "py": -0.060040880909773664,
-                    "E": 0.5888158185408783
+                    "pz": 0.35440473414525353,
+                    "px": -0.20434226598697597,
+                    "py": -0.8948619004278031,
+                    "E": 1.100842076966319
                 },
                 "D0": {
-                    "pz": -0.029557797229714394,
-                    "px": -0.86067017664396,
-                    "py": -0.7053954938362708,
-                    "E": 2.1718196398333665
+                    "pz": 0.03385965269917323,
+                    "px": -0.23112135233862027,
+                    "py": 0.8213617504196769,
+                    "E": 2.05104597938228
                 },
                 "D-": {
-                    "pz": 0.29204960178791084,
-                    "px": 1.0842938446442407,
-                    "py": 0.8294907848272955,
-                    "E": 2.3333735654736616
+                    "pz": -0.3780236221639364,
+                    "px": 0.49049788844503733,
+                    "py": 0.025859889317364156,
+                    "E": 1.9697080732581895
                 }
             }
         }

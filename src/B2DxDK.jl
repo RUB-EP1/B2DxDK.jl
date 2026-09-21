@@ -1,6 +1,7 @@
 module B2DxDK
 
 using CascadeDecays
+using CascadeDecaysIO: NamedLineshape
 import CascadeDecays.ThreeBodyDecays
 using CascadeDecays.ThreeBodyDecays: Recoupling, RecouplingLS
 using DataFrames

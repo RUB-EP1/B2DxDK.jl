@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "NRExp_1_2_3_m04p35"
+                                "parametrization": "lineshape_NR(0-)SPp"
                             }
                         ],
                         "topology": [
@@ -143,6 +143,11 @@
             "name": "BlattWeisskopf_L1_d3.0"
         },
         {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_Dst"
+        },
+        {
             "type": "custom",
             "subtype": "NRExpLineshape",
             "expression": "-exp(-((-0.11261265753519498) + i*(0.3362692520521029)) * (m1_2_3sq - 18.922499999999996))",
@@ -150,12 +155,7 @@
             "beta": 0.3362692520521029,
             "m0": 4.35,
             "x": "m1_2_3sq",
-            "name": "NRExp_1_2_3_m04p35"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "constant_one"
+            "name": "lineshape_NR(0-)SPp"
         }
     ],
     "misc": {

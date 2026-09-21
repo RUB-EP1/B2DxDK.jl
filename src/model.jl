@@ -4,13 +4,15 @@ function enrich_resonance_chains_df!(df)
     return df
 end
 
-function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoupling)
+function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoupling; resonance_name::String = "")
+    res_ls = isempty(resonance_name) ? lineshape : NamedLineshape("lineshape_$(resonance_name)", lineshape)
+    dst_ls = NamedLineshape("constant_Dst", ConstantLineshape(1.0 + 0.0im))
     return DecayChain(
         dxd_topology,
         external_spins;
         propagators=(
-            (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), ConstantLineshape(1.0 + 0.0im)),
-            ((1, 2), 3) => Propagator(two_j, lineshape),
+            (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), dst_ls),
+            ((1, 2), 3) => Propagator(two_j, res_ls),
         ),
         vertices=(
             (((1, 2), 3), 4) => Vertex(production, BlattWeisskopf{vertex_blatt_l(production)}(WELL_SIZE)),
@@ -20,13 +22,15 @@ function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoup
     )
 end
 
-function build_dk_chain(lineshape, two_j, root::Recoupling, daughter::Recoupling)
+function build_dk_chain(lineshape, two_j, root::Recoupling, daughter::Recoupling; resonance_name::String = "")
+    res_ls = isempty(resonance_name) ? lineshape : NamedLineshape("lineshape_$(resonance_name)", lineshape)
+    dst_ls = NamedLineshape("constant_Dst", ConstantLineshape(1.0 + 0.0im))
     return DecayChain(
         dk_topology,
         external_spins;
         propagators=(
-            (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), ConstantLineshape(1.0 + 0.0im)),
-            (3, 4) => Propagator(two_j, lineshape),
+            (1, 2) => Propagator(ThreeBodyDecays.str2jp("1+"), dst_ls),
+            (3, 4) => Propagator(two_j, res_ls),
         ),
         vertices=(
             ((1, 2), (3, 4)) => Vertex(root, BlattWeisskopf{vertex_blatt_l(root)}(WELL_SIZE)),
@@ -47,10 +51,11 @@ function build_chain_from_row(row)
     root = RecouplingLS(row.root_two_ls)
     daughter = RecouplingLS(row.daughter_two_ls)
     if row.topology == :dk
-        return build_dk_chain(lineshape, row.propagator_two_j, root, daughter)
+        return build_dk_chain(lineshape, row.propagator_two_j, root, daughter; resonance_name = row.resonance_name)
     end
-    return build_dxd_chain(lineshape, row.propagator_two_j, root, daughter)
+    return build_dxd_chain(lineshape, row.propagator_two_j, root, daughter; resonance_name = row.resonance_name)
 end
+
 
 function chain_name(resonance_name::String, row)
     "$(resonance_name)_L$(vertex_l(row.root_two_ls))_d$(vertex_l(row.daughter_two_ls))"

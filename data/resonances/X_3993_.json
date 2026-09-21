@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
+                                "parametrization": "lineshape_X(3993)"
                             }
                         ],
                         "topology": [
@@ -169,7 +169,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -180,7 +180,7 @@
                                     3
                                 ],
                                 "spin": 1,
-                                "parametrization": "MultiChannelBW_1_2_3_m4p0125"
+                                "parametrization": "lineshape_X(3993)"
                             }
                         ],
                         "topology": [
@@ -225,6 +225,11 @@
             "name": "BlattWeisskopf_L2_d3.0"
         },
         {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "constant_Dst"
+        },
+        {
             "type": "custom",
             "subtype": "TFPWAMultichannelBreitWigner",
             "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
@@ -246,12 +251,7 @@
                 }
             ],
             "x": "m1_2_3sq",
-            "name": "MultiChannelBW_1_2_3_m4p0125"
-        },
-        {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "constant_one"
+            "name": "lineshape_X(3993)"
         }
     ],
     "misc": {

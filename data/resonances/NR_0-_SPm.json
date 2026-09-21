@@ -93,7 +93,7 @@
                                     2
                                 ],
                                 "spin": 1,
-                                "parametrization": "constant_one"
+                                "parametrization": "constant_Dst"
                             },
                             {
                                 "node": [
@@ -104,7 +104,7 @@
                                     3
                                 ],
                                 "spin": 0,
-                                "parametrization": "constant_one"
+                                "parametrization": "lineshape_NR(0-)SPm"
                             }
                         ],
                         "topology": [
@@ -145,7 +145,12 @@
         {
             "type": "ConstantLineshape",
             "value": "1.0 + 0.0i",
-            "name": "constant_one"
+            "name": "constant_Dst"
+        },
+        {
+            "type": "ConstantLineshape",
+            "value": "1.0 + 0.0i",
+            "name": "lineshape_NR(0-)SPm"
         }
     ],
     "misc": {
