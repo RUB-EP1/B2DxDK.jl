@@ -18,8 +18,9 @@ function get_sampled_verification_events(n_events = 3)
     cached_file = joinpath(B2DxDK.data_dir, "sampled_verification_events.json")
     analysis_dir = joinpath(@__DIR__, "..", "archive", "investigation", "Analysis")
     python_candidates = [
-        "C:\\Users\\gamma\\miniconda3\\envs\\tf-pwa-env\\python.exe",
+        get(ENV, "TFPWA_PYTHON", joinpath(homedir(), "miniconda3", "envs", "tf-pwa-env", "python.exe")),
         "python",
+        "python3",
     ]
     python_cmd = nothing
     for py in python_candidates
