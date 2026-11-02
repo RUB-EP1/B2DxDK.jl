@@ -1,35 +1,40 @@
 {
     "distributions": [
         {
-            "type": "HadronicUnpolarizedIntensity",
             "name": "resonance_Psi_4040_",
+            "type": "HadronicUnpolarizedIntensity",
             "decay_description": {
                 "kinematics": {
                     "initial_state": {
-                        "name": "B+",
                         "index": 0,
-                        "spin": 0
+                        "name": "B+",
+                        "spin": "0",
+                        "mass": 5.27934
                     },
                     "final_state": [
                         {
-                            "name": "D0",
                             "index": 1,
-                            "spin": 0
+                            "name": "D0",
+                            "spin": "0",
+                            "mass": 1.86483
                         },
                         {
-                            "name": "pi+",
                             "index": 2,
-                            "spin": 0
+                            "name": "pi+",
+                            "spin": "0",
+                            "mass": 0.13957039
                         },
                         {
-                            "name": "D-",
                             "index": 3,
-                            "spin": 0
+                            "name": "D-",
+                            "spin": "0",
+                            "mass": 1.86965
                         },
                         {
-                            "name": "K+",
                             "index": 4,
-                            "spin": 0
+                            "name": "K+",
+                            "spin": "0",
+                            "mass": 0.493677
                         }
                     ]
                 },
@@ -45,12 +50,44 @@
                 ],
                 "chains": [
                     {
+                        "name": "Psi(4040)_l1_l1",
+                        "topology": [
+                            [
+                                [
+                                    1,
+                                    2
+                                ],
+                                3
+                            ],
+                            4
+                        ],
+                        "propagators": [
+                            {
+                                "node": [
+                                    1,
+                                    2
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_Dst"
+                            },
+                            {
+                                "node": [
+                                    [
+                                        1,
+                                        2
+                                    ],
+                                    3
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_Psi(4040)"
+                            }
+                        ],
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L1_d3.0",
-                                "l": 1,
-                                "s": 1,
+                                "l": "1",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l1",
                                 "node": [
                                     [
                                         [
@@ -64,9 +101,9 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L1_d3.0",
-                                "l": 1,
-                                "s": 1,
+                                "l": "1",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l1",
                                 "node": [
                                     [
                                         1,
@@ -77,56 +114,19 @@
                             },
                             {
                                 "type": "ls",
+                                "l": "1",
+                                "s": "0",
                                 "formfactor": "",
-                                "l": 1,
-                                "s": 0,
                                 "node": [
                                     1,
                                     2
                                 ]
                             }
                         ],
-                        "propagators": [
-                            {
-                                "node": [
-                                    1,
-                                    2
-                                ],
-                                "spin": 1,
-                                "parametrization": "constant_Dst"
-                            },
-                            {
-                                "node": [
-                                    [
-                                        1,
-                                        2
-                                    ],
-                                    3
-                                ],
-                                "spin": 1,
-                                "parametrization": "lineshape_Psi(4040)"
-                            }
-                        ],
-                        "topology": [
-                            [
-                                [
-                                    1,
-                                    2
-                                ],
-                                3
-                            ],
-                            4
-                        ],
-                        "name": "Psi(4040)_L1_d1",
                         "weight": "-0.025518820441784378 + 0.09494812637584671i"
                     }
                 ]
-            },
-            "variables": [
-                "m1_2sq",
-                "m1_2_3sq",
-                "m3_4sq"
-            ]
+            }
         }
     ],
     "functions": [
@@ -134,12 +134,12 @@
             "type": "BlattWeisskopf",
             "l": 1,
             "radius": 3.0,
-            "name": "BlattWeisskopf_L1_d3.0"
+            "name": "BlattWeisskopf_l1"
         },
         {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "constant_Dst"
+            "type": "generic_function",
+            "expression": "exp(-0.5 * ((sqrt(sigma) - 2.01026) / 1.0e-6)^16)",
+            "name": "lineshape_Dst"
         },
         {
             "type": "BreitWigner",
@@ -149,15 +149,144 @@
             "mb": 1.86965,
             "l": 1,
             "d": 3.0,
-            "x": "m1_2_3sq",
+            "x": "m_12_3_sq",
             "name": "lineshape_Psi(4040)"
         }
     ],
+    "domains": [
+        {
+            "name": "default",
+            "type": "phase_space",
+            "m0": 5.27934,
+            "final_state_masses": [
+                1.86483,
+                0.13957039,
+                1.86965,
+                0.493677
+            ]
+        }
+    ],
     "misc": {
-        "resonance": "Psi(4040)",
-        "analysis": "B2DxDK",
-        "chains": [
-            "Psi(4040)_L1_d1"
+        "amplitude_model_checksums": [
+            {
+                "point": "validation_point1",
+                "distribution": "resonance_Psi_4040_",
+                "value": 0.02006758137974498
+            },
+            {
+                "point": "validation_point2",
+                "distribution": "resonance_Psi_4040_",
+                "value": 0.0020449689070091656
+            },
+            {
+                "point": "validation_point3",
+                "distribution": "resonance_Psi_4040_",
+                "value": 0.0033269413345995585
+            }
         ]
-    }
+    },
+    "parameter_points": [
+        {
+            "name": "validation_point1",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 2.06667558149628,
+                    "px": 0.5389820277788282,
+                    "py": -0.6766786471431948,
+                    "pz": 0.21251214667605858
+                },
+                {
+                    "index": 2,
+                    "E": 0.1649826270091039,
+                    "px": 0.040438376710926656,
+                    "py": -0.051089604330932514,
+                    "pz": 0.05910975781008532
+                },
+                {
+                    "index": 3,
+                    "E": 2.026287918722412,
+                    "px": -0.7698502842759127,
+                    "py": -0.05225102943204546,
+                    "pz": 0.12186868664259985
+                },
+                {
+                    "index": 4,
+                    "E": 1.0213938727722043,
+                    "px": 0.1904298797861579,
+                    "py": 0.7800192809061728,
+                    "pz": -0.39349059112874374
+                }
+            ]
+        },
+        {
+            "name": "validation_point2",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 1.9647185983937903,
+                    "px": 0.22696236231965428,
+                    "py": 0.5721644382845541,
+                    "pz": 0.060367074032618415
+                },
+                {
+                    "index": 2,
+                    "E": 0.15328718113423803,
+                    "px": 0.04532739881065079,
+                    "py": 0.029437133861257563,
+                    "pz": 0.033105108403737274
+                },
+                {
+                    "index": 3,
+                    "E": 1.9300232751472808,
+                    "px": 0.10250505445298486,
+                    "py": 0.4181905521171425,
+                    "pz": 0.20978106692880194
+                },
+                {
+                    "index": 4,
+                    "E": 1.2313109453246922,
+                    "px": -0.37479481558328986,
+                    "py": -1.0197921242629542,
+                    "pz": -0.30325324936515763
+                }
+            ]
+        },
+        {
+            "name": "validation_point3",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 2.046923714332548,
+                    "px": -0.5707178109893549,
+                    "py": 0.15675581072586817,
+                    "pz": -0.6016764574255397
+                },
+                {
+                    "index": 2,
+                    "E": 0.1502175683239554,
+                    "px": -0.05371534480254239,
+                    "py": 0.01342203100253458,
+                    "pz": -0.004464849932650658
+                },
+                {
+                    "index": 3,
+                    "E": 2.0882873701837834,
+                    "px": 0.9014921226367684,
+                    "py": 0.1915920842307855,
+                    "pz": -0.1263227772535904
+                },
+                {
+                    "index": 4,
+                    "E": 0.993911347159714,
+                    "px": -0.2770589668448711,
+                    "py": -0.3617699259591882,
+                    "pz": 0.7324640846117806
+                }
+            ]
+        }
+    ]
 }

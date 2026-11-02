@@ -1,6 +1,7 @@
 module B2DxDK
 
 using CascadeDecays
+import CascadeDecaysIO
 using CascadeDecaysIO: NamedLineshape
 import CascadeDecays.ThreeBodyDecays
 using CascadeDecays.ThreeBodyDecays: Recoupling, RecouplingLS
@@ -18,6 +19,7 @@ export data_dir,
 include("parameters.jl")
 
 include("lineshapes.jl")
+include("serialization.jl")
 include("resonance_table.jl")
 include("matching.jl")
 

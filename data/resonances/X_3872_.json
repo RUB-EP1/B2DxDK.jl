@@ -1,35 +1,40 @@
 {
     "distributions": [
         {
-            "type": "HadronicUnpolarizedIntensity",
             "name": "resonance_X_3872_",
+            "type": "HadronicUnpolarizedIntensity",
             "decay_description": {
                 "kinematics": {
                     "initial_state": {
-                        "name": "B+",
                         "index": 0,
-                        "spin": 0
+                        "name": "B+",
+                        "spin": "0",
+                        "mass": 5.27934
                     },
                     "final_state": [
                         {
-                            "name": "D0",
                             "index": 1,
-                            "spin": 0
+                            "name": "D0",
+                            "spin": "0",
+                            "mass": 1.86483
                         },
                         {
-                            "name": "pi+",
                             "index": 2,
-                            "spin": 0
+                            "name": "pi+",
+                            "spin": "0",
+                            "mass": 0.13957039
                         },
                         {
-                            "name": "D-",
                             "index": 3,
-                            "spin": 0
+                            "name": "D-",
+                            "spin": "0",
+                            "mass": 1.86965
                         },
                         {
-                            "name": "K+",
                             "index": 4,
-                            "spin": 0
+                            "name": "K+",
+                            "spin": "0",
+                            "mass": 0.493677
                         }
                     ]
                 },
@@ -45,12 +50,44 @@
                 ],
                 "chains": [
                     {
+                        "name": "X(3872)_l1_l0",
+                        "topology": [
+                            [
+                                [
+                                    1,
+                                    2
+                                ],
+                                3
+                            ],
+                            4
+                        ],
+                        "propagators": [
+                            {
+                                "node": [
+                                    1,
+                                    2
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_Dst"
+                            },
+                            {
+                                "node": [
+                                    [
+                                        1,
+                                        2
+                                    ],
+                                    3
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_X(3872)"
+                            }
+                        ],
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L1_d3.0",
-                                "l": 1,
-                                "s": 1,
+                                "l": "1",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l1",
                                 "node": [
                                     [
                                         [
@@ -64,9 +101,9 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L0_d3.0",
-                                "l": 0,
-                                "s": 1,
+                                "l": "0",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l0",
                                 "node": [
                                     [
                                         1,
@@ -77,56 +114,56 @@
                             },
                             {
                                 "type": "ls",
+                                "l": "1",
+                                "s": "0",
                                 "formfactor": "",
-                                "l": 1,
-                                "s": 0,
                                 "node": [
                                     1,
                                     2
                                 ]
                             }
                         ],
-                        "propagators": [
-                            {
-                                "node": [
-                                    1,
-                                    2
-                                ],
-                                "spin": 1,
-                                "parametrization": "constant_Dst"
-                            },
-                            {
-                                "node": [
-                                    [
-                                        1,
-                                        2
-                                    ],
-                                    3
-                                ],
-                                "spin": 1,
-                                "parametrization": "lineshape_X(3872)"
-                            }
-                        ],
-                        "topology": [
-                            [
-                                [
-                                    1,
-                                    2
-                                ],
-                                3
-                            ],
-                            4
-                        ],
-                        "name": "X(3872)_L1_d0",
                         "weight": "0.1495245549758687 + 0.0i"
                     },
                     {
+                        "name": "X(3872)_l1_l2",
+                        "topology": [
+                            [
+                                [
+                                    1,
+                                    2
+                                ],
+                                3
+                            ],
+                            4
+                        ],
+                        "propagators": [
+                            {
+                                "node": [
+                                    1,
+                                    2
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_Dst"
+                            },
+                            {
+                                "node": [
+                                    [
+                                        1,
+                                        2
+                                    ],
+                                    3
+                                ],
+                                "spin": "1",
+                                "parametrization": "lineshape_X(3872)"
+                            }
+                        ],
                         "vertices": [
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L1_d3.0",
-                                "l": 1,
-                                "s": 1,
+                                "l": "1",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l1",
                                 "node": [
                                     [
                                         [
@@ -140,9 +177,9 @@
                             },
                             {
                                 "type": "ls",
-                                "formfactor": "BlattWeisskopf_L2_d3.0",
-                                "l": 2,
-                                "s": 1,
+                                "l": "2",
+                                "s": "1",
+                                "formfactor": "BlattWeisskopf_l2",
                                 "node": [
                                     [
                                         1,
@@ -153,56 +190,19 @@
                             },
                             {
                                 "type": "ls",
+                                "l": "1",
+                                "s": "0",
                                 "formfactor": "",
-                                "l": 1,
-                                "s": 0,
                                 "node": [
                                     1,
                                     2
                                 ]
                             }
                         ],
-                        "propagators": [
-                            {
-                                "node": [
-                                    1,
-                                    2
-                                ],
-                                "spin": 1,
-                                "parametrization": "constant_Dst"
-                            },
-                            {
-                                "node": [
-                                    [
-                                        1,
-                                        2
-                                    ],
-                                    3
-                                ],
-                                "spin": 1,
-                                "parametrization": "lineshape_X(3872)"
-                            }
-                        ],
-                        "topology": [
-                            [
-                                [
-                                    1,
-                                    2
-                                ],
-                                3
-                            ],
-                            4
-                        ],
-                        "name": "X(3872)_L1_d2",
                         "weight": "0.11974831471312643 - 0.44658495720177055i"
                     }
                 ]
-            },
-            "variables": [
-                "m1_2sq",
-                "m1_2_3sq",
-                "m3_4sq"
-            ]
+            }
         }
     ],
     "functions": [
@@ -210,56 +210,165 @@
             "type": "BlattWeisskopf",
             "l": 0,
             "radius": 3.0,
-            "name": "BlattWeisskopf_L0_d3.0"
+            "name": "BlattWeisskopf_l0"
         },
         {
             "type": "BlattWeisskopf",
             "l": 1,
             "radius": 3.0,
-            "name": "BlattWeisskopf_L1_d3.0"
+            "name": "BlattWeisskopf_l1"
         },
         {
             "type": "BlattWeisskopf",
             "l": 2,
             "radius": 3.0,
-            "name": "BlattWeisskopf_L2_d3.0"
+            "name": "BlattWeisskopf_l2"
         },
         {
-            "type": "ConstantLineshape",
-            "value": "1.0 + 0.0i",
-            "name": "constant_Dst"
+            "type": "generic_function",
+            "expression": "exp(-0.5 * ((sqrt(sigma) - 2.01026) / 1.0e-6)^16)",
+            "name": "lineshape_Dst"
         },
         {
-            "type": "custom",
-            "subtype": "TFPWAMultichannelBreitWigner",
-            "expression": "BW(sigma, m0, sum(gsq * sigma * 2p/sqrt(sigma) * FF(p)^2) / m0)",
-            "mass": 3.87165,
-            "channels": [
-                {
-                    "gsq": 0.00015918785632281445,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 0,
-                    "d": 3.0
-                },
-                {
-                    "gsq": 0.0015221150006828033,
-                    "ma": 2.01026,
-                    "mb": 1.86965,
-                    "l": 2,
-                    "d": 3.0
-                }
-            ],
-            "x": "m1_2_3sq",
+            "type": "generic_function",
+            "expression": "1 / (3.87165^2 - sigma - i * (0.00015918785632281445 * sqrt((sigma - (2.01026 + 1.86965)^2) * (sigma - (2.01026 - 1.86965)^2)) * 1 + 0.0015221150006828033 * sqrt((sigma - (2.01026 + 1.86965)^2) * (sigma - (2.01026 - 1.86965)^2)) * (3.0^2 * (sigma - (2.01026 + 1.86965)^2) * (sigma - (2.01026 - 1.86965)^2) / (4 * sigma))^2 / (9 + 3 * (3.0^2 * (sigma - (2.01026 + 1.86965)^2) * (sigma - (2.01026 - 1.86965)^2) / (4 * sigma))^1 + 1 * (3.0^2 * (sigma - (2.01026 + 1.86965)^2) * (sigma - (2.01026 - 1.86965)^2) / (4 * sigma))^2)))",
             "name": "lineshape_X(3872)"
         }
     ],
+    "domains": [
+        {
+            "name": "default",
+            "type": "phase_space",
+            "m0": 5.27934,
+            "final_state_masses": [
+                1.86483,
+                0.13957039,
+                1.86965,
+                0.493677
+            ]
+        }
+    ],
     "misc": {
-        "resonance": "X(3872)",
-        "analysis": "B2DxDK",
-        "chains": [
-            "X(3872)_L1_d0",
-            "X(3872)_L1_d2"
+        "amplitude_model_checksums": [
+            {
+                "point": "validation_point1",
+                "distribution": "resonance_X_3872_",
+                "value": 0.29829474951318913
+            },
+            {
+                "point": "validation_point2",
+                "distribution": "resonance_X_3872_",
+                "value": 5.956481387882894
+            },
+            {
+                "point": "validation_point3",
+                "distribution": "resonance_X_3872_",
+                "value": 0.032877088208427406
+            }
         ]
-    }
+    },
+    "parameter_points": [
+        {
+            "name": "validation_point1",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 1.95457934880265,
+                    "px": 0.08310565674757384,
+                    "py": -0.3788700477172277,
+                    "pz": -0.43856634461058386
+                },
+                {
+                    "index": 2,
+                    "E": 0.1606486805791447,
+                    "px": -0.020185616106874277,
+                    "py": -0.037250945600889984,
+                    "pz": -0.06732765227819389
+                },
+                {
+                    "index": 3,
+                    "E": 1.9522744525369866,
+                    "px": 0.1474415885156448,
+                    "py": 0.09859611703762589,
+                    "pz": -0.5332205915094401
+                },
+                {
+                    "index": 4,
+                    "E": 1.2118375180812195,
+                    "px": -0.2103616291563443,
+                    "py": 0.3175248762804917,
+                    "pz": 1.0391145883982176
+                }
+            ]
+        },
+        {
+            "name": "validation_point2",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 1.953046721813072,
+                    "px": 0.11149640374964198,
+                    "py": 0.22562003217616447,
+                    "pz": -0.5229385448755065
+                },
+                {
+                    "index": 2,
+                    "E": 0.14081848553569912,
+                    "px": -0.002293574295070637,
+                    "py": 0.018481207484286607,
+                    "pz": 0.0017710422613664706
+                },
+                {
+                    "index": 3,
+                    "E": 1.9510205535299352,
+                    "px": 0.25418991171509414,
+                    "py": 0.23039906821323364,
+                    "pz": -0.43953820760543916
+                },
+                {
+                    "index": 4,
+                    "E": 1.2344542391212932,
+                    "px": -0.3633927411696654,
+                    "py": -0.47450030787368463,
+                    "pz": 0.9607057102195791
+                }
+            ]
+        },
+        {
+            "name": "validation_point3",
+            "domain": "default",
+            "four_vectors": [
+                {
+                    "index": 1,
+                    "E": 1.9318836398485304,
+                    "px": 0.15350671090330306,
+                    "py": 0.3516573434971627,
+                    "pz": 0.32765266897520706
+                },
+                {
+                    "index": 2,
+                    "E": 0.14524393729680682,
+                    "px": -0.026991077323228387,
+                    "py": 0.00995670424485462,
+                    "pz": 0.028075849804389905
+                },
+                {
+                    "index": 3,
+                    "E": 2.11832009572763,
+                    "px": -0.9904154082719523,
+                    "py": -0.014031489100667593,
+                    "pz": -0.10280730438367197
+                },
+                {
+                    "index": 4,
+                    "E": 1.0838923271270324,
+                    "px": 0.8638997746918776,
+                    "py": -0.34758255864134974,
+                    "pz": -0.25292121439592496
+                }
+            ]
+        }
+    ]
 }

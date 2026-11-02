@@ -2,6 +2,7 @@ using Test
 using Arrow
 using B2DxDK
 using CascadeDecays
+import CascadeDecaysIO
 using DataFrames
 
 include("amplitude_crosscheck.jl")
@@ -78,6 +79,26 @@ const amplitude_tolerance = 1e-10
             row = amplitude_row(idx, df, component_amps)
             @test row[end - 1] ≈ real(total)
             @test row[end] ≈ imag(total)
+        end
+    end
+
+    @testset "amplitude-serialization JSON" begin
+        # read with CascadeDecaysIO alone: lineshapes come back as standard or generic functions
+        df = DataFrame(Arrow.Table(crosscheck_data_path))
+        _, ref_rows = load_amplitude_reference(amplitude_reference_path)
+        for charge in ("Cminus", "Cplus")
+            cascade_json, _, document = CascadeDecaysIO.readJson(
+                joinpath(data_dir, "b2dxdk_amplitude_model_$(charge).json"))
+            @test all(r -> r.passed, CascadeDecaysIO.validate(document, cascade_json))
+            analysis_types = Union{B2DxDK.TFPWAMultichannelBreitWigner, B2DxDK.NRExpLineshape, B2DxDK.DstarDeltaLineshape}
+            @test all(ch -> all(p -> p isa CascadeDecaysIO.NamedLineshape && !(p.lineshape isa analysis_types),
+                ch.propagators), cascade_json.chains)
+            charge == "Cminus" || continue
+            max_delta = maximum(eachindex(ref_rows)) do i
+                total = only(amplitude(cascade_json, event_point(df[i, :])))
+                abs(total - complex(ref_rows[i][end - 1], ref_rows[i][end]))
+            end
+            @test max_delta <= amplitude_tolerance
         end
     end
 
