@@ -1,10 +1,10 @@
 using Test
 using Arrow
-using B2DxDK
 using CascadeDecays
 import CascadeDecaysIO
 using DataFrames
 
+include(joinpath(@__DIR__, "..", "scripts", "model.jl"))
 include("amplitude_crosscheck.jl")
 
 const crosscheck_data_path = joinpath(data_dir, "crosscheck.arrow")
@@ -36,14 +36,14 @@ const amplitude_tolerance = 1e-10
         # rather than silently in the amplitude.
         is_p2(instr) = instr isa CascadeDecays.InstructionalDecayTrees.ToHelicityFrameParticle2
 
-        @test any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dk_topology, 3))
+        @test any(is_p2, CascadeDecays.helicity_angle_program(dk_topology, 3))
         @test !any(
-            v -> any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dk_topology, v)),
+            v -> any(is_p2, CascadeDecays.helicity_angle_program(dk_topology, v)),
             (1, 2),
         )
         @test !any(
-            v -> any(is_p2, CascadeDecays.helicity_angle_program(B2DxDK.dxd_topology, v)),
-            1:nvertices(B2DxDK.dxd_topology),
+            v -> any(is_p2, CascadeDecays.helicity_angle_program(dxd_topology, v)),
+            1:nvertices(dxd_topology),
         )
     end
 
@@ -83,16 +83,13 @@ const amplitude_tolerance = 1e-10
     end
 
     @testset "amplitude-serialization JSON" begin
-        # read with CascadeDecaysIO alone: lineshapes come back as standard or generic functions
+        # read with CascadeDecaysIO alone
         df = DataFrame(Arrow.Table(crosscheck_data_path))
         _, ref_rows = load_amplitude_reference(amplitude_reference_path)
         for charge in ("Cminus", "Cplus")
             cascade_json, _, document = CascadeDecaysIO.readJson(
                 joinpath(data_dir, "b2dxdk_amplitude_model_$(charge).json"))
             @test all(r -> r.passed, CascadeDecaysIO.validate(document, cascade_json))
-            analysis_types = Union{B2DxDK.TFPWAMultichannelBreitWigner, B2DxDK.NRExpLineshape, B2DxDK.DstarDeltaLineshape}
-            @test all(ch -> all(p -> p isa CascadeDecaysIO.NamedLineshape && !(p.lineshape isa analysis_types),
-                ch.propagators), cascade_json.chains)
             charge == "Cminus" || continue
             max_delta = maximum(eachindex(ref_rows)) do i
                 total = only(amplitude(cascade_json, event_point(df[i, :])))

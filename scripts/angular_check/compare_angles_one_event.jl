@@ -6,12 +6,13 @@
 #     ang = data[self.outs[0]]["ang"]
 # CascadeDecays likewise measures (cosθ, ϕ) on child_line_inds(...)[1].
 
-using B2DxDK
 using CascadeDecays
 using FourVectors
 using JSON
 using LinearAlgebra
 using Printf
+
+include(joinpath(@__DIR__, "..", "model.jl"))
 
 const EPS = 1.0e-8
 
@@ -165,9 +166,9 @@ end
 function main()
     event_path = joinpath(@__DIR__, "..", "..", "archive", "data", "crosscheck_event.json")
     event, p4, objs = load_event(event_path)
-    point = KinematicPoint(B2DxDK.kinematic_task, objs)
-    x_dxd = kinematics_at(point, B2DxDK.dxd_topology)
-    x_dk = kinematics_at(point, B2DxDK.dk_topology)
+    point = KinematicPoint(kinematic_task, objs)
+    x_dxd = kinematics_at(point, dxd_topology)
+    x_dk = kinematics_at(point, dk_topology)
 
     chain_dxd = [("Bp", ["X", "K"]), ("X", ["Dst", "D"]), ("Dst", ["D0", "pi"])]
     chain_dk = [("Bp", ["Dst", "X"]), ("Dst", ["D0", "pi"]), ("X", ["D", "K"])]
@@ -186,42 +187,42 @@ function main()
         (
             topology = "DxD",
             vertex = "Bp → X, K",
-            cd = cd_theta_phi(vertex_angles(x_dxd, B2DxDK.dxd_topology, (((1, 2), 3), 4))),
+            cd = cd_theta_phi(vertex_angles(x_dxd, dxd_topology, (((1, 2), 3), 4))),
             tf = (ϕ = tf_dxd[1].alpha, θ = tf_dxd[1].beta),
             note = "B has J=0: D factor is 1, angle unused in amplitude",
         ),
         (
             topology = "DxD",
             vertex = "X → Dst, D",
-            cd = cd_theta_phi(vertex_angles(x_dxd, B2DxDK.dxd_topology, ((1, 2), 3))),
+            cd = cd_theta_phi(vertex_angles(x_dxd, dxd_topology, ((1, 2), 3))),
             tf = (ϕ = tf_dxd[2].alpha, θ = tf_dxd[2].beta),
             note = "",
         ),
         (
             topology = "DxD",
             vertex = "Dst → D0, π",
-            cd = cd_theta_phi(vertex_angles(x_dxd, B2DxDK.dxd_topology, (1, 2))),
+            cd = cd_theta_phi(vertex_angles(x_dxd, dxd_topology, (1, 2))),
             tf = (ϕ = tf_dxd[3].alpha, θ = tf_dxd[3].beta),
             note = "",
         ),
         (
             topology = "dk",
             vertex = "Bp → Dst, X",
-            cd = cd_theta_phi(vertex_angles(x_dk, B2DxDK.dk_topology, (((1, 2), (3, 4))))),
+            cd = cd_theta_phi(vertex_angles(x_dk, dk_topology, (((1, 2), (3, 4))))),
             tf = (ϕ = tf_dk[1].alpha, θ = tf_dk[1].beta),
             note = "B has J=0: D factor is 1, angle unused in amplitude",
         ),
         (
             topology = "dk",
             vertex = "Dst → D0, π",
-            cd = cd_theta_phi(vertex_angles(x_dk, B2DxDK.dk_topology, (1, 2))),
+            cd = cd_theta_phi(vertex_angles(x_dk, dk_topology, (1, 2))),
             tf = (ϕ = tf_dk[2].alpha, θ = tf_dk[2].beta),
             note = "",
         ),
         (
             topology = "dk",
             vertex = "X → D, K",
-            cd = cd_theta_phi(vertex_angles(x_dk, B2DxDK.dk_topology, (3, 4))),
+            cd = cd_theta_phi(vertex_angles(x_dk, dk_topology, (3, 4))),
             tf = (ϕ = tf_dk[3].alpha, θ = tf_dk[3].beta),
             note = "",
         ),
@@ -263,7 +264,7 @@ agrees to ~1e-15 — see scripts/angular_check/run_crossproduct_walk.jl §4.""")
 
     if haskey(event, "dpd_kinematics")
         dpd = event["dpd_kinematics"]
-        cd = cd_theta_phi(vertex_angles(x_dxd, B2DxDK.dxd_topology, (1, 2)))
+        cd = cd_theta_phi(vertex_angles(x_dxd, dxd_topology, (1, 2)))
         tf = (ϕ = tf_dxd[3].alpha, θ = tf_dxd[3].beta)
         println("\nDPD json reference at Dst → D0 (DxD topology):")
         @printf("  json: ϕ=% .12f  θ=% .12f\n", dpd["phi_D_in_Dx"], acos(dpd["cos_theta_D_in_Dx"]))

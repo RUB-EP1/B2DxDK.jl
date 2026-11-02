@@ -2,7 +2,7 @@
 
 Working notes on helicity/LS conventions written while the model was being matched
 to TF-PWA. Kept for the reasoning behind signs that survive in the production code
-(chiefly `MAGIC_SIGNS` in [`src/matching.jl`](../../src/matching.jl)); not needed to
+(chiefly `MAGIC_SIGNS` in [`scripts/model.jl`](../../scripts/model.jl)); not needed to
 run or read the model.
 
 | file | what it covers |

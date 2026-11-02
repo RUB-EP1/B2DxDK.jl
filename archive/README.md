@@ -3,7 +3,7 @@
 Material from developing and validating the $B^+ \to D^- D^{*+} K^+$ amplitude model.
 Not needed for the current production workflow.
 
-**Production** lives at the repo root: [`src/`](../src/) (B2DxDK package), [`test/`](../test/) (regression checks), [`scripts/`](../scripts/) (fit-fraction analysis), and [`data/`](../data/) (couplings and event samples). Entry point: [`test/runtests.jl`](../test/runtests.jl). See the [root README](../README.md).
+**Production** lives at the repo root: [`scripts/model.jl`](../scripts/model.jl) (the model), [`test/`](../test/) (regression checks), [`scripts/`](../scripts/) (fit fractions, JSON export), and [`data/`](../data/) (couplings and event samples). Entry point: [`test/runtests.jl`](../test/runtests.jl). See the [root README](../README.md).
 
 ---
 
@@ -34,7 +34,7 @@ Small standalone Julia scripts that cross-check helicity and decay-angle convent
 ## notes/
 
 Working notes on helicity/LS conventions — the reasoning behind the particle-2 signs
-that survive in `src/matching.jl`, and the CascadeDecays v0.4.0 upgrade.
+that survive in `MAGIC_SIGNS` (`scripts/model.jl`), and the CascadeDecays v0.4.0 upgrade.
 
 → [notes/README.md](notes/README.md)
 

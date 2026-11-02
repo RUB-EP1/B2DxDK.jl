@@ -382,11 +382,10 @@ setup**:
 
 All artefacts referenced here live in the B2DxDK repository:
 
-- Independent model (TF-PWA-aligned): `src/` (`lineshapes.jl`, `recoupling.jl`,
-  `model.jl`, `matching.jl`, `resonance_table.jl`).
+- Independent model (TF-PWA-aligned): `scripts/model.jl`.
 - Per-event $10^{-10}$ amplitude cross-check: `test/runtests.jl` against
   `data/crosscheck_amplitudes_reference.txt`.
-- Fit fractions: `scripts/all_resonances_fit_fractions.jl` (production B2DxDK model in `src/`).
+- Fit fractions: `scripts/all_resonances_fit_fractions.jl` (production model `scripts/model.jl`).
 - TF-PWA source referenced above is the pinned submodule under
   `archive/investigation/tf-pwa/` (e.g. `tf_pwa/amp/split_ls.py`,
   `tf_pwa/amp/base.py`, `tf_pwa/amp/core.py`, `tf_pwa/breit_wigner.py`).

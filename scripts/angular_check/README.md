@@ -25,7 +25,7 @@ on \(X\to DK\), and \((-1)^{j_2-\lambda_2}\) in `RecouplingLS`); TF-PWA omits
 both. After CascadeDecays v0.4.0 the two halves combine into a constant
 per-chain sign, absorbed in `MAGIC_SIGNS`. The production check is the complex
 amplitude against `data/crosscheck_amplitudes_reference.txt`, not angle
-equality. See [`src/matching.jl`](../../src/matching.jl) and
+equality. See `MAGIC_SIGNS` in [`scripts/model.jl`](../model.jl) and
 [`archive/notes/note-cascadedecays-v040.md`](../../archive/notes/note-cascadedecays-v040.md).
 
 | file | what it is |

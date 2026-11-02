@@ -2,9 +2,10 @@
 
 | | |
 |---|---|
+| `model.jl` | the amplitude model (TF-PWA fit) with CascadeDecays; the scripts and `test/runtests.jl` load it with `include` |
 | [`angular_check/`](angular_check/) | helicity-angle cross-checks, TF-PWA vs CascadeDecays — see its own README |
 | `all_resonances_fit_fractions.jl` | fit fractions for the full resonance model |
-| `serialize_model_to_json.jl` | writes the amplitude-serialization files `data/b2dxdk_amplitude_model_{Cminus,Cplus}.json`, `data/resonances/*.json` and `data/b2dxdk_amplitude_model_notes.md`, then reads every file back with CascadeDecaysIO and checks it (`julia --project=. scripts/serialize_model_to_json.jl`) |
+| `serialize_model_to_json.jl` | writes the amplitude-serialization files `data/b2dxdk_amplitude_model_{Cminus,Cplus}.json` with CascadeDecaysIO; `test/runtests.jl` checks them |
 | `all_components_independent_amplitude_flow_random_event_test.ipynb` | independent Python reimplementation of the TF-PWA amplitude flow, used as an external check |
 
 ## Packages in `[extras]`

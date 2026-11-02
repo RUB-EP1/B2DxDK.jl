@@ -16,7 +16,6 @@
 #   4. CascadeDecays        — walk vs CurrentFrame / HelicityRootFrame / KinematicPoint
 #   5. frame algebra        — ToHelicityFrame == ToRestFrame followed by the realignment
 
-using B2DxDK
 using CascadeDecays
 using FourVectors
 using InstructionalDecayTrees
@@ -24,6 +23,7 @@ using JSON
 using LinearAlgebra
 using Printf
 
+include(joinpath(@__DIR__, "..", "model.jl"))
 include(joinpath(@__DIR__, "CrossProductWalk.jl"))
 include(joinpath(@__DIR__, "TFPWACrossProductHelicity.jl"))
 
@@ -148,7 +148,7 @@ function idt_program(topology, depth)
     return (ToHelicityFrame((3, 4)), MeasureCosThetaPhi(:ang, (3,)))
 end
 
-topology_of(name) = name == "DxD" ? B2DxDK.dxd_topology : B2DxDK.dk_topology
+topology_of(name) = name == "DxD" ? dxd_topology : dk_topology
 
 # ---------------------------------------------------------------------------
 # 1. Frame trace — the transparency check
@@ -267,7 +267,7 @@ function main()
     println("\n" * "─" ^ 78)
     println("4. CASCADEDECAYS — depth by depth")
     println("─" ^ 78)
-    point = KinematicPoint(B2DxDK.kinematic_task, objs)
+    point = KinematicPoint(kinematic_task, objs)
     @printf("  %-4s %-24s %10s %10s %10s %10s %10s %10s\n", "topo", "vertex",
         "Δϕ curr", "Δθ curr", "Δϕ root", "Δθ root", "Δϕ KPt", "Δθ KPt")
     for (topo, depth, label, address, _) in WALK_PROGRAMS

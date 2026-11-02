@@ -21,7 +21,6 @@
 # Run from the repo root (see the README in this folder for the JULIA_LOAD_PATH stanza):
 #   JULIA_LOAD_PATH="@:$TENV:@stdlib" julia --project=. scripts/angular_check/run_crossproduct_scan.jl [N]
 
-using B2DxDK
 using CascadeDecays
 using FourVectors
 using InstructionalDecayTrees
@@ -29,6 +28,7 @@ using LinearAlgebra
 using Printf
 using Random
 
+include(joinpath(@__DIR__, "..", "model.jl"))
 include(joinpath(@__DIR__, "CrossProductWalk.jl"))
 using .CrossProductWalk
 
@@ -84,32 +84,32 @@ end
 # ---------------------------------------------------------------------------
 
 const VERTICES = [
-    ("DxD", "B → X K", B2DxDK.dxd_topology, (((1, 2), 3), 4), (
+    ("DxD", "B → X K", dxd_topology, (((1, 2), 3), 4), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         MeasureEulerZXZ(:ang, (1, 2, 3), AX),
     )),
-    ("DxD", "X → D* D", B2DxDK.dxd_topology, ((1, 2), 3), (
+    ("DxD", "X → D* D", dxd_topology, ((1, 2), 3), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         TransportAxes(AX, (1, 2, 3)), ToRestFrame((1, 2, 3)),
         MeasureEulerZXZ(:ang, (1, 2), AX),
     )),
-    ("DxD", "D* → D⁰ π", B2DxDK.dxd_topology, (1, 2), (
+    ("DxD", "D* → D⁰ π", dxd_topology, (1, 2), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         TransportAxes(AX, (1, 2, 3)), ToRestFrame((1, 2, 3)),
         TransportAxes(AX, (1, 2)), ToRestFrame((1, 2)),
         MeasureEulerZXZ(:ang, (1,), AX),
     )),
-    ("dk", "B → D* X", B2DxDK.dk_topology, ((1, 2), (3, 4)), (
+    ("dk", "B → D* X", dk_topology, ((1, 2), (3, 4)), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         MeasureEulerZXZ(:ang, (1, 2), AX),
     )),
-    ("dk", "D* → D⁰ π", B2DxDK.dk_topology, (1, 2), (
+    ("dk", "D* → D⁰ π", dk_topology, (1, 2), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         TransportAxes(AX, (1, 2)), ToRestFrame((1, 2)),
         MeasureEulerZXZ(:ang, (1,), AX),
     )),
     # second daughter of the root — the child-2 branch
-    ("dk", "X → D K", B2DxDK.dk_topology, (3, 4), (
+    ("dk", "X → D K", dk_topology, (3, 4), (
         PlantLabAxes(AX), ToRestFrame((1, 2, 3, 4)),
         TransportAxes(AX, (3, 4)), ToRestFrame((3, 4)),
         MeasureEulerZXZ(:ang, (3,), AX),
@@ -119,9 +119,9 @@ const VERTICES = [
 function main(N::Int)
     rng = MersenneTwister(20260728)
     m = (
-        B = B2DxDK.nominal_mass["Bp"], D0 = B2DxDK.nominal_mass["D0"],
-        pi = B2DxDK.nominal_mass["pi"], D = B2DxDK.nominal_mass["D"],
-        K = B2DxDK.nominal_mass["K"],
+        B = nominal_mass["Bp"], D0 = nominal_mass["D0"],
+        pi = nominal_mass["pi"], D = nominal_mass["D"],
+        K = nominal_mass["K"],
     )
 
     println("=" ^ 74)

@@ -1,8 +1,9 @@
 using Arrow
-using B2DxDK
 using CascadeDecays
 using DataFrames
 using Printf
+
+include("model.jl")
 
 const data_path = joinpath(data_dir, "b-decay-events.arrow")
 const output_path = joinpath(repo_root, "scripts", "all_resonances_fit_fractions.txt")
@@ -107,7 +108,7 @@ else
         saved_val = get(saved, name, NaN)
         idx = findfirst(==(name), all_resonance_names)
         delta = fit_fractions[idx] - saved_val
-        max_abs_delta = max(max_abs_delta, abs(delta))
+        global max_abs_delta = max(max_abs_delta, abs(delta))
         println(@sprintf("  %-16s %12.6e %12.6e %12.6e", name, fit_fractions[idx], saved_val, delta))
     end
     if haskey(saved, "interference")

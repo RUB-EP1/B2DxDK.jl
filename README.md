@@ -1,6 +1,6 @@
 # B2DxDK
 
-Julia package implementing the amplitude model for the three-body decay
+Julia implementation of the amplitude model for the three-body decay
 
 $$B^+ \to D^- D^{*+} K^+$$
 
@@ -10,6 +10,9 @@ from the LHCb publication
 
 The model is built with [CascadeDecays.jl](https://github.com/RUB-EP1/CascadeDecays.jl)
 and aligned with the [TF-PWA](https://github.com/reutera/TF-PWA) reference implementation.
+It lives in [`scripts/model.jl`](scripts/model.jl); the scripts in [`scripts/`](scripts/README.md)
+and the regression checks load it with `include`. The serialized model
+(amplitude-serialization JSON) is in `data/b2dxdk_amplitude_model_{Cminus,Cplus}.json`.
 
 ## Setup
 
@@ -24,13 +27,13 @@ Pkg.instantiate()
 ### A. Build the model
 
 ```julia
-using B2DxDK
+include("scripts/model.jl")
 
 cascade = build_all_resonance_cascade()
 # optional: build_resonance_cascade("Psi(4040)") for a single resonance
 ```
 
-Couplings are loaded from `data/final_params_full.json` at package load time.
+Couplings are loaded from `data/final_params_full.json` when the model is included.
 
 ### B. Execute the model on four-vectors
 
@@ -41,9 +44,7 @@ $$(p_{D^0},\ p_{\pi^+},\ p_{D^-},\ p_{K^+})$$
 The $D^{*+}$ is reconstructed as $D^0\,\pi^+$ (cascade kinematics with $D^{*+}$ at nominal mass).
 
 ```julia
-using B2DxDK
-using CascadeDecays
-using FourVectors
+include("scripts/model.jl")
 
 cascade = build_all_resonance_cascade()
 
@@ -52,7 +53,7 @@ piplus  = FourVector(px_pip, py_pip, pz_pip; E=E_pip)
 pDminus = FourVector(px_Dm,  py_Dm,  pz_Dm;  E=E_Dm)
 pKplus  = FourVector(px_Kp,  py_Kp,  pz_Kp;  E=E_Kp)
 
-point = KinematicPoint(B2DxDK.kinematic_task, (pD0, piplus, pDminus, pKplus))
+point = KinematicPoint(kinematic_task, (pD0, piplus, pDminus, pKplus))
 
 # amplitude for one resonance (sum over its sub-chains)
 amp_psi4040 = only(amplitude(cascade[resonance_chain_names("Psi(4040)")], point))
