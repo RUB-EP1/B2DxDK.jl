@@ -14,16 +14,17 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [sources]
+CascadeDecays = {url = "https://github.com/RUB-EP1/CascadeDecays.jl.git", rev = "e7241ff15aa1142ac8953fd7f378560ccc9ead46"}
 CascadeDecaysIO = {path = "../CascadeDecaysIO.jl"}
 
 [compat]
 Arrow = "2.8"
-CascadeDecays = "0.4"
+CascadeDecays = "0.5"
 Cuba = "2.3"
 DataFrames = "1.8"
 FourVectors = "0.3"
-HadronicLineshapes = "0.4"
-InstructionalDecayTrees = "0.3"
+HadronicLineshapes = "0.5"
+InstructionalDecayTrees = "0.4"
 JSON = "1.6"
 Measurements = "2.14"
 Optim = "2.2"
