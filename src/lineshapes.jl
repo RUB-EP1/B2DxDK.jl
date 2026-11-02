@@ -33,7 +33,9 @@ end
 """
     NRExpLineshape
 
-Nonresonant exponential: `-exp(-αβ * (σ - m0²))` with invariant mass squared `σ`.
+Nonresonant exponential: `exp(-αβ * (σ - m0²))` with invariant mass squared `σ`.
+TF-PWA's charge sign of `C(New)` lives in `MAGIC_SIGNS`, like for every other
+C-dependent resonance.
 """
 struct NRExpLineshape <: HadronicLineshapes.AbstractFlexFunc
     αβ::ComplexF64
@@ -41,7 +43,7 @@ struct NRExpLineshape <: HadronicLineshapes.AbstractFlexFunc
 end
 
 function (ls::NRExpLineshape)(σ::Number)
-    -exp(-ls.αβ * (σ - ls.m0^2))
+    exp(-ls.αβ * (σ - ls.m0^2))
 end
 (ls::NRExpLineshape)(σ::Real) = ls(σ + 1im * eps())
 
@@ -50,6 +52,28 @@ function nr_exp_lineshape()
     beta = param_real("NR(0-)SPp_beta")
     return NRExpLineshape(alpha + 1im * beta, nominal_mass["NR(0-)SPp"])
 end
+
+"""
+    DstarDeltaLineshape(m, w, n)
+
+The D* line as a delta distribution at mass `m`: TF-PWA fixes the D* mass (narrow-width
+approximation), so the model is defined only at m(D0 pi) = m. As a lineshape of the
+invariant mass squared `σ` of the D* node,
+
+    g(σ) = exp(-0.5 * ((√σ - m) / w)^n),    g(m²) = 1,
+
+a flat-top profile of half-width ≈ w (`n` even). Integrals over the full four-body phase
+space reproduce the fixed-mass ones up to O(w²); near m the profile is flat to
+O((Δm/w)^n), so inputs whose m(D0 pi) misses m by much less than w (e.g. rounding of
+the four-vectors) evaluate to exactly the fixed-mass amplitude.
+"""
+struct DstarDeltaLineshape <: HadronicLineshapes.AbstractFlexFunc
+    m::Float64
+    w::Float64
+    n::Int
+end
+
+(ls::DstarDeltaLineshape)(σ::Number) = complex(exp(-0.5 * ((sqrt(σ) - ls.m) / ls.w)^ls.n))
 
 function ad_hoc_mass(m0, m_min, m_max)
     k = (m_max - m_min) / 2

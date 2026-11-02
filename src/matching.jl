@@ -30,7 +30,8 @@ const MAGIC_SIGNS = Dict{String,Float64}(
     "X(3993)" => -1.0,
     "Psi(4040)" => 1.0,
     "X(4300)" => 1.0,
-    "NR(0-)SPp" => 1.0,
+    # TF-PWA `C(New)` with `C: 1` (C- sign); formerly carried inside NRExpLineshape
+    "NR(0-)SPp" => -1.0,
     "NR(1.)PSp" => -1.0,
     "NR(0-)SPm" => 1.0,
     "NR(1-)PPm" => 1.0,
@@ -38,8 +39,10 @@ const MAGIC_SIGNS = Dict{String,Float64}(
     # Flipped when moving to CascadeDecays v0.4.0.  The upgrade multiplies every
     # X1(2900) chain by exactly -1 and leaves the other 16 chains untouched (a
     # pure per-chain sign, no event dependence); (-1)^{j_X} is the expected size
-    # for a spin-1 DK resonance entered as child 2.  Like every other sign here it
-    # is fixed by matching, not derived.  See archive/notes/note-cascadedecays-v040.md.
+    # for a spin-1 DK resonance entered as child 2: TF-PWA omits the Jacob-Wick
+    # particle-2 convention, which for this chain reduces to this constant.  All other
+    # signs are the C- signs of TF-PWA's `C(...)` wrappers (`C: 1`).
+    # See archive/notes/note-cascadedecays-v040.md.
     "X1(2900)" => -1.0,
 )
 @assert Set(keys(MAGIC_SIGNS)) == Set(all_resonance_names)

@@ -19,6 +19,11 @@ const nominal_mass = Dict(
 
 const WELL_SIZE = 3.0
 
+# D*+ on its mass shell (TF-PWA: fixed D* mass): flat-top delta profile of the
+# D* line, |g|^2 = exp(-((m(D0 pi) - m(D*)) / w)^n), see DstarDeltaLineshape
+const DSTAR_DELTA_WIDTH = 1e-6   # GeV
+const DSTAR_DELTA_ORDER = 16
+
 const all_resonance_names = [
     "X(3872)",
     "X(3915)(0-)",

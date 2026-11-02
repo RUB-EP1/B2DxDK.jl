@@ -6,7 +6,7 @@ end
 
 function build_dxd_chain(lineshape, two_j, production::Recoupling, decay::Recoupling; resonance_name::String = "")
     res_ls = isempty(resonance_name) ? lineshape : NamedLineshape("lineshape_$(resonance_name)", lineshape)
-    dst_ls = NamedLineshape("constant_Dst", ConstantLineshape(1.0 + 0.0im))
+    dst_ls = NamedLineshape("lineshape_Dst", DstarDeltaLineshape(nominal_mass["Dst"], DSTAR_DELTA_WIDTH, DSTAR_DELTA_ORDER))
     return DecayChain(
         dxd_topology,
         external_spins;
@@ -24,7 +24,7 @@ end
 
 function build_dk_chain(lineshape, two_j, root::Recoupling, daughter::Recoupling; resonance_name::String = "")
     res_ls = isempty(resonance_name) ? lineshape : NamedLineshape("lineshape_$(resonance_name)", lineshape)
-    dst_ls = NamedLineshape("constant_Dst", ConstantLineshape(1.0 + 0.0im))
+    dst_ls = NamedLineshape("lineshape_Dst", DstarDeltaLineshape(nominal_mass["Dst"], DSTAR_DELTA_WIDTH, DSTAR_DELTA_ORDER))
     return DecayChain(
         dk_topology,
         external_spins;
@@ -57,8 +57,9 @@ function build_chain_from_row(row)
 end
 
 
+# <resonance>_l<production l>_l<resonance decay l>, e.g. "X(3940)(1.)_l1_l0"
 function chain_name(resonance_name::String, row)
-    "$(resonance_name)_L$(vertex_l(row.root_two_ls))_d$(vertex_l(row.daughter_two_ls))"
+    "$(resonance_name)_l$(vertex_l(row.root_two_ls))_l$(vertex_l(row.daughter_two_ls))"
 end
 
 function resonance_chain_names(resonance_name::String)
