@@ -402,18 +402,6 @@ const CPLUS_EXCLUDED_RESONANCES = Set([
     "X0(2900)", "X1(2900)"
 ])
 
-function magic_sign(resonance_name::String, charge::Symbol = :Cminus)
-    base = MAGIC_SIGNS[resonance_name]
-    if charge in (:Cplus, :cplus, :+)
-        if resonance_name in CPLUS_EXCLUDED_RESONANCES
-            return 0.0
-        elseif resonance_name in C_DEPENDENT_RESONANCES
-            return -base
-        end
-    end
-    return base
-end
-
 const DSTAR_PROPAGATOR_TWO_J = 2  # jp"1+" on D* (Dst) line (1, 2) in every chain
 
 vertex_l(two_ls) = div(two_ls[1], 2)
@@ -468,7 +456,7 @@ chain_propagator_spin_norm(row) =
 
 function chain_matching_factor(row)
     return (
-        magic_sign(row.resonance_name) *
+        MAGIC_SIGNS[row.resonance_name] *
         chain_vertex_matching_factor(row) *
         chain_lineshape_matching_factor(row.resonance_name, row.lineshape) /
         chain_propagator_spin_norm(row)

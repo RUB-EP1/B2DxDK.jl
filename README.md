@@ -16,6 +16,8 @@ and the regression checks load it with `include`. The serialized model
 
 ## Setup
 
+[CascadeDecaysIO.jl](https://github.com/RUB-EP1/CascadeDecaysIO.jl) is not registered and must be cloned next to this repository (`Project.toml` refers to `../CascadeDecaysIO.jl`).
+
 ```julia
 using Pkg
 Pkg.activate(".")
