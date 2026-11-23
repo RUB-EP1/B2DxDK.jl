@@ -43,7 +43,7 @@ uuid = "fffe189e-c188-4e56-b22b-870ae3b23d6b"
 version = "0.5.0"
 
 [[deps.CascadeDecaysIO]]
-deps = ["CascadeDecays", "FourVectors", "HadronicLineshapes", "JSON", "OrderedCollections", "Polynomials", "Random", "StaticArrays", "ThreeBodyDecays"]
+deps = ["CascadeDecays", "HadronicLineshapes", "JSON", "OrderedCollections", "Polynomials", "Random", "StaticArrays"]
 path = "../CascadeDecaysIO.jl"
 uuid = "9d2b3f4d-3b61-4f8e-9b8d-4a0e6f3c8c21"
 version = "0.1.0"
